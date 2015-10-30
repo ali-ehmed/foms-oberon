@@ -1,0 +1,23 @@
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
+<div class="page-header">
+	<h1>
+		Projects
+		<%= link_to "Sync Projects from RM Tool", "#", class: "btn btn-info pull-right", id: "sync_all_projects", "data-url" => sync_projects_projects_path %>
+	</h1>
+</div>
+<div class="table-responsive">
+	<table class="table rm_projects_table display responsive" width="100%" data-source="<%= projects_path(format: :json) %>"> 
+	  <thead>
+	    <tr>
+	      <th>#</th>
+	      <th class="col-md-2">Name</th>
+	      <th>Status</th>
+	      <th>Customer Name</th>
+	      <th class="col-md-3">Customer Address</th>
+	      <th>Customer Personal Email</th>
+	      <th>Customer Invoice Email</th>
+	      <th>Director Name</th>
+	    </tr>
+	  </thead>
+	</table> 
+</div>

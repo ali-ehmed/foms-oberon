@@ -1,0 +1,32 @@
+<%#= render "admin/shared/links" %>
+<div class="container">
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <div class="login-panel panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Please Sign In</h3>
+        </div>
+        <div class="panel-body">
+
+          <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+            <fieldset>
+              <div class="form-group">
+                <%= f.input :login, required: false, autofocus: true, class: "form-control", placeholder: "Username" %>
+              </div>
+              <div class="form-group">
+                <%= f.input :password, required: false, class: "form-control", placeholder: "Password" %>
+              </div>
+              <div class="checkbox">
+                  <label>
+                    <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+                  </label>
+              </div>
+              <%= f.button :button, 'Sign in', :class => 'btn btn-lg btn-primary btn-block', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> Signing In...!"} %>
+            </fieldset>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
