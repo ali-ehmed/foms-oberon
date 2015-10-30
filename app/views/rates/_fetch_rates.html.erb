@@ -1,0 +1,40 @@
+<div class="row">&nbsp;</div>
+<div class="container-fluid">
+	<% if @rates.present? %>
+		<div class="table-responsive">
+			<table class="table table-striped table-hover"> 
+			  <thead>
+			    <tr>
+			      <th>#</th>
+			      <th>Desgination</th>
+			      <th>History</th>
+			      <th>Team Based Rates</th>
+			      <th>Hourly Rates</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			  	<% @rates.each_with_index do |rate, counter| %>
+			  		<% count = counter + 1 %>
+				  	<tr>
+				  		<td><%= count %></td>
+				  		<td><%= rate.designation.try(:designation) %></td>
+				  		<td><%= link_to "View History", "javascript:void(0);", class: "label label-primary", onclick: "getDesignationRateHistory(this);", "data-designation-id" => "#{rate.designation_id}" %></td>
+				  		<td><%= best_in_place rate, :team_based_rates, :as => :input, :path => update_rates_path(rate.designation_id) %></td>
+				  		<td><%= rate.hour_based_rates %></td>
+				  	</tr>
+				  	<div id="designation_history"></div>
+			  	<% end %>
+			  </tbody>
+			</table> 
+		</div>	
+	<% else %>
+		<div class="alert alert-danger">
+			<% if params[:revision_date].blank? %>
+				<strong>Please Select Date</strong>
+			<% elsif @rates.blank? %>
+				<strong><%= "No rates present for #{params[:revision_date]}" %></strong>
+			<% end %>
+		</div>
+	<% end %>
+</div>
+

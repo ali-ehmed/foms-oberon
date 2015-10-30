@@ -1,0 +1,4 @@
+<% desig_id = @designation.designation_id %>
+$("#designation_history").replaceWith("<%= escape_javascript( render('history', designation_id: desig_id, rates: @desig_rates) )%>");
+$("span#designation_name").replaceWith("<%= @designation_name %>")
+$("#designation_rate_history_<%= desig_id %>").modal('show');

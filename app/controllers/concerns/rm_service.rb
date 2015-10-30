@@ -10,5 +10,8 @@ class RmService
 	def get_all_projects
 		@projects_url = @url['projects_url']
 	end
-	
+
+	def get_all_designations
+		@designations_url = @url['designations_url']
+	end
 end

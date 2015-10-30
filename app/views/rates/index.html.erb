@@ -1,0 +1,25 @@
+<div class="page-header">
+	<h1>
+		Rates & Designation
+	</h1>
+</div>
+
+<div class="row">
+	<div class="col-md-6 col-sm-6 col-xs-6">
+		<%= form_tag rates_path(format: :js), method: :get, id: "rates_form" do %>
+			<ul class="list-inline">
+				<li><label><strong>Revision Date:</strong></label>
+						<%= select_tag :revision_date, options_for_select(@revision_dates.map{|m| [m.revision_date.strftime("%d %B, %Y"), m.revision_date.strftime("%Y-%m-%d %H:%M:%S")]}, params[:revision_date]), class: "form-control", prompt: "--Choose Revision Date--" %></li>
+				<li><%= link_to "Reset", rates_path, class: "btn btn-default btn-sm" %></li>
+			</ul>
+		<% end %>
+	</div>
+	<div class="col-md-6 col-sm-6 col-xs-6">
+		<%= link_to "Sync Designations from RM tool", "#", class: "btn btn-info pull-right sync_link", id: "sync_all_designations", "data-url" => sync_designations_rates_path %>		
+	</div>
+</div>
+
+<div id="fetch_rates">
+	<%= render "fetch_rates" %>	
+</div>
+

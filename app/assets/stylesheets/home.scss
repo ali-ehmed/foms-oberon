@@ -5,3 +5,21 @@
     width: 60px;
   }
 }
+
+.sync_link {
+  font-size: 15px !important;
+}
+
+// Best in place Purr css 
+.purr {  
+  position: fixed;  
+  top: 70px;  
+  right: 150px;  
+  width: 300px;  
+  padding: 15px; 
+  color: #a94442;
+  background-color: #f2dede;
+  border-radius: 4px;  
+  border: solid 2px #ebccd1;  
+  &:first-letter { text-transform: uppercase };  
+}

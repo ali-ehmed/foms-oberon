@@ -4,3 +4,4 @@ rm_tool:
   root_url: http://rm.folio3.com/InvoiceService.asmx/
   projects_url: http://rm.folio3.com/InvoiceService.asmx/GetAllProjects
   projects_status_url: http://rm.folio3.com/InvoiceService.asmx/GetStatus
+  designations_url: http://rm.folio3.com/InvoiceService.asmx/GetAllDesignations

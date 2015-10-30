@@ -15,6 +15,12 @@
 //= require dataTables/jquery.dataTables
 //= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
 //= require bootstrap-sprockets
+
+//= require jquery.purr
+//= require best_in_place
+//= require best_in_place.jquery-ui
+//= require best_in_place.purr
+
 //= require sweet-alert
 //= require turbolinks
 //= require_tree .

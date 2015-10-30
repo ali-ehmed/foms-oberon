@@ -60,6 +60,13 @@ GEM
       execjs
       json
     bcrypt (3.1.10)
+    best_in_place (3.0.3)
+      actionpack (>= 3.2)
+      railties (>= 3.2)
+    better_errors (2.1.1)
+      coderay (>= 1.0.0)
+      erubis (>= 2.6.6)
+      rack (>= 0.9.0)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     bootstrap-sass (3.3.5.1)
@@ -69,6 +76,7 @@ GEM
       railties (>= 3.1)
     builder (3.2.2)
     byebug (6.0.2)
+    coderay (1.1.0)
     coffee-rails (4.1.0)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0, < 5.0)
@@ -196,6 +204,8 @@ PLATFORMS
 
 DEPENDENCIES
   ajax-datatables-rails!
+  best_in_place (~> 3.0.1)
+  better_errors
   bootstrap-sass (~> 3.3.5)
   bootswatch-rails
   byebug

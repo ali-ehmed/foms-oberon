@@ -40,7 +40,7 @@ gem 'font-awesome-sass', '~> 4.4.0'
 gem 'will_paginate', '~> 3.0.6'
 gem 'will_paginate-bootstrap'
 gem "font-awesome-rails"
-# gem 'jquery-datatables-rails', '~> 3.3.0'
+gem 'best_in_place', '~> 3.0.1'
 
 gem 'jquery-datatables-rails', github: "rweng/jquery-datatables-rails", branch: "master"
 gem 'ajax-datatables-rails', git: 'git://github.com/antillas21/ajax-datatables-rails.git', branch: 'legacy'
@@ -54,6 +54,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'better_errors'
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
 
