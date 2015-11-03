@@ -12,7 +12,12 @@
  *
  *= require sweet-alert
  *= require font-awesome
- *= require dataTables/extras/dataTables.responsive
+
+ *= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
+ 
+ *= require bootstrap-datepicker3
+ *= require bootstrap-datepicker3.standalone
+
  *= require_tree .
  *= require_self
  */
@@ -21,6 +26,10 @@
 // @import "bootstrap-sprockets";
 
 // Example using 'Simplex' bootswatch
+
+// Datables Css
+// require dataTables/extras/dataTables.responsive
+// require dataTables/jquery.dataTables
 
 //Import bootstrap-sprockets
 @import "bootstrap-sprockets";
@@ -40,4 +49,5 @@ body { padding-top: 60px; }
 // Font Awesome
 @import "font-awesome-sprockets";
 @import "font-awesome";
+
 

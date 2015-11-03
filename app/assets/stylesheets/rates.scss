@@ -1,3 +1,15 @@
 // Place all the styles related to the rates controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+// Media For Mobile
+@media(max-width: 480px) {
+	ul {
+		li:nth-child(3){ float: left !important; }
+		li:nth-child(4){ float: left !important; }
+	}
+}
+
+.select2 {
+	width: 100% !important;
+}

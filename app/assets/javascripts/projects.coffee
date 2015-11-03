@@ -41,7 +41,6 @@ $(document).on "page:change", ->
 
 	$(".rm_projects_table").DataTable
 	  responsive: true
-	  "dom": '<"pull-left"f><"pull-right"l>tip'
 	  bSort: true
 	  bFilter: true
 	  ajax: $(".rm_projects_table").data("source")
@@ -55,5 +54,5 @@ $(document).on "page:change", ->
   		{"data" : "customer_invoice_email"}
   		{"data" : "director_name"}
 		]
-	  "sScrollY":  "450px"
+	  
 	

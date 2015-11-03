@@ -13,4 +13,6 @@
 class Rate < ActiveRecord::Base
 
 	belongs_to :designation
+
+	validates_presence_of :designation_id, :team_based_rates, :hour_based_rates, on: :create
 end

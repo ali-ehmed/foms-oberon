@@ -21,6 +21,8 @@
 //= require best_in_place.jquery-ui
 //= require best_in_place.purr
 
+//= require bootstrap-datepicker
+
 //= require sweet-alert
 //= require turbolinks
 //= require_tree .

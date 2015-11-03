@@ -21,11 +21,6 @@
             <ul class="dropdown-menu">
               <li><%= link_to "Project Syncronization", projects_path %></li>
               <li><%= link_to "Rates & Designation", rates_path %></li>
-              <li><a href="#">Something else here</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="#">Separated link</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="#">One more separated link</a></li>
             </ul>
           </li>
         <% end %>
@@ -33,7 +28,7 @@
       
       <ul class="nav navbar-nav navbar-right">
         <% if user_signed_in? %>
-          <li><a href="#">Reports</a></li>
+          <li><%= link_to "Reports", reports_path %></li>
           <li><%= link_to "Sign Out", destroy_user_session_path, method: "delete" %></li>
         <% end %>
       </ul>

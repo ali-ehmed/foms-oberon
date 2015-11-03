@@ -1,0 +1,20 @@
+<% if params[:controller].split("/").first == "reports" %>
+  <div class="container-fluid">
+    <div class="page-heading-reports">
+      <h1>Reports</h1>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <div class="reports-list-group">
+          <%= link_to "Division Report", reports_division_report_path, class: "list-group-item" %>
+          <%= link_to "Project Report", "#", class: "list-group-item" %>
+          <%= link_to "Specific Project Based Report", "#", class: "list-group-item" %>
+          <%= link_to "Division Project Based Report", "#", class: "list-group-item" %>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <%= yield :reports %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -17,7 +17,7 @@ syncingAllDesignations = ->
 		    $.ajax
 		      type: 'Get'
 		      url: $this.data("url")
-		      data: { revision_date: if !revision_date_val then null else revision_date_val }
+		      # data: { revision_date: if !revision_date_val then null else revision_date_val }
 		      cache: false
 		      beforeSend:
 		      	swal
@@ -26,10 +26,10 @@ syncingAllDesignations = ->
 		      		html: true
 		      		showConfirmButton: false
 		      success: (response, data) ->
-		      	if !revision_date_val
-	        		swal 'Designations', "Synchronized. Please select date to get rates.", "success"
-	        	else
-	        		swal 'Designations', "Synchronized", "success"
+		      	# if !revision_date_val
+	        # 		swal 'Designations', "Synchronized. Please select date to get rates.", "success"
+	        # 	else
+        		swal 'Designations', "Synchronized", "success"
 		      error: (response) ->
 		        swal 'oops', 'Something went wrong'
 		    false
@@ -37,7 +37,7 @@ syncingAllDesignations = ->
 		    swal 'Cancelled', '', 'error'
 		  return
 
-submitRatesForm = ->
+window.submitRatesForm = ->
 	$("#revision_date").on "change", ->
 		$(this).closest("form#rates_form").submit()
 		return false
@@ -69,7 +69,49 @@ window.getDesignationRateHistory = (elem) ->
     error: (response) ->
       swal 'oops', 'Something went wrong'
 
+saveDesignationRate = ->
+	$("#save_rate").on "click", (e) ->
+		e.preventDefault()
+		$this = $(this)
+		$form = $this.closest("form")
+		revision_date_val = $("select[name='revision_date']").val()
+
+		$form_data = $form.serializeArray()
+
+		if revision_date_val
+			$form_data.push
+			  name: 'revision_date'
+			  value: revision_date_val
+
+		$.ajax
+	    type: $form.attr("method")
+	    url: $form.attr("action")
+	    data: $form_data
+	    success: (response, data) ->
+	    	if response.status == 'error'
+          swal
+            title: 'Couldn\'t save'
+            text: response.errors
+            type: 'error'
+            html: true
+          console.log 'Couldn\'t save'
+        else
+          if !revision_date_val
+            swal 'Designations Rate', "Saved. Please select date to get rates.", "success"
+          else
+            swal 'Designations Rate', "Saved", "success"
+
+          $this.closest(".modal").modal 'hide'
+          $form.find(':input').val ''
+	    error: (response) ->
+	      swal 'oops', 'Something went wrong'
+
 $(document).on "page:change", ->
 	syncingAllDesignations()
 	submitRatesForm()
 	getRates()
+	saveDesignationRate()
+
+	$("#designation").select2
+	  placeholder: "Choose Designation",
+		allowClear: true

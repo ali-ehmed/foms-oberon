@@ -8,8 +8,8 @@
 			      <th>#</th>
 			      <th>Desgination</th>
 			      <th>History</th>
-			      <th>Team Based Rates</th>
-			      <th>Hourly Rates</th>
+			      <!-- <th>Team Based Rates</th>
+			      <th>Hourly Rates</th> -->
 			    </tr>
 			  </thead>
 			  <tbody>
@@ -19,12 +19,12 @@
 				  		<td><%= count %></td>
 				  		<td><%= rate.designation.try(:designation) %></td>
 				  		<td><%= link_to "View History", "javascript:void(0);", class: "label label-primary", onclick: "getDesignationRateHistory(this);", "data-designation-id" => "#{rate.designation_id}" %></td>
-				  		<td>
-				  			<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :team_based_rates, :as => :input, :path => update_rates_path(rate.designation_id), :place_holder => "Click to edit Team Rates" %></a>
+				  		<!-- <td>
+				  			<a href="javascript:void(0);" class="text-info" data-toggle="tooltip" data-placement="top" title="Click to edit"><%#= best_in_place rate, :team_based_rates, :as => :input, :path => update_rates_path(rate.designation_id), :place_holder => "Click to edit Team Rates" %></a>
 			  			</td>
 				  		<td>
-				  			<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :hour_based_rates, :as => :input, :path => update_rates_path(rate.designation_id), :place_holder => "Click to edit Hour Rates" %></a>
-				  		</td>
+				  			<a href="javascript:void(0);" class="text-info" data-toggle="tooltip" data-placement="top" title="Click to edit"><%#= best_in_place rate, :hour_based_rates, :as => :input, :path => update_rates_path(rate.designation_id), :place_holder => "Click to edit Hour Rates" %></a>
+				  		</td> -->
 				  	</tr>
 				  	<div id="designation_history"></div>
 			  	<% end %>
@@ -33,11 +33,19 @@
 		</div>	
 	<% else %>
 		<div class="alert alert-danger">
-			<% if params[:revision_date].blank? %>
-				<strong>Please Select Date</strong>
-			<% elsif @rates.blank? %>
-				<strong><%= "No rates present for #{params[:revision_date]}" %></strong>
-			<% end %>
+			<%# if params[:revision_date].blank? and Rate.count > 0 %>
+
+				<!-- <strong>Please Select Date</strong> -->
+
+			<%# elsif @rates.blank? and params[:revision_date].present? %>
+
+				<!-- <strong><%#= "No rates present for #{params[:revision_date]}" %></strong> -->
+
+			<%# else %>
+
+				<strong><%= "There are no Rates Present. Sync Designations." %></strong>
+
+			<%# end %>
 		</div>
 	<% end %>
 </div>

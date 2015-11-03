@@ -1,0 +1,38 @@
+<%= form_tag rates_path, method: :post do %>
+  <div class="modal fade" id="new_designation_rate_modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Add New Designation Rate</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <%= label_tag "Select Designation:" %>
+                <span id="fetched_designations">
+                  <%= select_tag :designation, options_for_select(Designation.all.map{|m| [m.designation, m.designation_id]}), prompt: "--Select Designation--", class: "form-control" %>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <%= label_tag "Team Based Rate:" %>
+              <%= text_field_tag :team_based_rate, params[:team_based_rate], class: "form-control", placeholder: "Team Based Rate" %>
+            </div>
+            <div class="col-md-6">
+              <%= label_tag "Hour Based Rate:" %>
+              <%= text_field_tag :hour_based_rate, params[:hour_based_rate], class: "form-control", placeholder: "Hour Based Rate" %>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="save_rate">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ <% end %>
