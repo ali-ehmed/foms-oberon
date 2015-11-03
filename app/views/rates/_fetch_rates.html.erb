@@ -19,8 +19,12 @@
 				  		<td><%= count %></td>
 				  		<td><%= rate.designation.try(:designation) %></td>
 				  		<td><%= link_to "View History", "javascript:void(0);", class: "label label-primary", onclick: "getDesignationRateHistory(this);", "data-designation-id" => "#{rate.designation_id}" %></td>
-				  		<td><%= best_in_place rate, :team_based_rates, :as => :input, :path => update_rates_path(rate.designation_id) %></td>
-				  		<td><%= rate.hour_based_rates %></td>
+				  		<td>
+				  			<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :team_based_rates, :as => :input, :path => update_rates_path(rate.designation_id), :place_holder => "Click to edit Team Rates" %></a>
+			  			</td>
+				  		<td>
+				  			<a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :hour_based_rates, :as => :input, :path => update_rates_path(rate.designation_id), :place_holder => "Click to edit Hour Rates" %></a>
+				  		</td>
 				  	</tr>
 				  	<div id="designation_history"></div>
 			  	<% end %>

@@ -1,3 +1,7 @@
-$("#fetch_rates").hide().html("<%= escape_javascript( render('fetch_rates') )%>").fadeIn(500);
+<% if params[:revision_date].present? %>
+	$("#fetch_rates").hide().html("<%= escape_javascript( render('fetch_rates') )%>").fadeIn(500);
+<% end %>
 
 jQuery(".best_in_place").best_in_place()
+
+$('[data-toggle="tooltip"]').tooltip()

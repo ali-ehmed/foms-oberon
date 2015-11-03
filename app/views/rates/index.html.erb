@@ -15,7 +15,7 @@
 		<% end %>
 	</div>
 	<div class="col-md-6 col-sm-6 col-xs-6">
-		<%= link_to "Sync Designations from RM tool", "#", class: "btn btn-info pull-right sync_link", id: "sync_all_designations", "data-url" => sync_designations_rates_path %>		
+		<%= link_to "Sync Designations from RM tool", "#", class: "btn btn-info pull-right sync_link", id: "sync_all_designations", "data-url" => sync_designations_rates_path(format: :js) %>		
 	</div>
 </div>
 

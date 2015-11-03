@@ -20,7 +20,6 @@ class RatesController < ApplicationController
 
   def update
     @rate = Rate.find_by_designation_id params[:designation_id]
-    logger.debug "---------#{@rate.designation_id}------------"
     respond_to do |format|
       if @rate.update_attributes(rates_params)
         format.json { respond_with_bip(@rate) }
@@ -35,6 +34,8 @@ class RatesController < ApplicationController
   	@doc = Nokogiri::XML(open(@rm_url.get_all_designations))
   	@xml_data = @doc.css("Designations Positions")
 
+    # If Revision Date Present
+    @rates = Rate.where(:revision_date => params[:revision_date]) if params[:revision_date]
 
   	rm_designations = Array.new
 
@@ -58,6 +59,7 @@ class RatesController < ApplicationController
   	Designation.create rm_designations
 
   	respond_to do |format|
+      format.js { render :file => "rates/index.js.erb" }
   		format.json { render json: { status: :synced_all  }, status: :created }
 		end
   end

@@ -9,3 +9,5 @@ $(document).on "page:change", ->
 
 	jQuery(".best_in_place").unbind().on "ajax:error", ->
   	$('.purr').prepend("<span class='glyphicon glyphicon-exclamation-sign'></span> ")
+
+	$('[data-toggle="tooltip"]').tooltip()

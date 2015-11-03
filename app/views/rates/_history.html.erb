@@ -19,8 +19,8 @@
               <% rates.each do |rate| %>
                 <tr>
                   <td><%= rate.revision_date.strftime("%d %B, %Y") %></td>
-                  <td><%= rate.team_based_rates %></td>
-                  <td><%= rate.hour_based_rates %></td>
+                  <td><%= rate.team_based_rates.nil? ? "---" : rate.team_based_rates %></td>
+                  <td><%= rate.hour_based_rates.nil? ? "---" : rate.hour_based_rates %></td>
                 </tr>
               <% end %>
             </tbody>

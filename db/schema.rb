@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151030185048) do
+ActiveRecord::Schema.define(version: 20151103060133) do
 
   create_table "accrualbonusdetails", primary_key: "Tenure", force: :cascade do |t|
     t.float "Percentage", limit: 53, null: false
@@ -489,8 +489,7 @@ ActiveRecord::Schema.define(version: 20151030185048) do
 
   add_index "rate_lists", ["EmployeeID"], name: "EmployeeID_rlc1", using: :btree
 
-  create_table "rates", id: false, force: :cascade do |t|
-    t.integer  "id",               limit: 4,                  null: false
+  create_table "rates", force: :cascade do |t|
     t.integer  "designation_id",   limit: 4
     t.boolean  "iscurrent",                    default: true
     t.datetime "revision_date"

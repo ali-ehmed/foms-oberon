@@ -2,6 +2,7 @@ syncingAllDesignations = ->
 	$("#sync_all_designations").on "click", (e) ->
 		e.preventDefault()
 		$this = $(this)
+		revision_date_val = $("select[name='revision_date']").val()
 		swal {
 		  title: "Sync All Designations?"
 		  type: 'warning'
@@ -16,7 +17,7 @@ syncingAllDesignations = ->
 		    $.ajax
 		      type: 'Get'
 		      url: $this.data("url")
-		      dataType: "json"
+		      data: { revision_date: if !revision_date_val then null else revision_date_val }
 		      cache: false
 		      beforeSend:
 		      	swal
@@ -25,7 +26,10 @@ syncingAllDesignations = ->
 		      		html: true
 		      		showConfirmButton: false
 		      success: (response, data) ->
-	        	swal 'Designations', "Synchronized", "success"
+		      	if !revision_date_val
+	        		swal 'Designations', "Synchronized. Please select date to get rates.", "success"
+	        	else
+	        		swal 'Designations', "Synchronized", "success"
 		      error: (response) ->
 		        swal 'oops', 'Something went wrong'
 		    false
