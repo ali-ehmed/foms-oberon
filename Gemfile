@@ -43,6 +43,8 @@ gem 'will_paginate-bootstrap'
 gem "font-awesome-rails"
 gem 'best_in_place', '~> 3.0.1'
 
+gem 'jquery-ui-rails'
+
 gem 'annotate'
 
 gem 'jquery-datatables-rails', github: "rweng/jquery-datatables-rails", branch: "master"

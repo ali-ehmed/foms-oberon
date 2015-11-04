@@ -1,6 +1,6 @@
 class RatesController < ApplicationController
   def index
-  	@revision_dates = Rate.group("revision_date")
+  	# @revision_dates = Rate.group("revision_date")
 		# @rates = Rate.where(:revision_date => params[:revision_date]) if params[:revision_date]
 
     @rates = Rate.group("designation_id")
@@ -29,18 +29,14 @@ class RatesController < ApplicationController
     }
 
     @rate = Rate.new(rates_params)
-    @rate.iscurrent = 1
-    @rate.revision_date = Time.now
 
-    # Revision Date Present If
     if @rate.save
       respond_to do |format|
 
         @designation = Designation.find_by_designation_id @rate.designation_id
         @designation.rates.update_all(:iscurrent => false)
-
-        @rate = Rate.find(@rate.id)
-        @rate.update_attribute(:iscurrent, true)
+ 
+        Rate.find(@rate.id).update_attribute(:iscurrent, true)
 
         # @rates = Rate.where(:revision_date => params[:revision_date]) if params[:revision_date]
         @rates = Rate.group("designation_id")
@@ -57,16 +53,30 @@ class RatesController < ApplicationController
 
   def update
     @rate = Rate.find params[:id]
+
     @designation = Designation.find_by_designation_id @rate.designation_id
     @designation_rates = @designation.rates
+    @active_rate = @designation_rates.where("iscurrent = ?", true).first
+
     @designation_rates.update_all(:iscurrent => false)
 
     respond_to do |format|
-      if @rate.update_attributes(rates_params)
-        @desig_rates = Rate.where("designation_id = ?", @rate.designation_id).order("revision_date")
+      if params[:rate][:iscurrent]
+        @rate.update_attribute(:iscurrent, true)
         format.json { respond_with_bip(@rate) }
       else
-        format.json { respond_with_bip(@rate) }
+
+        if @rate.iscurrent == true
+          Rate.find(@rate.id).update_attribute(:iscurrent, true) 
+        else
+          Rate.find(@active_rate.id).update_attribute(:iscurrent, true) unless @active_rate.blank?
+        end
+
+        if @rate.update_attributes(rates_params)
+          format.json { respond_with_bip(@rate) }
+        else
+          format.json { respond_with_bip(@rate) }
+        end
       end
     end
   end
@@ -96,14 +106,16 @@ class RatesController < ApplicationController
 
   	logger.debug "Removing Designations"
   	
-  	Designation.destroy_all if Designation.count > 0
+    if Designation.count > 0 or Rate.count > 0
+      Designation.destroy_all and Rate.destroy_all
+    end
 
   	logger.debug "Fetching Designations"
   	Designation.create rm_designations
 
-    Designation.all.each do |rate|
+    logger.debug "Creating Rates"
+    Designation.all.order("designation_id asc").each do |designation|
       rates_params = {
-        :designation_id => rate.designation_id,
         :revision_date => Time.now,
         :iscurrent => 1,
         :team_based_rates => "0",
@@ -111,7 +123,8 @@ class RatesController < ApplicationController
       }
 
       logger.debug "Creating Rates"
-      Rate.create rates_params
+      @rate = designation.rates.build(rates_params)
+      @rate.save
     end
 
   	respond_to do |format|
@@ -123,6 +136,6 @@ class RatesController < ApplicationController
   private
 
   def rates_params
-    params.require(:rate).permit(:designation_id, :team_based_rates, :hour_based_rates, :iscurrent)
+    params.require(:rate).permit(:designation_id, :team_based_rates, :hour_based_rates)
   end
 end

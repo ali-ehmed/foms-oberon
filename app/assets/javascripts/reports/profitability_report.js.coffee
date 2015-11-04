@@ -50,8 +50,10 @@
 #   return
 
 $(document).on "page:change", ->
-  $("#report_month").datepicker
-    format: "MM - yyyy"
-    orientation: "bottom left"
-    minViewMode: 1
+  $('#report_month').datepicker(
+	  format: 'm - yyyy'
+	  orientation: 'bottom left'
+	  minViewMode: 1
+	).on 'changeDate', (e) ->
+	  $(this).datepicker 'hide'
 

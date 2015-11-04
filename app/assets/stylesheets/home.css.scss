@@ -25,6 +25,8 @@
   &:first-letter { text-transform: uppercase };  
 }
 
+.btn { margin-bottom: 4px !important; }
+
 // Media For Mobile
 @media(max-width: 480px) {
   .sync_link { font-size: 10px !important; }

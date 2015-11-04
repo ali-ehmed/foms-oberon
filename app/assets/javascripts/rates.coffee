@@ -26,10 +26,9 @@ syncingAllDesignations = ->
 		      		html: true
 		      		showConfirmButton: false
 		      success: (response, data) ->
-		      	# if !revision_date_val
-	        # 		swal 'Designations', "Synchronized. Please select date to get rates.", "success"
-	        # 	else
         		swal 'Designations', "Synchronized", "success"
+        		$("#rates .select2-selection__placeholder").html("Choose Designation")
+        		$("#rates .select2-selection__rendered").empty()
 		      error: (response) ->
 		        swal 'oops', 'Something went wrong'
 		    false
@@ -74,14 +73,15 @@ saveDesignationRate = ->
 		e.preventDefault()
 		$this = $(this)
 		$form = $this.closest("form")
-		revision_date_val = $("select[name='revision_date']").val()
+
+		# revision_date_val = $("select[name='revision_date']").val()
 
 		$form_data = $form.serializeArray()
 
-		if revision_date_val
-			$form_data.push
-			  name: 'revision_date'
-			  value: revision_date_val
+		# if revision_date_val
+		# 	$form_data.push
+		# 	  name: 'revision_date'
+		# 	  value: revision_date_val
 
 		$.ajax
 	    type: $form.attr("method")
@@ -96,15 +96,17 @@ saveDesignationRate = ->
             html: true
           console.log 'Couldn\'t save'
         else
-          if !revision_date_val
-            swal 'Designations Rate', "Saved. Please select date to get rates.", "success"
-          else
-            swal 'Designations Rate', "Saved", "success"
-
+          swal 'Designations Rate', "Saved", "success"
           $this.closest(".modal").modal 'hide'
-          $form.find(':input').val ''
+          cancelratesForm($this)
 	    error: (response) ->
 	      swal 'oops', 'Something went wrong'
+
+window.cancelratesForm = (elem) ->
+  $form = $(elem).closest('form')
+  $form.find(':input').val ''
+  $("#rates .select2-selection__placeholder").html("Choose Designation")
+  $("#rates .select2-selection__rendered").empty()
 
 $(document).on "page:change", ->
 	syncingAllDesignations()

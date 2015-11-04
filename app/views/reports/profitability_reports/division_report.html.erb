@@ -3,52 +3,182 @@
 		<h2>Division <small>Report</small></h2>
 	</div>
 	<div class="row">
-		<div class="col-md-6 col-sm-6 col-xs-6">
+		<div class="col-md-6">
 			<%= form_tag reports_division_report_path, method: :get do %>
-				<ul class="list-inline">
-					<li><%= text_field_tag :month, nil, id: "report_month", class: "form-control", placeholder: "Select Date" %></li>
-				</ul>
+				<p><%= text_field_tag :month_year, params[:month_year], id: "report_month", class: "form-control", placeholder: "Select Date" %></p>
+
+				<p><%= submit_tag "Search", id: "get_report", class: "btn btn-danger" %>
+				<%= link_to "Reset", reports_division_report_path, class: "btn btn-default" %></p>
 			<% end %>
 		</div>
-		<div class="col-md-6 col-sm-6 col-xs-6">
-			
-		</div>
 	</div>
-	<!-- <div id="chartContainer" style="height: 300px; width: 100%;"></div> -->
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#graph_report" data-toggle="tab" aria-expanded="false">Graph Report</a></li>
+	  <li class=""><a href="#tabular_report" data-toggle="tab" aria-expanded="true">Tabular Report</a></li>
+	</ul>
+	<div id="myTabContent" class="tab-content">
+	  <div class="tab-pane fade active in" id="graph_report">
+	  	<%= render "reports/shared/division_graph_report" %>	
+	  </div>
+	  <div class="tab-pane fade in" id="tabular_report">
+	  	<%= render "reports/shared/division_tabular_report" %>	
+	  </div>
+  </div>
+	
+	
+	<script type="text/javascript">
+		window.onload = function () {
+			var chart = new CanvasJS.Chart("revenueGraph",
+			{
+				title:{
+					text: "<%= @revenue.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+	        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[
+								<% if !@revenue.second[:graph_data].blank? %>
+									<% @revenue.second[:graph_data].each do |r| %>
+										<% if r[:y] == @max_ammount %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>" },
+										<% end %>
+									<% end %>
 
-<script type="text/javascript">
-	// window.onload = function () {
-	// 	var chart = new CanvasJS.Chart("chartContainer",
-	// 	{
-	// 		title:{
-	// 			text: "Top Categoires of New Year's Resolution"
-	// 		},
-	// 		exportFileName: "Pie Chart",
-	// 		exportEnabled: true,
- //        animationEnabled: true,
-	// 		legend:{
-	// 			verticalAlign: "bottom",
-	// 			horizontalAlign: "center"
-	// 		},
-	// 		data: [
-	// 			{       
-	// 				type: "pie",
-	// 				showInLegend: true,
-	// 				toolTipContent: "{legendText}: <strong>{y}%</strong>",
-	// 				indexLabel: "{label} {y}%",
-	// 				dataPoints: [
-	// 					{  y: 35, legendText: "Health", exploded: true, label: "Health" },
-	// 					{  y: 20, legendText: "Finance", label: "Finance" },
-	// 					{  y: 18, legendText: "Career", label: "Career" },
-	// 					{  y: 15, legendText: "Education", label: "Education"},
-	// 					{  y: 5, legendText: "Family", label: "Family" },
-	// 					{  y: 7, legendText: "Real Estate", label: "Real Estate"}
-	// 				]
-	// 			}
-	// 		]
-	// 	});
-	// 	chart.render();
-	// }
-</script>
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" }
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+
+			var chart = new CanvasJS.Chart("expenseGraph",
+			{
+				title:{
+					text: "<%= @expense.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+	        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[
+								<% if !@expense.second[:graph_data].blank? %>
+									<% @expense.second[:graph_data].each do |r| %>
+										<% if r[:y] == @max_calculated_expense %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>" },
+										<% end %>
+									<% end %>
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" },
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+
+			var chart = new CanvasJS.Chart("lossGraph",
+			{
+				title:{
+					text: "<%= @loss.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+	        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[	
+								<% if !@loss.second[:graph_data].blank? %>
+									<% @loss.second[:graph_data].each do |r| %>
+										<% if r[:y] == @max_profit_for_loss %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>" },
+										<% end %>
+									<% end %>
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" },
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+
+
+			var chart = new CanvasJS.Chart("profitGraph",
+			{
+				title:{
+					text: "<%= @profit.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+	        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[
+								<% if !@profit.second[:graph_data].blank? %>
+									<% @profit.second[:graph_data].each do |r| %>
+										<% if r[:y] == @max_profit_for_profit %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label] %>", legendText: "<%= r[:label] %>" },
+										<% end %>
+									<% end %>
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" },
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+		}
+
+	</script>
 
 <% end %>

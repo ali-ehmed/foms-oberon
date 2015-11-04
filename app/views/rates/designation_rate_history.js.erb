@@ -1,11 +1,14 @@
 <% desig_id = @designation.designation_id %>
 
+
 $("#designation_history").html("<%= escape_javascript( render('history', designation_id: desig_id, rates: @desig_rates) )%>");
 $("span#designation_name").html("<%= @designation_name %>")
-$("#rate_history_table").html("<%= escape_javascript( render('rate_history_table', rates: @desig_rates) ) %>");
+
 $("#designation_rate_history_<%= desig_id %>").modal('show');
 
-$(".best_in_place").bind().on("ajax:success", function() {
-	$("#designation_rate_history_<%= desig_id %>").modal('hide');
-	swal("Successfully", "Updated", "success")
-});	 
+// $(".best_in_place").bind().on("ajax:success", function() {
+// 	$("#designation_rate_history_<%= desig_id %>").modal('hide');
+// 	swal("Successfully", "Updated", "success")
+// });
+
+
