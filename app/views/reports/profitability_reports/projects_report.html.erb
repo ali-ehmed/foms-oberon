@@ -1,0 +1,33 @@
+<% content_for :reports do %>
+	<blockquote>
+		<h2>Projects Report</h2>
+	</blockquote>
+
+	<div class="row">
+		<div class="col-md-6">
+			<%= form_tag reports_projects_report_path, method: :get do %>
+				<p>
+					<label>Search Report By Month:</label>
+					<%= text_field_tag :month_year, params[:month_year], id: "report_month_year", class: "form-control", placeholder: "Select Date" %>
+				</p>
+				<p><%= submit_tag "Search", id: "get_report", class: "btn btn-danger" %>
+				<%= link_to "Reset", reports_projects_report_path, class: "btn btn-default" %></p>
+			<% end %>
+		</div>
+	</div>
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#graph_report" data-toggle="tab" aria-expanded="false">Graph Report</a></li>
+	  <li class=""><a href="#tabular_report" data-toggle="tab" aria-expanded="true">Tabular Report</a></li>
+	</ul>
+	<div id="myTabContent" class="tab-content">
+	  <div class="tab-pane fade active in" id="graph_report">
+	  	<div class="page-header">
+				<h3>Graphical <small>Report</small></h3>
+			</div>
+	  	<%= render "reports/shared/pie_chart_graph_report", revenue: @revenue, expense: @expense, loss: @loss, profit: @profit, max_ammount: @max_ammount, max_calculated_expense: @max_calculated_expense, max_profit_for_loss_report: @max_profit_for_loss, max_profit_for_profit_report: @max_profit_for_profit %>
+	  </div>
+	  <div class="tab-pane fade in" id="tabular_report">
+	  	<%= render "reports/shared/tabular_report_for_pie_chart", tabular_data: @tabular_data, column_name: "Project Data" %>	
+	  </div>
+  </div>
+<% end %>

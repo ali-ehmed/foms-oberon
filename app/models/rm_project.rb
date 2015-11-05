@@ -13,4 +13,7 @@
 #
 
 class RmProject < ActiveRecord::Base
+	def self.get_project_name(project_id)
+		find_by_project_id(project_id).name
+	end
 end

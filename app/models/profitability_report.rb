@@ -2,7 +2,7 @@
 #
 # Table name: profitability_reports
 #
-#  id                    :integer          not null
+#  id                    :integer          not null, primary key
 #  div_id                :integer
 #  project_id            :integer
 #  employee_id           :integer
@@ -18,7 +18,29 @@
 #
 
 class ProfitabilityReport < ActiveRecord::Base
-	scope :division_report, -> (month, year) { select("div_id, sum(cogs) as cogs, sum(profit) as profit, sum(operational_exp) as opexp, sum(invoice_amount) as amount")
+	scope :divisions_report, -> (month, year) { select("div_id, sum(cogs) as cogs, sum(profit) as profit, sum(operational_exp) as opexp, sum(invoice_amount) as amount")
 																						.where("month = ? and year = ?", month, year)
-																						.group("div_id") }
+																						.group("div_id") 
+																					 }
+
+	scope :projects_report, -> (month, year) { select("project_id, sum(cogs) as cogs, sum(profit) as profit, sum(invoice_amount) as amount, sum(operational_exp) as opexp")
+																						.where("month = ? and year = ?", month, year) 
+																						.group("project_id")
+																					}
+
+	scope :custom_project_report, -> (project_id, year) { select("project_id, month, sum(cogs) as cogs, sum(profit) as profit, sum(operational_exp) as opexp, sum(invoice_amount) as amount") 
+																									 .where("project_id = ? and year = ?", project_id, year)
+																									 .group("month ASC")
+																									 }
+
+  scope :custom_division_report, -> (month, year, divison_id) { select("project_id, sum(cogs) as cogs, sum(profit) as profit, sum(operational_exp) as opexp, sum(invoice_amount) as amount") 
+  																															.where("month = ? and year = ? and div_id = ?", month, year, divison_id)
+  																															.group("project_id")
+  																														}
+
+	scope :designations_report, -> (month, year) { select("designation_id, sum(cogs) as cogs, sum(profit) as profit, sum(invoice_amount) as amount, sum(operational_exp) as opexp")
+																								.where("month = ? and year = ?", month, year)
+																								.group("designation_id") 
+																								}
+
 end

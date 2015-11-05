@@ -1,0 +1,49 @@
+<div class="row">&nbsp;</div>
+<div class="page-header">
+  <% if params[:report_project_id].present? %>
+    <h3>Tabular <small>Report for <strong><%= @project_name %></strong></small></h3>
+  <% else %>
+    <h3>Tabular <small>Report</small></h3>
+  <% end %>
+</div>
+<div class="row">
+	<div class="col-md-12 col-sm-12 col-lg-12 col-xs-12">
+    <div class="table-responsive">
+  		<table  class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Project Date</th>
+            <th>Revenue</th>
+            <th>Expense</th>
+            <th>Profit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if tabular_data.each do |tab_data| %>
+          	<tr>
+              <td><%= tab_data[0] %></td>
+              <% tab_data[1].each do |s_report| %>
+                <% unless s_report[:amount].nil?  %>
+                  <td><%= s_report[:amount] %></td>
+                <% end %>
+                <% unless s_report[:cal_expense].nil? %>
+                  <td><%= s_report[:cal_expense] %></td>
+                <% end %>
+                <% unless s_report[:profit].nil? %>
+                  <td><%= s_report[:profit] %></td>
+                <% end %>
+              <% end %>
+          	</tr>
+          <% end.empty? %>
+          	<tr>
+          		<td>No Data</td>
+          		<td>No Data</td>
+          		<td>No Data</td>
+          		<td>No Data</td>
+        		</tr>
+          <% end %>
+      	</tbody>
+    	</table>
+    </div>
+	</div>
+</div>

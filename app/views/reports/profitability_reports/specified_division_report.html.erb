@@ -1,0 +1,44 @@
+<% content_for :reports do %>
+	<blockquote>
+		<h2>Division Based Report</h2>
+	</blockquote>
+	<%= form_tag reports_division_report_path, method: :get do %>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-6">
+						<%= label_tag "Select Report By the month:" %>
+						<%= text_field_tag :month_year, params[:month_year], id: "report_month_year", class: "form-control", placeholder: "Select Date" %>
+					</div>
+					<div class="col-md-6">
+						<%= label_tag "Select Project:" %>
+	        	<%= select_tag :report_division_id, options_for_select(@divisions.map{|m| [m.div_name, m.id]}, params[:report_division_id]), prompt: "--Select Division--", class: "form-control" %>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">&nbsp;</div>
+		<div class="row">
+			<div class="col-md-6">
+				<%= submit_tag "Search", id: "get_report", class: "btn btn-danger" %>
+				<%= link_to "Reset", reports_division_report_path, class: "btn btn-default" %>
+			</div>
+		</div>
+	<% end %>
+	<div class="row">&nbsp;</div>
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#graph_report" data-toggle="tab" aria-expanded="false">Graph Report</a></li>
+	  <li class=""><a href="#tabular_report" data-toggle="tab" aria-expanded="true">Tabular Report</a></li>
+	</ul>
+	<div id="myTabContent" class="tab-content">
+	  <div class="tab-pane fade active in" id="graph_report">
+	  	<div class="page-header">
+				<h3>Graphical <small>Report</small></h3>
+			</div>
+	  	<%= render "reports/shared/pie_chart_graph_report", revenue: @revenue, expense: @expense, loss: @loss, profit: @profit, max_ammount: @max_ammount, max_calculated_expense: @max_calculated_expense, max_profit_for_loss_report: @max_profit_for_loss, max_profit_for_profit_report: @max_profit_for_profit %>
+	  </div>
+	  <div class="tab-pane fade in" id="tabular_report">
+	  	<%= render "reports/shared/tabular_report_for_pie_chart", tabular_data: @tabular_data, column_name: "Division Name" %>	
+	  </div>
+  </div>
+<% end %>

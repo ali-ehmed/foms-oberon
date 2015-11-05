@@ -6,9 +6,15 @@ $("span#designation_name").html("<%= @designation_name %>")
 
 $("#designation_rate_history_<%= desig_id %>").modal('show');
 
-// $(".best_in_place").bind().on("ajax:success", function() {
-// 	$("#designation_rate_history_<%= desig_id %>").modal('hide');
-// 	swal("Successfully", "Updated", "success")
-// });
+$('[data-toggle="tooltip"]').tooltip()
+
+$(".best_in_place").bind().on("ajax:success", function() {
+	// $("#designation_rate_history_<%= desig_id %>").modal({
+	//     backdrop: 'static',
+	//     keyboard: false
+	// })
+	// $("#fetch_rates").empty()
+	// $("#fetch_rates").html("<%= escape_javascript( render('fetch_rates') )%>").fadeIn(500);
+});
 
 

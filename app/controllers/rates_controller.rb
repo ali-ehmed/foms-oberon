@@ -1,9 +1,6 @@
 class RatesController < ApplicationController
   def index
-  	# @revision_dates = Rate.group("revision_date")
-		# @rates = Rate.where(:revision_date => params[:revision_date]) if params[:revision_date]
-
-    @rates = Rate.group("designation_id")
+    @rates = Rate.where("iscurrent = ?", true).order("designation_id asc")
 
 		respond_to do |format|
 			format.html
@@ -38,8 +35,7 @@ class RatesController < ApplicationController
  
         Rate.find(@rate.id).update_attribute(:iscurrent, true)
 
-        # @rates = Rate.where(:revision_date => params[:revision_date]) if params[:revision_date]
-        @rates = Rate.group("designation_id")
+        @rates = Rate.where("iscurrent = ?", true).order("designation_id asc")
         format.js { render :file => "rates/index.js.erb" }
       end
     else
@@ -59,6 +55,8 @@ class RatesController < ApplicationController
     @active_rate = @designation_rates.where("iscurrent = ?", true).first
 
     @designation_rates.update_all(:iscurrent => false)
+
+    
 
     respond_to do |format|
       if params[:rate][:iscurrent]
@@ -86,9 +84,7 @@ class RatesController < ApplicationController
   	@doc = Nokogiri::XML(open(@rm_url.get_all_designations))
   	@xml_data = @doc.css("Designations Positions")
 
-    # If Revision Date Present
-    # @rates = Rate.where(:revision_date => params[:revision_date]) if params[:revision_date]
-    @rates = Rate.group("designation_id")
+    @rates = Rate.where("iscurrent = ?", true).order("designation_id asc")
 
   	rm_designations = Array.new
 

@@ -16,7 +16,7 @@
 //= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
 //= require bootstrap-sprockets
 
-//= require jquery-ui
+
 //= require jquery.purr
 //= require best_in_place
 //= require best_in_place.jquery-ui

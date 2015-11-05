@@ -6,14 +6,17 @@
     <div class="row">
       <div class="col-md-3">
         <div class="reports-list-group">
-          <%= link_to "Division Report", reports_division_report_path, class: "list-group-item" %>
-          <%= link_to "Project Report", "#", class: "list-group-item" %>
-          <%= link_to "Specific Project Based Report", "#", class: "list-group-item" %>
-          <%= link_to "Division Project Based Report", "#", class: "list-group-item" %>
+          <%= link_to "Divisions Report", reports_divisions_report_path, class: "list-group-item" %>
+          <%= link_to "Projects Report", reports_projects_report_path, class: "list-group-item" %>
+          <%= link_to "Specified Project Based Report", reports_project_report_path, class: "list-group-item" %>
+          <%= link_to "Division Project Based Report", reports_division_report_path, class: "list-group-item" %>
+          <%= link_to "Designations Project Based Report", reports_designations_report_path, class: "list-group-item" %>
         </div>
       </div>
       <div class="col-md-9">
-        <%= yield :reports %>
+        <div id="profitability_reports">
+          <%= yield :reports %>  
+        </div>
       </div>
     </div>
   </div>

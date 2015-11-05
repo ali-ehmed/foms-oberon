@@ -17,7 +17,7 @@ syncingAllDesignations = ->
 		    $.ajax
 		      type: 'Get'
 		      url: $this.data("url")
-		      # data: { revision_date: if !revision_date_val then null else revision_date_val }
+		      data: { sync_designation: true }
 		      cache: false
 		      beforeSend:
 		      	swal
@@ -27,8 +27,6 @@ syncingAllDesignations = ->
 		      		showConfirmButton: false
 		      success: (response, data) ->
         		swal 'Designations', "Synchronized", "success"
-        		$("#rates .select2-selection__placeholder").html("Choose Designation")
-        		$("#rates .select2-selection__rendered").empty()
 		      error: (response) ->
 		        swal 'oops', 'Something went wrong'
 		    false
@@ -107,6 +105,20 @@ window.cancelratesForm = (elem) ->
   $form.find(':input').val ''
   $("#rates .select2-selection__placeholder").html("Choose Designation")
   $("#rates .select2-selection__rendered").empty()
+
+window.activeRateStatus = (elem) ->
+	$this = $(elem)
+	active_rate_tr = $this.closest("tbody:last-child")
+	$.each active_rate_tr, ->
+		$status_val = $(this).find("td:last-child a span")
+		unless $this.html() == "Yes"
+			$status_val.html("No")
+			$status_val.removeClass("label-success")
+			$status_val.addClass("label-danger")
+
+			$this.find("span").html("Yes")
+			$this.find("span").removeClass("label-danger")
+			$this.find("span").addClass("label-success")
 
 $(document).on "page:change", ->
 	syncingAllDesignations()

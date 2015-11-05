@@ -1,0 +1,44 @@
+<% content_for :reports do %>
+	<blockquote>
+		<h2>Project Based Report</h2>
+	</blockquote>
+	<%= form_tag reports_project_report_path, method: :get do %>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-6">
+						<%= label_tag "Select Project:" %>
+	        	<%= select_tag :report_project_id, options_for_select(@rm_projects.map{|m| [m.name, m.project_id]}, params[:report_project_id]), prompt: "--Select Designation--", class: "form-control" %>
+					</div>
+					<div class="col-md-6">
+						<%= label_tag "Select Year:" %>
+	        	<%= text_field_tag :year, params[:year], id: "report_year", class: "form-control", placeholder: "Select Year" %>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">&nbsp;</div>
+		<div class="row">
+			<div class="col-md-6">
+				<%= submit_tag "Search", id: "get_report", class: "btn btn-danger" %>
+				<%= link_to "Reset", reports_project_report_path, class: "btn btn-default" %>
+			</div>
+		</div>
+	<% end %>
+	<div class="row">&nbsp;</div>
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#graph_report" data-toggle="tab" aria-expanded="false">Graph Report</a></li>
+	  <li class=""><a href="#tabular_report" data-toggle="tab" aria-expanded="true">Tabular Report</a></li>
+	</ul>
+	<div id="myTabContent" class="tab-content">
+	  <div class="tab-pane fade active in" id="graph_report">
+	  	<div class="page-header">
+				<h3>Graphical <small>Report</small></h3>
+			</div>
+	  	<%= render "reports/shared/line_chart_graph_report", revenue: @revenue, expense: @expense, profit: @profit %>
+	  </div>
+	  <div class="tab-pane fade in" id="tabular_report">
+	  	<%= render "reports/shared/tabular_report_for_line_chart", tabular_data: @tabular_data %>
+	  </div>
+  </div>
+<% end %>

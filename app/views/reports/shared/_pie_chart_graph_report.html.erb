@@ -1,0 +1,191 @@
+<% if !revenue.second[:graph_data].blank? or !expense.second[:graph_data].blank? or !loss.second[:graph_data].blank? or !profit.second[:graph_data].blank? %>
+	<div id="charts">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="pie_charts">
+					<div id="revenueGraph" style="height: 300px; width: 100%;"></div>		
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="pie_charts">
+					<div id="expenseGraph" style="height: 300px; width: 100%;"></div>		
+				</div>
+			</div>
+		</div>
+		<hr />
+		<div class="row">
+			<div class="col-md-6">
+				<div class="pie_charts">
+					<div id="lossGraph" style="height: 300px; width: 100%;"></div>		
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="pie_charts last-chart">
+					<div id="profitGraph" style="height: 300px; width: 100%;"></div>		
+				</div>
+			</div>
+		</div>
+	</div>
+<% else %>
+	<div class="alert alert-info">
+		<blockquote style="margin: 0 0 2px;">
+			No Report Present
+		</blockquote>
+	</div>
+<% end %>
+
+	<script type="text/javascript">
+		window.onload = function () {
+			var chart = new CanvasJS.Chart("revenueGraph",
+			{
+				theme: "theme3",
+				title:{
+					text: "<%= revenue.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+	        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[
+								<% if !revenue.second[:graph_data].blank? %>
+									<% revenue.second[:graph_data].each do |r| %>
+										<% if r[:y] == max_ammount %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe.html_safe %>", legendText: "<%= r[:label].html_safe %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe.html_safe %>", legendText: "<%= r[:label].html_safe %>" },
+										<% end %>
+									<% end %>
+
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" }
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+
+			var chart = new CanvasJS.Chart("expenseGraph",
+			{
+				title:{
+					text: "<%= expense.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+	        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[
+								<% if !expense.second[:graph_data].blank? %>
+									<% expense.second[:graph_data].each do |r| %>
+										<% if r[:y] == max_calculated_expense %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe.html_safe %>", legendText: "<%= r[:label].html_safe %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe.html_safe %>", legendText: "<%= r[:label].html_safe %>" },
+										<% end %>
+									<% end %>
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" },
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+
+			var chart = new CanvasJS.Chart("lossGraph",
+			{
+				title:{
+					text: "<%= loss.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+	        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[	
+								<% if !loss.second[:graph_data].blank? %>
+									<% loss.second[:graph_data].each do |r| %>
+										<% if r[:y] == max_profit_for_loss_report %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe.html_safe %>", legendText: "<%= r[:label].html_safe %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe.html_safe %>", legendText: "<%= r[:label].html_safe %>" },
+										<% end %>
+									<% end %>
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" },
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+
+
+			var chart = new CanvasJS.Chart("profitGraph",
+			{
+				title:{
+					text: "<%= profit.first[:graph_name] %> Graph"
+				},
+				exportFileName: "Pie Chart",
+				exportEnabled: true,
+        animationEnabled: true,
+				legend:{
+					verticalAlign: "bottom",
+					horizontalAlign: "center"
+				},
+				data: [
+					{       
+						type: "pie",
+						showInLegend: true,
+						toolTipContent: "{legendText}: <strong>{y}</strong>",
+						indexLabel: "{label} {y}",
+						dataPoints: 
+							[
+								<% if !profit.second[:graph_data].blank? %>
+									<% profit.second[:graph_data].each do |r| %>
+										<% if r[:y] == max_profit_for_profit_report %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe %>", legendText: "<%= r[:label].html_safe %>", exploded: true },
+										<% else %>
+											{  y: <%= r[:y] %>, label: "<%= r[:label].html_safe %>", legendText: "<%= r[:label].html_safe %>" },
+										<% end %>
+									<% end %>
+								<% else %>
+									{  y: 0, label: "No Data Available", legendText: "No Data Available" },
+								<% end %>
+							]
+					}
+				]
+			});
+			chart.render();
+		}
+
+	</script>

@@ -1,0 +1,117 @@
+<div class="row">&nbsp;</div>
+<% if !revenue.blank? or !expense.blank?  or !profit.blank? %>
+	<div class="row">
+		<div class="col-md-12">
+			<div id="projectBasedReportChart" style="height: 300px; width: 100%;"></div>		
+		</div>
+	</div>
+<% else %>
+	<div class="alert alert-info">
+		<blockquote style="margin: 0 0 2px;">
+			No Report Present
+		</blockquote>
+	</div>
+<% end %>
+ 
+<script type="text/javascript">
+  window.onload = function () {
+    var chart = new CanvasJS.Chart("projectBasedReportChart",
+    {
+      title:{
+        text: "Graph for <%= @project_name.html_safe %> in <%= @year %>"
+      },
+      animationEnabled: true,
+      legend: {
+        cursor:"pointer",
+        itemclick : function(e) {
+          if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+              e.dataSeries.visible = false;
+          }
+          else {
+              e.dataSeries.visible = true;
+          }
+          chart.render();
+        }
+      },
+      axisX: {
+        title: "Months"
+      },
+      axisY: {
+        title: "Amount in Dollar ($)"
+      },
+      toolTip: {
+        shared: true,  
+        content: function(e){
+          var str = '';
+          var total = 0 ;
+          var str3;
+          var str2 ;
+          for (var i = 0; i < e.entries.length; i++)
+          {
+           	var  str1 = "<span style= 'color:"+e.entries[i].dataSeries.color + "'> " + e.entries[i].dataSeries.name + "</span>: <strong>"+  e.entries[i].dataPoint.y + "</strong> <br/>" ; 
+            total = e.entries[i].dataPoint.y + total;
+            str = str.concat(str1);
+          }
+          str2 = "<span style = 'color:DodgerBlue; '><strong>"+e.entries[0].dataPoint.label + "</strong></span><br/>";
+          // str3 = "<span style = 'color:Tomato '>Total: </span><strong>" + total + "</strong><br/>";
+          
+          return (str2.concat(str));
+        }
+
+      },
+      data: [
+      {        
+        type: "bar",
+        showInLegend: true,
+        name: "Revenue",
+        color: "gold",
+        dataPoints: [
+        	<% if !revenue.blank? %>
+						<% revenue.each do |r| %>
+							{  y: <%= r[:amount] %>, label: "<%= r[:label] %>" },
+						<% end %>
+
+					<% else %>
+						{  y: 0, label: "No Data Available" }
+					<% end %>       
+        ]
+      },
+      {        
+        type: "bar",
+        showInLegend: true,
+        name: "Expense",
+        color: "silver",          
+        dataPoints: [
+        	<% if !expense.blank? %>
+						<% expense.each do |r| %>
+							{  y: <%= r[:cal_expense] %>, label: "<%= r[:label] %>" },
+						<% end %>
+
+					<% else %>
+						{  y: 0, label: "No Data Available" }
+					<% end %>   
+        ]
+      },
+      {        
+        type: "bar",
+        showInLegend: true,
+        name: "Profit",
+        color: "#A57164",
+        dataPoints: [
+        	<% if !profit.blank? %>
+						<% profit.each do |r| %>
+							{  y: <%= r[:profit] %>, label: "<%= r[:label] %>" },
+						<% end %>
+
+					<% else %>
+						{  y: 0, label: "No Data Available" }
+					<% end %>   
+        ]
+      }
+
+      ]
+    });
+
+		chart.render();
+	}
+</script>

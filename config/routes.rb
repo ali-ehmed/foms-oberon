@@ -1,11 +1,14 @@
 Rails.application.routes.draw do
   namespace :reports do
     get "/" => "base#listing"
-    get "/division_report" => "profitability_reports#division_report"
+    get "/divisions_report" => "profitability_reports#divisions_report"
+    get "/projects_report" => "profitability_reports#projects_report"
+    get "/project_report" => "profitability_reports#specified_project_report", as: :project_report
+    get "/division_report" => "profitability_reports#specified_division_report", as: :division_report
+    get "/designations_report" => "profitability_reports#designations_report"
   end
 
   resources :rates, only: [:index, :create, :update] do
-    # put "/:designation_id/update" => "rates#update", on: :collection, as: :update
     get "/sync_designations" => "rates#sync_designations", on: :collection
     get "/:designation_id/designation_rate_history" => "rates#designation_rate_history", on: :collection
   end

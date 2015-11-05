@@ -27,12 +27,10 @@
                     <a href="javascript:void(0);" class="text-info" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :hour_based_rates, :as => :input, :path => rate_path(rate.id) %></a>
                   </td>
                   <td>
-                    <a href="javascript:void(0);" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="<%= rate.iscurrent ? 'Click to Active' : 'Click to Inactive' %>">
-                      <%= best_in_place rate, :iscurrent, as: :checkbox, collection: {false: "No", true: "Yes"}, :path => rate_path(rate.id), class: "label #{rate.iscurrent ? 'label-success' : 'label-danger'}" %>
+                    <a href="javascript:void(0);" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="<%= rate.iscurrent ? 'Click to Active' : 'Click to Inactive' %>" onclick="activeRateStatus(this);">
+                      <%= best_in_place rate, :iscurrent, as: :checkbox, collection: ["No", "Yes"], :path => rate_path(rate.id), class: "label #{rate.iscurrent ? 'label-success' : 'label-danger'}" %>
                     </a>
                   </td>
-                  <!-- <td><%#= rate.team_based_rates.nil? ? "---" : rate.team_based_rates %></td>
-                  <td><%#= rate.hour_based_rates.nil? ? "---" : rate.hour_based_rates %></td> -->
                 </tr>
               <% end %>
             </tbody>

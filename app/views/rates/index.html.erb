@@ -8,25 +8,23 @@
 	<div class="row">
 		<div class="col-md-12 col-sm-12 col-xs-12">
 			<%= form_tag rates_path(format: :js), method: :get, id: "rates_form" do %>
-				<ul class="list-inline">
-					<!-- <li>
-						<label><strong>Revision Date:</strong></label>
-						<span id="all_designation">
-							<%#= select_tag :revision_date, options_for_select(@revision_dates.map{|m| [m.revision_date.strftime("%d %B, %Y"), m.revision_date.strftime("%Y-%m-%d %H:%M:%S")]}, params[:revision_date]), class: "form-control", prompt: "--Choose Revision Date--" %>
-						</span>
-					</li> -->
-					<!-- <li><%#= link_to "Reset", rates_path, class: "btn btn-default btn-sm" %></li> -->
-					<li class="pull-right">
-						<%= link_to "#", class: "btn btn-info sync_link btn-right", id: "sync_all_designations", "data-url" => sync_designations_rates_path(format: :js) do  %>
+				<!-- <ul class="list-inline">
+					<li class="pull-right"> -->
+						<%= link_to rates_path(format: :js), class: "btn btn-default sync_link btn-right pull-right", remote: true do  %>
+							<i class="glyphicon glyphicon-link"></i> Refresh Rates
+						<% end %>
+					<!-- </li>
+					<li class="pull-right"> -->
+						<%= link_to "#", class: "btn btn-info sync_link btn-right pull-right", id: "sync_all_designations", "data-url" => sync_designations_rates_path(format: :js) do  %>
 							<i class="glyphicon glyphicon-link"></i> Sync Designations from RM tool
 						<% end %>
-					</li>
-					<li class="pull-right">
-						<%= link_to "#", class: "btn btn-success sync_link btn-right", onclick: "$('#new_designation_rate_modal').modal('show')" do %>
+					<!-- </li>
+					<li class="pull-right"> -->
+						<%= link_to "#", class: "btn btn-success sync_link btn-right pull-right", onclick: "$('#new_designation_rate_modal').modal('show')" do %>
 							<i class="glyphicon glyphicon-plus"></i> Add Designation
 						<% end %>
-					</li>
-				</ul>
+					<!-- </li>
+				</ul> -->
 			<% end %>
 		</div>
 	</div>
@@ -34,6 +32,8 @@
 	<div id="fetch_rates">
 		<%= render "fetch_rates" %>	
 	</div>
+
+	<div id="designation_history"></div>
 
 	<%= render "new_rate" %>
 </div>

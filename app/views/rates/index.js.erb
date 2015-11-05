@@ -1,10 +1,10 @@
-<%# if params[:revision_date].present? %>
+
 $("#fetch_rates").hide().html("<%= escape_javascript( render('fetch_rates') )%>").fadeIn(500);
-<%# end %>
 
-// $("#all_designation").html('<%#= escape_javascript(select_tag :revision_date, options_for_select(Rate.group("revision_date").map{|m| [m.revision_date.strftime("%d %B, %Y"), m.revision_date.strftime("%Y-%m-%d %H:%M:%S")]}, params[:revision_date]), class: "form-control", prompt: "--Choose Revision Date--").html_safe %>');
-
-$("#fetched_designations").html('<%= escape_javascript(select_tag :designation, options_for_select(Designation.all.map{|m| [m.designation, m.designation_id]}), prompt: "--Select Designation--", class: "form-control").html_safe %>')
+// When Designation Fetched
+<% if params[:sync_designation] %>
+	$("#fetched_designations").html('<%= escape_javascript(select_tag :designation, options_for_select(Designation.all.map{|m| [m.designation, m.designation_id]}), prompt: "--Select Designation--", class: "form-control").html_safe %>')
+<% end %>
 
 $(".best_in_place").best_in_place()
 
@@ -13,7 +13,6 @@ $("#designation").select2({
   allowClear: true
 });
 
-$('[data-toggle="tooltip"]').tooltip()
 
 // Submitting Form
 submitRatesForm()
