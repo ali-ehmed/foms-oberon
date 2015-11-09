@@ -8,22 +8,29 @@ module Reports
 			end
 		end
 
-		def get_profitability_reports_for(report_name = "", profitability_reports = [], graph_label_name = "", graph_data = [])
-			logger.debug "-----------Generating #{report_name.to_s.capitalize}--------------"
+		def generate_profitability_report_for(options = {}, report_name = "", get_report_id = false, &block)
+
+			if get_report_id == true
+				ids = []
+				options.fetch(:report_for_ids).each do |report|
+					ids << report.id
+				end
+				return ids
+			end
+
+			logger.debug "!------Generating #{report_name}--------!"
 
 			@tabular_data = Array.new
 			# Revenue
 	    @revenue = Array.new
 	    revenue_report_array = []
-	    
+	    profitability_reports = []
 
-	    @revenue << { graph_name: graph_data.present? ? graph_data.first : "Revenue" }
-	    profitability_reports.each do |report|
-	    	
-	      if graph_label_name == :project_name_label.to_s
-	      	label_name = RmProject.get_project_name report.project_id unless report.project_id.nil?
-	      elsif graph_label_name == :designation_name_label.to_s
-	      	label_name = report.designation_id.nil? ? "---" : Designation.find(report.designation_id).designation
+	    @revenue << { graph_name: options.has_key?(:graph_label_name) ? "#{options.fetch(:graph_label_name)[0]}" : "Revenue" }
+	    options.fetch(:report).each do |report|
+
+	      if block_given?
+      		label_name = yield report
 	      end
 
 	      data_points = {
@@ -41,13 +48,13 @@ module Reports
 			@expense = Array.new
 	    expense_report_array = []
 
-	    @expense << { graph_name: graph_data.present? ? graph_data[1] : "Expense" }
-	    profitability_reports.each do |report|
-	      if graph_label_name == :project_name_label.to_s
-	      	label_name = RmProject.get_project_name report.project_id unless report.project_id.nil?
-	      elsif graph_label_name == :designation_name_label.to_s
-	      	label_name = report.designation_id.nil? ? "---" : Designation.find(report.designation_id).designation
+	    @expense << { graph_name: options.has_key?(:graph_label_name) ? "#{options.fetch(:graph_label_name)[1]}" : "Expense" }
+	    options.fetch(:report).each do |report|
+
+	      if block_given?
+      		label_name = yield report
 	      end
+
 	      calculated_expense = report.cogs.to_i + report.opexp.to_i
 	      data_points = {
       		y: calculated_expense,
@@ -67,16 +74,16 @@ module Reports
 	    loss_report_array = []
 	    profit_report_array = []
 
-	    @loss << { graph_name: graph_data.present? ? graph_data[2] : "Loss" }
-	    @profit << { graph_name: graph_data.present? ? graph_data[3] : "Profit" }
+	    @loss << { graph_name: options.has_key?(:graph_label_name) ? "#{options.fetch(:graph_label_name)[2]}" : "Loss" }
+	    @profit << { graph_name: options.has_key?(:graph_label_name) ? "#{options.fetch(:graph_label_name)[3]}" : "Profit" }
 
 
-	    profitability_reports.each do |report|
-	      if graph_label_name == :project_name_label.to_s
-	      	label_name = RmProject.get_project_name report.project_id unless report.project_id.nil?
-	      elsif graph_label_name == :designation_name_label.to_s
-	      	label_name = report.designation_id.nil? ? "---" : Designation.find(report.designation_id).designation
+	    options.fetch(:report).each do |report|
+
+	      if block_given?
+	      	label_name = yield report
 	      end
+
 	      if report.profit.to_f > 0
 	        data_points_for_profit = {
 	      		y: report.profit.to_i,

@@ -1,0 +1,39 @@
+<div class="row">&nbsp;</div>
+<div class="page-header">
+  <h3>Employee History Summarized <small><%= if !@summarized_report.blank? and !@detailed_report.blank? then "#{@rm_project_name}" else "" end %></small></h3>
+</div>
+<div class="row">
+  <div class="col-md-12 col-sm-12 col-lg-12 col-xs-12">
+    <% if !@summarized_report.blank? %>
+     <!--  <a class="btn btn-default pull-right" href="../profitability/export_history_to_exel?project_id=<%#=@project_id%>&start_date=<%#=@start_date%>&end_date=<%#=@end_date%>&export=<%#=0%>" role="button">
+          <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export as Excel
+      </a> -->
+      <div class="table-responsive">
+        <table class="table table-striped table-hover history_table">
+          <thead>
+            <tr>
+              <th style="text-align:center;">Cost</th>
+              <th style="text-align:center;">Revenue</th>
+              <th style="text-align:center;">Profit/Loss</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td align="center"><%= @summarized_report.first[:total_cost] %></td>
+              <td align="center"><%= @summarized_report.first[:total_revenue] %></td>
+              <td align="center"><%= @summarized_report.first[:total_profit_or_loss] %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    <% else %>
+      <br />
+      <div class="alert alert-info">
+        <blockquote style="margin: 0 0 2px;">
+          No Report Present
+        </blockquote>
+      </div>
+    <% end %>
+  </div>
+</div>

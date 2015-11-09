@@ -9,3 +9,8 @@ $(document).on 'page:change', ->
     return
   $('[data-toggle="tooltip"]').tooltip()
   return
+
+	window.setTimeout (->
+	  $('.notification-alert').fadeTo(500, 0).slideUp 500, ->
+	    $(this).remove()
+	), 5000

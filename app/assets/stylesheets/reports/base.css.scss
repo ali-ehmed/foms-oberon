@@ -43,8 +43,10 @@
       padding-bottom: 0;
     }
   }
+}
+
+@media(max-width: 1024px) {
   #profitability_reports {
     margin-top: 35px;
   }
 }
-  

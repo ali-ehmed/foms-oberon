@@ -10,7 +10,7 @@
 					<label>Search Report By Month:</label>
 					<%= text_field_tag :month_year, params[:month_year], id: "report_month_year", class: "form-control", placeholder: "Select Date" %>
 				</p>
-				<p><%= submit_tag "Search", id: "get_report", class: "btn btn-danger" %>
+				<p><%= button_tag 'Search', id: "get_report", :class => 'btn btn-danger', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> Searching"} %>
 				<%= link_to "Reset", reports_projects_report_path, class: "btn btn-default" %></p>
 			<% end %>
 		</div>

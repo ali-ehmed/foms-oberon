@@ -9,12 +9,31 @@ $("#designation_rate_history_<%= desig_id %>").modal('show');
 $('[data-toggle="tooltip"]').tooltip()
 
 $(".best_in_place").bind().on("ajax:success", function() {
-	// $("#designation_rate_history_<%= desig_id %>").modal({
-	//     backdrop: 'static',
-	//     keyboard: false
-	// })
-	// $("#fetch_rates").empty()
-	// $("#fetch_rates").html("<%= escape_javascript( render('fetch_rates') )%>").fadeIn(500);
+	
+	// For Changing Rate Status After Ajax
+	rate_id = $("#rate-id").html()
+	elem = $("#rateStatus_" + rate_id).find("span")
+	active_rate_tr = elem.closest(".history_table").find("tbody tr")
+
+	if(active_rate_tr.length > 1) {
+		$.each(active_rate_tr, function() {
+		  var $status_val;
+		  $status_val = $(this).find("td:last-child a span");
+	    $status_val.html("No");
+	    $status_val.removeClass("label-success");
+	    $status_val.addClass("label-danger");
+		});
+	}
+
+	if (elem.html() == "Yes") {
+		elem.html("No");
+		elem.removeClass("label-success");
+		elem.addClass("label-danger");
+	} else {
+		elem.html("Yes");
+		elem.removeClass("label-danger");
+		elem.addClass("label-success");
+	}
 });
 
 

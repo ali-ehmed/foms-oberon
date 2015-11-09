@@ -8,109 +8,10 @@ module Reports
 
 			divisions = Divisions.all
 
-			# Graphical Report
-			# Revenue
-	    @revenue = Array.new
-	    revenue_report_array = []
-
-	    @tabular_data = Array.new
-
-	    @revenue << { graph_name: "Revenue" }
-	    @division_report.each do |div|
-	      division_name = ""
-	      unless div.div_id.nil?
-	        division_name = divisions[div.div_id - 1].div_name
-	      else
-	        division_name = "Division name missing"
-	      end
-	      data_points = {
-      		y: div.amount.to_i,
-      		label: division_name   	
-	      }
-	      revenue_report_array << data_points
-	      @tabular_data << data_points
-	    end
-	    @revenue << { graph_data: revenue_report_array } 
-	    @max_ammount = @revenue.second[:graph_data].map{|m| m.values.first}.max{ |a,b| (a || 0) <=> (b || 0) }
-  		
-  		# Expense
-	    @expense = Array.new
-	    expense_report_array = []
-
-	    @expense << { graph_name: "Expenses" }
-	    @division_report.each do |div|
-	      division_name = ""
-	      unless div.div_id.nil?
-	        division_name = divisions[div.div_id - 1].div_name
-	      else
-	        division_name = "Division name missing"
-	      end
-	      calculated_expense = div.cogs.to_i + div.opexp.to_i
-
-	      data_points = {
-      		y: calculated_expense,
-      		label: division_name   	
-	      }
-	      expense_report_array << data_points
-
-	      @tabular_data << data_points
-	    end
-	    @expense << { graph_data: expense_report_array }
-	    @max_calculated_expense = @expense.second[:graph_data].map{|m| m.values.first}.max{ |a,b| (a || 0) <=> (b || 0) }
-
-	    @profit = Array.new
-	    @loss = Array.new
-	    loss_report_array = []
-	    profit_report_array = []
-
-	    # Profit and Loss
-	    @loss << { graph_name: "Loss" }
-	    @profit << { graph_name: "Profit" }
-	    @division_report.each do |div|
-	      division_name = ""
-	      unless div.div_id.nil?
-	        division_name = divisions[div.div_id - 1].div_name
-	      else
-	        division_name = "Division name missing"
-	      end
-
-	      if div.profit.to_f > 0
-	      	data_points_for_profit = {
-	      		y: div.profit.to_i,
-	      		label: division_name   	
-		      }
-		      data_points_for_loss = {
-	      		y: 0,
-	      		label: division_name   	
-		      }
-		      loss_report_array << data_points_for_loss
-	    		profit_report_array << data_points_for_profit
-
-	      else
-	      	data_points_for_profit = {
-	      		y: 0,
-	      		label: division_name   	
-		      }
-		      data_points_for_loss = {
-	      		y: div.profit.to_i.abs,
-	      		label: division_name   	
-		      }
-		      profit_report_array << data_points_for_profit
-		      loss_report_array << data_points_for_loss
-	      end
-
-	      @tabular_data << data_points_for_profit
-	      @tabular_data << data_points_for_loss
-	    end
-
-	    @profit << { graph_data: profit_report_array }
-      @loss << { graph_data: loss_report_array }
-
-      @max_profit_for_profit = @profit.second[:graph_data].map{|m| m.values.first}.max{ |a,b| (a || 0) <=> (b || 0) }
-      @max_profit_for_loss = @loss.second[:graph_data].map{|m| m.values.first}.max{ |a,b| (a || 0) <=> (b || 0) }
-
-      # Tabular Report Grouped By
-      @tabular_data = @tabular_data.group_by { |d| d[:label] }
+			# Genrating Divisions Report
+			generate_profitability_report_for({:report => @division_report}, :divisions_report) do |report|
+				report.div_id.nil? ? "---" : divisions[report.div_id - 1].div_name
+			end
 		end
 
 
@@ -119,8 +20,12 @@ module Reports
 			@month = params[:month_year].present? ? params[:month_year].delete(' ').split("-").first : Date.today.month
 			@year = params[:month_year].present? ? params[:month_year].delete(' ').split("-").last : Date.today.year
 
+			# Genrating Projects Report
 			@projects_report = ProfitabilityReport.projects_report(@month, @year)
-			get_profitability_reports_for(:projects_report, @projects_report, "project_name_label", ["Cogs", "Expenses", "Loss", "Profit"])
+			
+			generate_profitability_report_for({:report => @projects_report, :graph_label_name => ["Cogs", "Expenses", "Loss", "Profit"]}, :designations_report) do |report|
+				report.project_id.nil? ? "---" : RmProject.get_project_name(report.project_id)
+			end
 		end
 		
 
@@ -161,10 +66,13 @@ module Reports
 			@month = params[:month_year].present? ? params[:month_year].delete(' ').split("-").first : Date.today.month
 			@year = params[:month_year].present? ? params[:month_year].delete(' ').split("-").last : Date.today.year
 
-			@division_id = params[:division_id].present? ? params[:division_id].present? : @divisions.first.id
+			@division_id = params[:report_division_id].present? ? params[:report_division_id] : @divisions.first.id
 			@specific_division_report = ProfitabilityReport.custom_division_report(@month, @year, @division_id)
 
-			get_profitability_reports_for(:specified_division_report, @specific_division_report, "project_name_label")
+			# Genrating Specific Division Report
+			generate_profitability_report_for({:report => @specific_division_report}, :designations_report) do |report|
+				report.project_id.nil? ? "---" : RmProject.get_project_name(report.project_id)
+			end
 		end
 
 		def designations_report
@@ -172,7 +80,85 @@ module Reports
 			@year = params[:month_year].present? ? params[:month_year].delete(' ').split("-").last : Date.today.year
 			@designations_report = ProfitabilityReport.designations_report(@month, @year)
 
-			get_profitability_reports_for(:designations_report, @designations_report, "designation_name_label")
+			# Genrating Designations Report
+			generate_profitability_report_for({:report => @designations_report}, :designations_report) { |report| report.designation_id.nil? ? "---" : Designation.find(report.designation_id).designation }
+		end
+
+		def employee_history_report
+			@rm_url = RmService.new
+			@rm_projects = RmProject.all
+	    @project_id = params[:report_project_id].present? ? params[:report_project_id] : 3
+	    @start_date = params[:start_date].present? ? params[:start_date].delete(" ") : Date.today.beginning_of_month.strftime("%b %d, %Y")
+	    @end_date = params[:end_date].present? ? params[:end_date].delete(" ") : Date.today.end_of_month.strftime("%b %d, %Y")
+
+	    
+
+	  	@doc = Nokogiri::XML(open(@rm_url.get_employee_history_of_allocations(@project_id, @start_date.delete(" "), @end_date.delete(" "))))
+	  	@xml_data = @doc.css("Allocations Allocation")
+
+	  	allocations = Array.new
+			total_allocation = []
+
+			total_cost = 0
+    	total_revenue = 0
+    	total_profit_or_loss = 0	    
+	  	@xml_data.each do |history_data|
+	  			
+	  		project_id = history_data.css('ProjectID').text
+	  		emp_id = history_data.css("FOMSID").text
+        prorated_percent = history_data.css("ProRated").text
+
+      	month = @start_date.to_date.strftime("%m") 
+        year = @start_date.to_date.strftime("%Y")
+
+        emp_report = EmployeeProfitibilityReport.get_history_report_of(emp_id.to_i, month, year).first
+        if emp_report.present?
+        	cost = (emp_report.total / 100) * prorated_percent.to_f
+          total_cost += cost
+        end
+
+        total_invoices = TotalInvoice.get_invoiced_employees(project_id, emp_id.to_i, month, year).first
+
+        if total_invoices.present?
+          revenue = (total_invoices.amount / 100) * prorated_percent.to_f
+          total_revenue += revenue
+        end
+
+        if revenue and cost
+        	profit_or_loss = revenue - cost
+        	total_profit_or_loss += profit_or_loss
+        end
+        attributes = {
+	          :project_id => project_id,
+	          :project_name => history_data.css("ProjectName").text,
+	          :employee_id => emp_id,
+	          :employee_name => history_data.css("Name").text,
+	          :billing_type => history_data.css("BillingType").text,
+	          :allocation_age => history_data.css("PercentAlloc").text,
+	          :start_date => history_data.css("StartDate").text,
+	          :end_date => history_data.css("EndDate").text,
+	          :prorated => prorated_percent,
+	          :cost => cost.nil? ? "---" : cost,
+	          :revenue => revenue.nil? ? "---" : revenue,
+	          :profit_or_loss => profit_or_loss.nil? ? "---" : profit_or_loss
+	        }
+
+        allocations << attributes
+      end
+
+	    @rm_project_name = RmProject.get_project_name(params[:report_project_id]) unless params[:report_project_id].blank?
+
+      total_profitability = {
+        :project_id => @project_id,
+        :project_name => @rm_project_name,
+        :total_cost => total_cost,
+        :total_revenue => total_revenue,
+        :total_profit_or_loss => total_profit_or_loss
+      }
+      total_allocation << total_profitability
+
+      @summarized_report = total_allocation
+      @detailed_report = allocations
 		end
 	end
 end

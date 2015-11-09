@@ -1,6 +1,6 @@
 class RatesController < ApplicationController
   def index
-    @rates = Rate.where("iscurrent = ?", true).order("designation_id asc")
+    @rates = Rate.where("iscurrent = ?", true).order("designation_id asc").paginate(:page => params[:page], :per_page => 10)
 
 		respond_to do |format|
 			format.html
@@ -35,7 +35,7 @@ class RatesController < ApplicationController
  
         Rate.find(@rate.id).update_attribute(:iscurrent, true)
 
-        @rates = Rate.where("iscurrent = ?", true).order("designation_id asc")
+        @rates = Rate.where("iscurrent = ?", true).order("designation_id asc").paginate(:page => params[:page], :per_page => 10)
         format.js { render :file => "rates/index.js.erb" }
       end
     else
@@ -84,7 +84,7 @@ class RatesController < ApplicationController
   	@doc = Nokogiri::XML(open(@rm_url.get_all_designations))
   	@xml_data = @doc.css("Designations Positions")
 
-    @rates = Rate.where("iscurrent = ?", true).order("designation_id asc")
+    @rates = Rate.where("iscurrent = ?", true).order("designation_id asc").paginate(:page => params[:page], :per_page => 10)
 
   	rm_designations = Array.new
 

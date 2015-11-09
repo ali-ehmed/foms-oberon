@@ -8,23 +8,15 @@
 	<div class="row">
 		<div class="col-md-12 col-sm-12 col-xs-12">
 			<%= form_tag rates_path(format: :js), method: :get, id: "rates_form" do %>
-				<!-- <ul class="list-inline">
-					<li class="pull-right"> -->
-						<%= link_to rates_path(format: :js), class: "btn btn-default sync_link btn-right pull-right", remote: true do  %>
-							<i class="glyphicon glyphicon-link"></i> Refresh Rates
-						<% end %>
-					<!-- </li>
-					<li class="pull-right"> -->
-						<%= link_to "#", class: "btn btn-info sync_link btn-right pull-right", id: "sync_all_designations", "data-url" => sync_designations_rates_path(format: :js) do  %>
-							<i class="glyphicon glyphicon-link"></i> Sync Designations from RM tool
-						<% end %>
-					<!-- </li>
-					<li class="pull-right"> -->
-						<%= link_to "#", class: "btn btn-success sync_link btn-right pull-right", onclick: "$('#new_designation_rate_modal').modal('show')" do %>
-							<i class="glyphicon glyphicon-plus"></i> Add Designation
-						<% end %>
-					<!-- </li>
-				</ul> -->
+				<%= link_to rates_path, class: "btn btn-default sync_link btn-right pull-right" do  %>
+					<i class="glyphicon glyphicon-link"></i> Refresh Rates
+				<% end %>
+				<%= link_to "#", class: "btn btn-info sync_link btn-right pull-right", id: "sync_all_designations", "data-url" => sync_designations_rates_path(format: :js) do  %>
+					<i class="glyphicon glyphicon-link"></i> Sync Designations from RM tool
+				<% end %>
+				<%= link_to "#", class: "btn btn-success sync_link btn-right pull-right", onclick: "$('#new_designation_rate_modal').modal('show')" do %>
+					<i class="glyphicon glyphicon-plus"></i> Add Designation
+				<% end %>
 			<% end %>
 		</div>
 	</div>

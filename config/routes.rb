@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     get "/project_report" => "profitability_reports#specified_project_report", as: :project_report
     get "/division_report" => "profitability_reports#specified_division_report", as: :division_report
     get "/designations_report" => "profitability_reports#designations_report"
+    get "/employee_history_report" => "profitability_reports#employee_history_report"
   end
 
   resources :rates, only: [:index, :create, :update] do

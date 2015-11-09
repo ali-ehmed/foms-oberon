@@ -20,7 +20,7 @@
 		<div class="row">&nbsp;</div>
 		<div class="row">
 			<div class="col-md-6">
-				<%= submit_tag "Search", id: "get_report", class: "btn btn-danger" %>
+				<%= button_tag 'Search', id: "get_report", :class => 'btn btn-danger', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> Searching"} %>
 				<%= link_to "Reset", reports_project_report_path, class: "btn btn-default" %>
 			</div>
 		</div>

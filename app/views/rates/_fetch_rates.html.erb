@@ -29,6 +29,7 @@
 			  	<% end %>
 			  </tbody>
 			</table> 
+			<%= will_paginate @rates, renderer: BootstrapPagination::Rails %>
 		</div>	
 	<% else %>
 		<div class="alert alert-danger">

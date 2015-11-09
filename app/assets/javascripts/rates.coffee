@@ -106,19 +106,10 @@ window.cancelratesForm = (elem) ->
   $("#rates .select2-selection__placeholder").html("Choose Designation")
   $("#rates .select2-selection__rendered").empty()
 
-window.activeRateStatus = (elem) ->
+window.sendRateId = (elem) ->
 	$this = $(elem)
-	active_rate_tr = $this.closest("tbody:last-child")
-	$.each active_rate_tr, ->
-		$status_val = $(this).find("td:last-child a span")
-		unless $this.html() == "Yes"
-			$status_val.html("No")
-			$status_val.removeClass("label-success")
-			$status_val.addClass("label-danger")
-
-			$this.find("span").html("Yes")
-			$this.find("span").removeClass("label-danger")
-			$this.find("span").addClass("label-success")
+	id = $this.data("id")
+	$("#rate-id").html(id)
 
 $(document).on "page:change", ->
 	syncingAllDesignations()

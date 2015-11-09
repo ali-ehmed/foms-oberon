@@ -51,6 +51,7 @@
            	var  str1 = "<span style= 'color:"+e.entries[i].dataSeries.color + "'> " + e.entries[i].dataSeries.name + "</span>: <strong>"+  e.entries[i].dataPoint.y + "</strong> <br/>" ; 
             total = e.entries[i].dataPoint.y + total;
             str = str.concat(str1);
+
           }
           str2 = "<span style = 'color:DodgerBlue; '><strong>"+e.entries[0].dataPoint.label + "</strong></span><br/>";
           // str3 = "<span style = 'color:Tomato '>Total: </span><strong>" + total + "</strong><br/>";
@@ -64,7 +65,7 @@
         type: "bar",
         showInLegend: true,
         name: "Revenue",
-        color: "gold",
+        color: "#76B4F7",
         dataPoints: [
         	<% if !revenue.blank? %>
 						<% revenue.each do |r| %>
@@ -80,7 +81,7 @@
         type: "bar",
         showInLegend: true,
         name: "Expense",
-        color: "silver",          
+        color: "#EF4D4D",          
         dataPoints: [
         	<% if !expense.blank? %>
 						<% expense.each do |r| %>
@@ -96,7 +97,7 @@
         type: "bar",
         showInLegend: true,
         name: "Profit",
-        color: "#A57164",
+        color: "#6ECC6E",
         dataPoints: [
         	<% if !profit.blank? %>
 						<% profit.each do |r| %>

@@ -16,3 +16,23 @@ $(document).on 'page:change', ->
       minViewMode: 2
     ).on 'changeDate', (e) ->
       $(this).datepicker 'hide'
+
+  $('#start_date').datepicker(
+      format: 'M dd, yyyy'
+      orientation: 'bottom left'
+      todayHighlight: true
+    ).on 'changeDate', (e) ->
+      $(this).datepicker 'hide'
+
+  $('#end_date').datepicker(
+      format: 'M dd, yyyy'
+      orientation: 'bottom left'
+      todayHighlight: true
+    ).on 'changeDate', (e) ->
+      $(this).datepicker 'hide'
+
+  $(".employee_history_report_table").DataTable
+    responsive: true
+    bSort: true
+    bFilter: true
+    "iDisplayLength": 7
