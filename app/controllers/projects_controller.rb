@@ -25,7 +25,7 @@ class ProjectsController < ApplicationController
   		when "1"
         status = "Active"
       when "5"
-          status = "OnDemand"
+          status = "On Demand"
       else
         status = project_status
       end

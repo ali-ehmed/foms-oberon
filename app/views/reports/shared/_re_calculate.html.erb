@@ -1,0 +1,18 @@
+<div class="modal fade" id="re_calculate_reports" data-url="<%= calculate_profitability_reports_reports_re_calculate_reports_path %>">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" onclick="closeForm(this);" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Profitability Reports</h4>
+      </div>
+      <div class="modal-body">
+        <label>Select Date to Recalculate:</label>
+        <%= text_field_tag :recalculate_month_and_year, params[:recalculate_month_and_year], id: "recalculate_month_and_year", class: "form-control", placeholder: "Select Date" %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" onclick="closeForm(this);" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="calculate_reports_data">Calculate</button>
+      </div>
+    </div>
+  </div>
+</div>

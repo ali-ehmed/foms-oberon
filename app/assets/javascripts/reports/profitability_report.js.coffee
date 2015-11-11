@@ -36,3 +36,25 @@ $(document).on 'page:change', ->
     bSort: true
     bFilter: true
     "iDisplayLength": 7
+
+  $("#view_full_profitability_report").on "click", ->
+    $(this).addClass 'active-list'
+    $('#profitability_report_modal').modal("show")
+
+  $('#profitability_report_modal').on 'shown.bs.modal', ->
+    $this = $(this)
+    $.ajax
+      type: 'Get'
+      url: $this.data("url")
+      cache: false
+      success: (response, data) ->
+        console.log "Status: Ok"
+      error: (response) ->
+        swal 'oops', 'Something went wrong'
+
+  $('#profitability_report_modal').on 'hidden.bs.modal', ->
+    $("#full_prof_report").empty()
+    $("#view_full_profitability_report").removeClass 'active-list'
+
+
+    

@@ -18,6 +18,13 @@
 #
 
 class ProfitabilityReport < ActiveRecord::Base
+	belongs_to :division, class_name: "Divisions", :foreign_key => :div_id
+	belongs_to :project, class_name: "RmProject", :foreign_key => :project_id
+	belongs_to :designation
+	belongs_to :employee, -> (report) { unscope(where: :EmployeeID).where("EmployeeID = ?", "%04d" % report.employee_id.to_i) }, class_name: "Employeepersonaldetail"
+
+
+
 	scope :divisions_report, -> (month, year) { select("id, div_id, sum(cogs) as cogs, sum(profit) as profit, sum(operational_exp) as opexp, sum(invoice_amount) as amount")
 																						.where("month = ? and year = ?", month, year)
 																						.group("div_id") 
@@ -42,5 +49,100 @@ class ProfitabilityReport < ActiveRecord::Base
 																								.where("month = ? and year = ?", month, year)
 																								.group("designation_id") 
 																								}
+
+	def self.calculate_profitability_report(month, year)
+		@month = month
+		@year = year
+
+		@dollar_rate = DollarRates.find_by_month_and_year(@month, @year)
+		@employees = Employeepersonaldetail.is_inactive_or_consultant_employees
+
+		if !@employees.blank?
+			for employee in @employees
+				@invoices = TotalInvoice.where("month = ? and year = ? and isSent = 1 and ABS(employee_id) = ?", @month, @year, employee.EmployeeID.to_i.abs)
+				@invoices.each do |invoice|
+					unless invoice.blank?
+						logger.debug "Employee: #{employee.EmployeeID} Inv = #{invoice.id} Consultant = #{employee.isConsultant}"
+
+						rm_project = RmProject.find_by_project_id(invoice.project_id)
+
+						emp_profitability_report = EmployeeProfitibilityReport.find_by_employee_id_and_month_and_year("#{employee.EmployeeID}", @month, @year)
+
+	          operational_expense_variable = Variable.find_by_VariableName("OperationalExpense").Value.to_f
+	          division = Divisions.find_by_div_owner("#{rm_project.director_name}")
+
+	          div_id = division.id unless division.blank?
+	          cogs = 0
+	          operational_expense = 0
+
+	          unless invoice.percentage_alloc.nil?
+	            if employee.isConsultant == true
+	            	consultant = employee.consultants.find_by_month_and_year(@month, @year)
+
+	            	if consultant.present?
+	              	cogs = consultant.cogs / @dollar_rate.dollar_rate 
+	              else
+	              	puts "consultant not found"
+	              	next
+	              end
+	              
+	              operational_expense = consultant.opex / @dollar_rate.dollar_rate
+	            else
+
+	            	if !emp_profitability_report.nil?
+	              	cogs = (((invoice.percentage_alloc / 100 / Time.local(@year, @month).to_date.end_of_month.day.to_i) * invoice.no_of_days.to_f) * emp_profitability_report.compensation)
+	              else
+	              	puts "emp_profitability_report not found"
+	              	next
+	              end
+
+	              operational_expense = ((invoice.percentage_alloc / 100 / Time.local(@year, @month).to_date.end_of_month.day.to_i) * invoice.no_of_days.to_f * operational_expense_variable / @dollar_rate.dollar_rate)
+	            end
+	          end
+
+	          unless invoice.percentage_alloc.blank?
+	          	invoice_percent_allocation = (invoice.percentage_alloc / 100 / Time.local(year, month).end_of_month.day.to_i) * invoice.no_of_days.to_i 
+          	else
+          		puts "invoice percentage_alloc not found"
+          		next
+          	end
+	          
+	          profit = invoice.try(:amount) - cogs - operational_expense
+	          
+	          attributes = {
+	            :div_id => div_id,
+	            :project_id => rm_project.project_id,
+	            :employee_id => employee.EmployeeID,
+	            :designation_id => employee.Designation,
+	            :month => @month,
+	            :year => @year,
+	            :invoice_amount => invoice.amount,
+	            :percentage_allocation => invoice_percent_allocation,
+	            :no_of_days => invoice.no_of_days,
+	            :cogs => cogs,
+	            :operational_exp => operational_expense,
+	            :profit => profit
+	          }
+
+	          create(attributes)
+	        end
+	      end
+			end
+			puts "Count: #{ProfitabilityReport.count}"
+
+			return :created, @dollar_rate.dollar_rate
+		else
+			@msg = "Employees are not found"
+    	return :error, @msg
+		end
+	end
+
+	def div_name
+		if division.blank? or division.div_name.blank?
+			"---"
+		else
+		 division.div_name
+		end
+	end
 
 end

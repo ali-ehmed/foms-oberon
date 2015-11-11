@@ -1,5 +1,20 @@
 module Reports
 	class ProfitabilityReportsController < BaseController
+		def index
+			if params[:month_year].present?
+				@month = params[:month_year].delete(' ').split("-").first
+				@year = params[:month_year].delete(' ').split("-").last
+			end
+
+			@profitability_reports = ProfitabilityReport.where("month = ? and year = ?", @month, @year)	
+
+			@profitability_reports ||= []
+			@dollar_rate = DollarRates.find_by_month_and_year(@month, @year)
+			respond_to do |format|
+				format.js
+			end
+		end
+
 		def divisions_report
 			@month = params[:month_year].present? ? params[:month_year].delete(' ').split("-").first : Date.today.month
 			@year = params[:month_year].present? ? params[:month_year].delete(' ').split("-").last : Date.today.year
@@ -13,8 +28,6 @@ module Reports
 				report.div_id.nil? ? "---" : divisions[report.div_id - 1].div_name
 			end
 		end
-
-
 
 		def projects_report
 			@month = params[:month_year].present? ? params[:month_year].delete(' ').split("-").first : Date.today.month

@@ -4,7 +4,7 @@
 #= require_tree .
 
 $(document).on "page:change", ->
-	get_curr_url = "/#{@location.pathname.split("/")[1]}/#{@location.pathname.split("/")[2]}"
+	get_curr_url = "/#{@location.pathname.split("/")[1]}/#{@location.pathname.split("/")[2]}/#{@location.pathname.split("/")[3]}"
 	$.each $('.reports-list-group').find('a'), ->
 		if get_curr_url == $(this).attr("href")
 			$(this).addClass 'active-list'

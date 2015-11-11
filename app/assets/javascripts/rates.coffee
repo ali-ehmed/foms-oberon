@@ -5,33 +5,31 @@ syncingAllDesignations = ->
 		revision_date_val = $("select[name='revision_date']").val()
 		swal {
 		  title: "Sync All Designations?"
-		  type: 'warning'
+		  type: 'info'
 		  showCancelButton: true
 		  confirmButtonColor: '#DD6B55'
 		  confirmButtonText: 'Sync All'
 		  cancelButtonText: 'Cancel'
 		  closeOnConfirm: false
 		  closeOnCancel: true
-		}, (isConfirm) ->
-		  if isConfirm
+		  showLoaderOnConfirm: true
+		}, ->
 		    $.ajax
 		      type: 'Get'
 		      url: $this.data("url")
 		      data: { sync_designation: true }
 		      cache: false
-		      beforeSend:
-		      	swal
-		      		title: "<span class=\"fa fa-spinner fa-spin fa-3x\"></span>"
-		      		text: "<h2>Syncronizing</h2>"
-		      		html: true
-		      		showConfirmButton: false
+		      # beforeSend:
+		      # 	swal
+		      # 		title: "<span class=\"fa fa-spinner fa-spin fa-3x\"></span>"
+		      # 		text: "<h2>Syncronizing</h2>"
+		      # 		html: true
+		      # 		showConfirmButton: false
 		      success: (response, data) ->
         		swal 'Designations', "Synchronized", "success"
 		      error: (response) ->
 		        swal 'oops', 'Something went wrong'
 		    false
-		  else
-		    swal 'Cancelled', '', 'error'
 		  return
 
 window.submitRatesForm = ->

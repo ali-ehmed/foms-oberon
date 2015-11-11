@@ -50,6 +50,7 @@ gem 'annotate'
 gem 'jquery-datatables-rails', github: "rweng/jquery-datatables-rails", branch: "master"
 gem 'ajax-datatables-rails', git: 'git://github.com/antillas21/ajax-datatables-rails.git', branch: 'legacy'
 
+
 # Thin Server
 gem 'thin'
 

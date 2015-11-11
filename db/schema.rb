@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151104104457) do
+ActiveRecord::Schema.define(version: 20151111080518) do
 
   create_table "accrualbonusdetails", primary_key: "Tenure", force: :cascade do |t|
     t.float "Percentage", limit: 53, null: false
@@ -115,10 +115,9 @@ ActiveRecord::Schema.define(version: 20151104104457) do
     t.string "designation", limit: 255
   end
 
-  create_table "divisions", id: false, force: :cascade do |t|
-    t.integer "id",        limit: 4
-    t.string  "div_name",  limit: 255
-    t.string  "div_owner", limit: 255
+  create_table "divisions", force: :cascade do |t|
+    t.string "div_name",  limit: 255
+    t.string "div_owner", limit: 255
   end
 
   create_table "dollar_rates", force: :cascade do |t|

@@ -1,12 +1,21 @@
 Rails.application.routes.draw do
   namespace :reports do
     get "/" => "base#listing"
-    get "/divisions_report" => "profitability_reports#divisions_report"
-    get "/projects_report" => "profitability_reports#projects_report"
-    get "/project_report" => "profitability_reports#specified_project_report", as: :project_report
-    get "/division_report" => "profitability_reports#specified_division_report", as: :division_report
-    get "/designations_report" => "profitability_reports#designations_report"
-    get "/employee_history_report" => "profitability_reports#employee_history_report"
+    resources :profitability_reports, only: [:index] do
+      collection do 
+        get "/divisions" => "profitability_reports#divisions_report", as: :divisions
+        get "/projects" => "profitability_reports#projects_report", as: :projects
+        get "/project" => "profitability_reports#specified_project_report", as: :project
+        get "/division_based" => "profitability_reports#specified_division_report", as: :division_based
+        get "/designations" => "profitability_reports#designations_report", as: :designations
+        get "/employee_history" => "profitability_reports#employee_history_report", as: :employee_history
+      end
+    end
+    resources :re_calculate_reports, only: [:index] do
+      collection do 
+        post "/calculate_profitability_reports" => "re_calculate_reports#calculate_profitability_reports"
+      end
+    end
   end
 
   resources :rates, only: [:index, :create, :update] do

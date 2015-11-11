@@ -1,0 +1,45 @@
+$("#full_prof_report").hide().html("<%= escape_javascript(render '/reports/shared/full_profitability_report') %>").fadeIn(300)
+
+setTimeout(function(){
+	$('#report_search').find('input#report_month_year').datepicker({
+	  format: 'm - yyyy',
+	  orientation: 'bottom left',
+	  minViewMode: 1
+	}).on('changeDate', function(e) {
+	  return $(this).datepicker('hide');
+	});
+
+	$('.prof_report_table').DataTable({
+	  'ordering': false,
+	  'info': false,
+	  'filter': false,
+	  "responsive": true,
+	  "iDisplayLength": 5
+	});
+
+	$("div#prof_report_dollar_rate blockquote").html("This report was created at Dollar Rate <strong><%= @dollar_rate.dollar_rate unless @dollar_rate.blank? %></strong>")
+	
+	$("form#report_search").on("submit", function(e) {
+	  var $form, $search_btn;
+	  e.preventDefault();
+	  $form = $(this);
+	  $search_btn = $form.find("input[type='submit']");
+	  return $.ajax({
+	    type: $form.attr("method"),
+	    url: $form.attr("action"),
+	    data: $form.serialize(),
+	    cache: false,
+	    beforeSend: function() {
+	      return $search_btn.replaceWith("<button id='prof_report_loader_btn' class=\"btn btn-danger\">Searching... <i class=\"fa fa-spinner fa-spin\"></i></button>");
+	    },
+	    success: function(response, data) {
+	      console.log("Status: Ok");
+	      $("#prof_report_loader_btn").replaceWith($search_btn);
+	      return
+	    },
+	    error: function(response) {
+	      return swal('oops', 'Something went wrong');
+	    }
+	  });
+	});
+}, 100);

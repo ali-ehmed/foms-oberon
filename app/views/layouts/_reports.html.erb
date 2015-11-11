@@ -6,13 +6,18 @@
     <div class="row">
       <div class="col-md-3">
         <div class="reports-list-group">
-          <%= link_to "Divisions Report", reports_divisions_report_path, class: "list-group-item" %>
-          <%= link_to "Projects Report", reports_projects_report_path, class: "list-group-item" %>
-          <%= link_to "Specified Project Based Report", reports_project_report_path, class: "list-group-item" %>
-          <%= link_to "Division Project Based Report", reports_division_report_path, class: "list-group-item" %>
-          <%= link_to "Designations Project Based Report", reports_designations_report_path, class: "list-group-item" %>
-          <%= link_to "Employee History Report", reports_employee_history_report_path, class: "list-group-item" %>
+          <%= link_to "Divisions Report", divisions_reports_profitability_reports_path, class: "list-group-item" %>
+          <%= link_to "Projects Report", projects_reports_profitability_reports_path, class: "list-group-item" %>
+          <%= link_to "Specified Project Based Report", project_reports_profitability_reports_path, class: "list-group-item" %>
+          <%= link_to "Division Project Based Report", division_based_reports_profitability_reports_path, class: "list-group-item" %>
+          <%= link_to "Designations Project Based Report", designations_reports_profitability_reports_path, class: "list-group-item" %>
+          <%= link_to "Employee History Report", employee_history_reports_profitability_reports_path, class: "list-group-item" %>
+          <%= link_to "View Full Report", "#", class: "list-group-item", id: "view_full_profitability_report" %>
         </div>
+        <br />
+        <%= link_to "#", class: "btn btn-info", id: "recalculate_reports"  do %>
+          <strong>Re-Calculate Profitability Reports</strong>
+        <% end %>
       </div>
       <div class="col-md-9">
         <div id="profitability_reports">
@@ -21,4 +26,7 @@
       </div>
     </div>
   </div>
+  <hr />
+  <%= render "/reports/shared/re_calculate" %>
+  <%= render "/reports/shared/full_profitability_report_modal" %>
 <% end %>

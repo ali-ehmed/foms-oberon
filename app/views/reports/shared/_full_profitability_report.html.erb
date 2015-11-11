@@ -1,0 +1,57 @@
+<div class="row">
+  <div class="col-md-6">
+    <%= form_tag reports_profitability_reports_path(format: :js), method: :get, id: "report_search" do %>
+      <p>
+        <label>Search Report By Month:</label>
+        <%= text_field_tag :month_year, params[:month_year], id: "report_month_year", class: "form-control", placeholder: "Select Date" %>
+      </p>
+      <p><%= submit_tag 'Search', :class => 'btn btn-danger' %></p>
+    <% end %>
+  </div>
+</div>
+<hr />
+<div id="profitability-report">
+  <% if @profitability_reports.present? %>
+    <div id="prof_report_dollar_rate">
+      <blockquote></blockquote>
+    </div>
+  	<div class="table-responsive">
+  		<table  class="table table-hover table-striped prof_report_table">
+        <thead>
+          <tr>
+            <th>Division</th>
+            <th>Project</th>
+            <th>Employee</th>
+            <th>Month</th>
+            <th>Year</th>
+            <th>(%) Alloc</th>
+            <th>Days</th>
+            <th>COGS</th>
+            <th>Operational Expense</th>
+            <th>Profit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @profitability_reports.each do |report| %>
+            <tr>
+            	<td><%= report.div_name %></td>
+              <td><%= report.project.name %></td>
+              <td><%= report.employee.full_name %></td>
+              <td><%= report.month %></td>
+              <td><%= report.year %></td>
+              <td><%= report.percentage_allocation %></td>
+              <td><%= report.no_of_days %></td>
+              <td><%= report.cogs %></td>
+              <td><%= report.operational_exp %></td>
+              <td><%= report.profit %></td>
+            </tr>
+          <% end %>
+      	</tbody>
+    	</table>
+    </div>
+  <% else %>
+    <div class="alert alert-danger">
+      <blockquote style="margin:0;">No <strong>Report</strong> Present</blockquote>
+    </div>
+  <% end %>
+</div>

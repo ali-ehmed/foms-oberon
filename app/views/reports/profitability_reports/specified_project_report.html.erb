@@ -2,7 +2,7 @@
 	<blockquote>
 		<h2>Project Based Report</h2>
 	</blockquote>
-	<%= form_tag reports_project_report_path, method: :get do %>
+	<%= form_tag project_reports_profitability_reports_path, method: :get do %>
 		<div class="row">
 			<div class="col-md-6">
 				<div class="row">
@@ -21,7 +21,7 @@
 		<div class="row">
 			<div class="col-md-6">
 				<%= button_tag 'Search', id: "get_report", :class => 'btn btn-danger', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> Searching"} %>
-				<%= link_to "Reset", reports_project_report_path, class: "btn btn-default" %>
+				<%= link_to "Reset", project_reports_profitability_reports_path, class: "btn btn-default" %>
 			</div>
 		</div>
 	<% end %>

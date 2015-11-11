@@ -24,6 +24,8 @@
 
 //= require bootstrap-datepicker
 
-//= require sweet-alert
+//= require sweetalert-dev
+//= require sweetalert.min
+
 //= require turbolinks
 //= require_tree .

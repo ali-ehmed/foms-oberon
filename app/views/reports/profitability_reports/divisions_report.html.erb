@@ -4,14 +4,14 @@
 	</blockquote>
 	<div class="row">
 		<div class="col-md-6">
-			<%= form_tag reports_divisions_report_path, method: :get do %>
+			<%= form_tag divisions_reports_profitability_reports_path, method: :get do %>
 				<p>
 					<label>Search Report By Month:</label>
 					<%= text_field_tag :month_year, params[:month_year], id: "report_month_year", class: "form-control", placeholder: "Select Date" %>
 				</p>
 				<p>
 				<%= button_tag 'Search', id: "get_report", :class => 'btn btn-danger', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> Searching"} %>
-				<%= link_to "Reset", reports_divisions_report_path, class: "btn btn-default" %></p>
+				<%= link_to "Reset", divisions_reports_profitability_reports_path, class: "btn btn-default" %></p>
 			<% end %>
 		</div>
 	</div>

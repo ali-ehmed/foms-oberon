@@ -15,6 +15,8 @@
 #
 
 class EmployeeProfitibilityReport < ActiveRecord::Base
+	belongs_to :employee, class_name: "Employeepersonaldetail", foreign_key: :employee_id
+
 	def self.get_history_report_of(emp_id, month, year)
 		where("employee_id = ? and month = ? and year = ?", emp_id, month, year)
 	end
