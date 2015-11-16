@@ -10,6 +10,7 @@ module Reports
 
 			@profitability_reports ||= []
 			@dollar_rate = DollarRates.find_by_month_and_year(@month, @year)
+			
 			respond_to do |format|
 				format.js
 			end
@@ -21,7 +22,7 @@ module Reports
 
 			@division_report = ProfitabilityReport.divisions_report(@month, @year)
 
-			divisions = Divisions.all
+			divisions = Division.all
 
 			# Genrating Divisions Report
 			generate_profitability_report_for({:report => @division_report}, :divisions_report) do |report|
@@ -75,7 +76,7 @@ module Reports
 		end
 
 		def specified_division_report
-			@divisions = Divisions.all
+			@divisions = Division.all
 			@month = params[:month_year].present? ? params[:month_year].delete(' ').split("-").first : Date.today.month
 			@year = params[:month_year].present? ? params[:month_year].delete(' ').split("-").last : Date.today.year
 

@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  resources :invoices, only: [:index, :create] do
+    collection do
+      get "invoice_number" => "invoices#get_invoice_number"
+      get "sync_all_invoices" => "invoices#sync_all_invoices"
+    end
+  end
+
   namespace :reports do
     get "/" => "base#listing"
     resources :profitability_reports, only: [:index] do

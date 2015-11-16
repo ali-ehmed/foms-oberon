@@ -15,4 +15,8 @@ class Rate < ActiveRecord::Base
 	belongs_to :designation
 
 	validates_presence_of :designation_id, :team_based_rates, :hour_based_rates, on: :create
+
+	def self.get_max_rate(designation_id)
+		where("id=(SELECT MAX(id) FROM rates WHERE designation_id = '#{designation_id}')")
+	end
 end

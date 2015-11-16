@@ -22,6 +22,12 @@
 //= require best_in_place.jquery-ui
 //= require best_in_place.purr
 
+//= require bootstrap-switch.min
+//= require bootstrap-switch
+
+//= require jquery.bootstrap-touchspin
+//= require jquery.bootstrap-touchspin.min
+
 //= require bootstrap-datepicker
 
 //= require sweetalert-dev

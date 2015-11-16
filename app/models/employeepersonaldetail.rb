@@ -34,6 +34,8 @@ class Employeepersonaldetail < ActiveRecord::Base
 
 	has_one :employee_profitability_report, class_name: "EmployeeProfitibilityReport", foreign_key: :employee_id
 
+	belongs_to :designation, -> { unscope(where: :Designation)}, class_name: "Designation", foreign_key: :Designation
+
 	def self.is_inactive_or_consultant_employees
 		where("isInactive = 0 or isConsultant = 1")
 	end

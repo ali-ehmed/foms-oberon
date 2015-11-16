@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151111080518) do
+ActiveRecord::Schema.define(version: 20151116143247) do
 
   create_table "accrualbonusdetails", primary_key: "Tenure", force: :cascade do |t|
     t.float "Percentage", limit: 53, null: false
@@ -666,6 +666,9 @@ ActiveRecord::Schema.define(version: 20151111080518) do
     t.string   "last_sign_in_ip",        limit: 255
     t.datetime "created_at",                                      null: false
     t.datetime "updated_at",                                      null: false
+    t.integer  "failed_attempts",        limit: 4,   default: 0,  null: false
+    t.string   "unlock_token",           limit: 255
+    t.datetime "locked_at"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

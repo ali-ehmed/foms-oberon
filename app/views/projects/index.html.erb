@@ -1,8 +1,9 @@
-
 <div class="page-header">
 	<h1>
 		Projects
-		<%= link_to "Sync Projects from RM Tool", "#", class: "btn btn-info pull-right sync_link", id: "sync_all_projects", "data-url" => sync_projects_projects_path %>
+		<%= link_to "#", class: "btn btn-info pull-right sync_link", id: "sync_all_projects", "data-url" => sync_projects_projects_path do %>
+			<i class="glyphicon glyphicon-link"></i> Sync Projects from RM Tool
+		<% end %>
 	</h1>
 </div>
 

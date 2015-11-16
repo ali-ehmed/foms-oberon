@@ -6,3 +6,4 @@ rm_tool:
   projects_status_url: '%{root_url}/GetStatus'
   designations_url: '%{root_url}/GetAllDesignations'
   history_of_allocations_url: '%{root_url}/GetHistoryOfAllocations?projId=%{project_id}&RoleId=0&EmpFomsId=0&AllocStatus=2&userId=336&positionId=0&startDate=%{start_date}&endDate=%{end_date}'
+  all_projects_allocation_url: '%{root_url}/GetAllProjectsAllocations?$&month=%{month}&&year=%{year}'

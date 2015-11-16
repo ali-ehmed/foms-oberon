@@ -11,6 +11,6 @@ $(document).on 'page:change', ->
   return
 
 	window.setTimeout (->
-	  $('.notification-alert').fadeTo(500, 0).slideUp 500, ->
-	    $(this).remove()
+	  $('.notification-alert, #total_no_days_alert').fadeTo(500, 0).slideUp 500, ->
+	    $(this).hide()
 	), 5000

@@ -19,7 +19,7 @@ syncingAllDesignations = ->
 		      url: $this.data("url")
 		      data: { sync_designation: true }
 		      cache: false
-		      # beforeSend:
+		      # beforeSend: ->
 		      # 	swal
 		      # 		title: "<span class=\"fa fa-spinner fa-spin fa-3x\"></span>"
 		      # 		text: "<h2>Syncronizing</h2>"

@@ -19,6 +19,14 @@
  
  *= require bootstrap-datepicker3
  *= require bootstrap-datepicker3.standalone
+	
+ *= require awesome-bootstrap-checkboxes
+ 
+ *= require bootstrap-switch
+ *= require bootstrap-switch.min
+
+ *= require jquery.bootstrap-touchspin.min
+ *= require jquery.bootstrap-touchspin
 
  *= require_tree .
  *= require_self

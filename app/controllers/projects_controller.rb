@@ -10,7 +10,7 @@ class ProjectsController < ApplicationController
   end
 
   def sync_projects
-
+    # RmProject.destroy_all if RmProject.count > 0
   	@rm_url = RmService.new
   	@doc = Nokogiri::XML(open(@rm_url.get_all_projects))
   	@xml_data = @doc.css("Projects Project")
@@ -42,14 +42,20 @@ class ProjectsController < ApplicationController
       }
 
       rm_projects << attributes
+
+      
+
+      existing_project = RmProject.find_by_name(attributes[:name])
+      if existing_project.present?
+        logger.debug "Updating Old Project"
+        existing_project.update_attributes(attributes)
+      else
+        logger.debug "Creating New Project"
+        RmProject.create attributes
+      end
   	end
 
-  	logger.debug "Destroying Old Projects"
-  	
-		RmProject.destroy_all if RmProject.count > 0
-
-  	logger.debug "Creating New Projects"
-  	@projects = RmProject.create rm_projects
+    @projects = RmProject.all
 
   	respond_to do |format|
   		format.json { render json: { status: :synced_all, data: @projects  }, status: :created }

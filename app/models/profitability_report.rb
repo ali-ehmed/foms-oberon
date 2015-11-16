@@ -18,9 +18,10 @@
 #
 
 class ProfitabilityReport < ActiveRecord::Base
-	belongs_to :division, class_name: "Divisions", :foreign_key => :div_id
+	belongs_to :division, class_name: "Division", :foreign_key => :div_id
 	belongs_to :project, class_name: "RmProject", :foreign_key => :project_id
 	belongs_to :designation
+	
 	belongs_to :employee, -> (report) { unscope(where: :EmployeeID).where("EmployeeID = ?", "%04d" % report.employee_id.to_i) }, class_name: "Employeepersonaldetail"
 
 
@@ -69,7 +70,7 @@ class ProfitabilityReport < ActiveRecord::Base
 						emp_profitability_report = EmployeeProfitibilityReport.find_by_employee_id_and_month_and_year("#{employee.EmployeeID}", @month, @year)
 
 	          operational_expense_variable = Variable.find_by_VariableName("OperationalExpense").Value.to_f
-	          division = Divisions.find_by_div_owner("#{rm_project.director_name}")
+	          division = Division.find_by_div_owner("#{rm_project.director_name}")
 
 	          div_id = division.id unless division.blank?
 	          cogs = 0
@@ -82,7 +83,7 @@ class ProfitabilityReport < ActiveRecord::Base
 	            	if consultant.present?
 	              	cogs = consultant.cogs / @dollar_rate.dollar_rate 
 	              else
-	              	puts "consultant not found"
+	              	logger.debug "consultant not found"
 	              	next
 	              end
 	              
@@ -92,7 +93,7 @@ class ProfitabilityReport < ActiveRecord::Base
 	            	if !emp_profitability_report.nil?
 	              	cogs = (((invoice.percentage_alloc / 100 / Time.local(@year, @month).to_date.end_of_month.day.to_i) * invoice.no_of_days.to_f) * emp_profitability_report.compensation)
 	              else
-	              	puts "emp_profitability_report not found"
+	              	logger.debug "emp_profitability_report not found"
 	              	next
 	              end
 
@@ -103,12 +104,12 @@ class ProfitabilityReport < ActiveRecord::Base
 	          unless invoice.percentage_alloc.blank?
 	          	invoice_percent_allocation = (invoice.percentage_alloc / 100 / Time.local(year, month).end_of_month.day.to_i) * invoice.no_of_days.to_i 
           	else
-          		puts "invoice percentage_alloc not found"
+          		logger.debug "invoice percentage_alloc not found"
           		next
           	end
 	          
 	          profit = invoice.try(:amount) - cogs - operational_expense
-	          
+
 	          attributes = {
 	            :div_id => div_id,
 	            :project_id => rm_project.project_id,
@@ -128,7 +129,7 @@ class ProfitabilityReport < ActiveRecord::Base
 	        end
 	      end
 			end
-			puts "Count: #{ProfitabilityReport.count}"
+			logger.debug "Count: #{ProfitabilityReport.count}"
 
 			return :created, @dollar_rate.dollar_rate
 		else

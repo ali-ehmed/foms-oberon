@@ -7,6 +7,6 @@
 #  div_owner :string(255)
 #
 
-class Divisions < ActiveRecord::Base
+class Division < ActiveRecord::Base
 	has_many :profitability_reports
 end

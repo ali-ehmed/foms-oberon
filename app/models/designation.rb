@@ -9,4 +9,8 @@
 class Designation < ActiveRecord::Base
 	has_many :rates
 	has_many :profitability_reports
+
+	def designation_name
+		designation
+	end
 end

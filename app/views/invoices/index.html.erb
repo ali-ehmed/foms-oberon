@@ -1,0 +1,63 @@
+<div class="page-header">
+	<h1>
+		Generate <small>New Invoices</small>
+	</h1>
+</div>
+
+<div class="row">
+	<div class="col-md-3">
+		<div class="panel panel-info">
+		  <div class="panel-heading">
+		    <h3 class="panel-title">Synchronize Data</h3>
+		  </div>
+		  <div class="panel-body">
+		    <%= link_to "javascript:void(0);", class: "btn btn-default btn-block", onclick: "syncAllInvoices(this);", data: { url: sync_all_invoices_invoices_path(format: :json) } do %>
+					<i class="glyphicon glyphicon-link"></i> Sync All Invoices
+				<% end %>
+				<hr />
+				<blockquote>
+				  <p>Total No Of Days:</p>
+				  <%= text_field_tag :no_of_days, params[:no_of_days], class: "form-control", data: { invoice_no_url: invoice_number_invoices_path(format: :json) } %>
+				  <div class="alert alert-danger" id="total_no_days_alert">
+				  	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				  	No of Days Changed All amounts are Recalculated
+				  </div>
+				</blockquote>
+				<hr />
+				<blockquote>
+			  	<small><input type="checkbox" name="invoice_project"></small>
+			  	<br />
+		  		<%= select_tag :invoice_projects, options_for_select(RmProject.all.map{|m| [m.name, m.id]}), class: "form-control", prompt: "--Select Project--" %>
+				</blockquote>
+				<blockquote>
+			  	<small><input type="checkbox" name="invoice_employee"></small>
+			  	<br />
+		  		<%= select_tag :invoice_employees, options_for_select(Employeepersonaldetail.all.map{|m| [m.full_name, m.EmployeeID]}), class: "form-control", prompt: "--Select Employee--" %>
+				</blockquote>
+				<hr />
+				<%= link_to invoices_path, class: "btn btn-primary pull-right" do %>
+					<i class="glyphicon glyphicon-link"></i> Sync Data
+				<% end %>
+		  </div>
+		</div>
+	</div>
+	<div class="col-md-9">
+		<%= form_tag "#", method: :get do %>
+			<div class="row">
+				<div class="col-md-6">
+					<label>View Invoices For The Month Of:</label>
+					<%= text_field_tag :month_year, params[:month_year], id: "invoice_month_year", class: "form-control", placeholder: "Select Date" %>
+				</div>
+			</div>
+			<br />
+			<div class="row">
+				<div class="col-md-3">
+					<%= button_tag 'Search', :class => 'btn btn-danger', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> Searching"} %>
+					<%= link_to "Reset", invoices_path, class: "btn btn-default" %>
+				</div>
+			</div>
+		<% end %>
+		<br />
+	</div>
+	
+</div>
