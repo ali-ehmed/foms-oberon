@@ -33,5 +33,8 @@
 //= require sweetalert-dev
 //= require sweetalert.min
 
+//= require jasny-bootstrap.min
+//= require jasny-bootstrap
+
 //= require turbolinks
 //= require_tree .

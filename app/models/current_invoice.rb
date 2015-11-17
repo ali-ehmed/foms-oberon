@@ -46,9 +46,22 @@ class CurrentInvoice < ActiveRecord::Base
 																				and employee_id = #{employee_id} 
 																				and ishourly = 0 AND IsShadow = 0)") }
 
-	scope :get_old_invoices_for, -> (month, year, project_id = nil) do 
-		project_id.blank? ? where("month = ? and year = ?", month, year) : where("project_id = ? and month = ? and year = ?", project_id, month, year)
+	scope :get_invoices_for, -> (month, year, project_id = nil, employee_id = nil) do 
+
+		if project_id.blank? and employee_id.blank?
+			where("month = ? and year = ?", month, year)
+		elsif employee_id.blank? and project_id.present?
+			where("project_id = ? and month = ? and year = ?", project_id, month, year)
+		elsif project_id.blank? and employee_id.present?
+			where("employee_id = ? and month = ? and year = ?", employee_id, month, year)
+		else
+			logger.debug "-----"
+			where("employee_id = ? and project_id = ? and month = ? and year = ?", employee_id, project_id, month, year)
+		end
+
 	end
+
+	validates :hours, presence: true, on: :update
 
 	class << self
 

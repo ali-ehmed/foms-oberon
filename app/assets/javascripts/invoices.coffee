@@ -1,9 +1,9 @@
 $invoices =
   init: ->
-
     ### Initializing Methods ###
-
     $invoices.getInvoiceNumber()
+    $invoices.fetchingCurrentInvoices()
+
     return
 
   getInvoiceNumber: ->
@@ -13,6 +13,53 @@ $invoices =
       $input.val response.invoice_number
       return
 
+  getInvoiceParams: ->
+    date_input = $('input#invoice_month_year')
+    month_param = date_input.val().split('-')[0]
+    year_param = date_input.val().split('-')[1]
+    project_param = $("#invoice_projects").val()
+
+    params = {
+      month: $.trim(month_param)
+      year: $.trim(year_param)
+      invoice_project: project_param
+    }
+
+    return params
+
+  fetchingCurrentInvoices: ->
+    $("#fetch_invoices_btn").on 'click', ->
+      $elem = $(this)
+      method = $elem.data("method")
+      url = $elem.data("action")
+
+      employee_id = $("#invoice_employees").val()
+      params = $invoices.getInvoiceParams()
+
+      params["invoice_employee"] = employee_id if employee_id
+
+      $btn_html = $elem.html()
+      $.ajax
+        type: method
+        url: url
+        data: params
+        cache: false
+        beforeSend: ->
+          $elem.html("<i class=\"fa fa-spinner fa-pulse\"></i> <strong>Fetching</strong>")
+        success: (response, data) ->
+          if response.status == 'error'
+            swal
+              title: 'Couldn\'t Fetch Invoices'
+              text: response.message
+              type: 'error'
+              html: true
+          else
+            console.log "Status OK"
+          $elem.html($btn_html)
+        error: (response) ->
+          swal 'oops', 'Something went wrong'
+          $elem.html($btn_html)
+
   synchronizeInvoicesFromRm: (elem, text = "") ->
     $this = $(elem)
     date_input = $('input#invoice_month_year')
@@ -21,15 +68,12 @@ $invoices =
     no_of_days = $('#no_of_days').val()
     project_id = $("#invoice_projects").val()
 
-    params = {
-    	month: $.trim(month_param)
-    	year: $.trim(year_param)
-    	no_of_days: no_of_days
-    }
+    params = $invoices.getInvoiceParams()
+    params["no_of_days"] = no_of_days
 
     # If Project based sync
-    if $this.data("isproject") == true
-    	params["invoice_projects"] = project_id
+    if $this.data("isproject") == false
+      delete params["invoice_project"]
 
     swal {
       title: text
@@ -66,6 +110,7 @@ $invoices =
           swal 'Oops', 'Something went wrong'
           false
           return
+
 window.syncInvoices = (elem, text = "") ->
 	$invoices.synchronizeInvoicesFromRm(elem, text)
 

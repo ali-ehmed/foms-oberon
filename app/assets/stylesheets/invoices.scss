@@ -11,4 +11,30 @@
 #invoice_employees_select {
 	display: none;
 }
-.invoice_month_year_label { font-size: 11px; }
+.invoice_label {
+	font-size: 13px;    
+	margin-bottom: 9px;
+  margin-top: 10px; 
+}
+
+#invoices_table {
+	tr > th, td {
+    text-align: center;
+	}
+}
+
+#side_bar_opener{
+	a {
+		color: #fff;
+	}
+  position: absolute;
+  top: 168px;
+  left: 485px;
+  background-color: #907B23;
+  padding: 10px 8px 10px 9px;
+  border-radius: 0px 3px 4px 0px;
+}
+
+.d_btn {
+  margin-top: 10px;
+}

@@ -3,68 +3,82 @@
 		Generate <small>New Invoices</small>
 	</h1>
 </div>
-<div class="row">
-	<div class="col-md-3">
-		<div class="panel panel-info">
-		  <div class="panel-heading">
-		    <h3 class="panel-title">Synchronize Data</h3>
-		  </div>
-		  <div class="panel-body">
-		  	<blockquote>
-		  		<label class="invoice_month_year_label">View Invoices For The Month Of:</label>
-		  		<div class="row">
-		  			<div class="col-md-9">
-		  				<%= text_field_tag :month_year, params[:month_year], id: "invoice_month_year", class: "form-control", placeholder: "Select Date" %>		
-		  			</div>
-		  			<div class="col-md-3">
-		  				<%= link_to invoices_path, :class => 'btn btn-default' do %>
-								<i class="fa fa-refresh"></i>
-							<% end %>
-		  			</div>
-		  		</div>
-		  	</blockquote>
-				<hr />
+
+<div class="panel panel-info" id="panel-invoices">
+  <div class="panel-heading">
+  	<div class="row">
+  		<div class="col-md-6 col-xs-8">
+  			<h3 class="panel-title">
+		    	<i class="fa fa-external-link"></i> <strong>Synchronize Data</strong> 
+		  	</h3>
+  		</div>
+  		<div class="col-md-6 col-xs-4">
+  			<%= link_to invoices_path, :class => 'pull-right', "data-toggle" => "tooltip", "data-placement" => "top", title: "Refresh" do %>
+					<i class="fa fa-refresh"></i>
+				<% end %>
+  		</div>
+  	</div>
+  </div>
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-md-3">
 				<blockquote>
-				  <p>Total No Of Days:</p>
+		  		<label class="invoice_label">View Invoices For The Month Of:</label>
+  				<%= text_field_tag :month_year, params[:month_year], id: "invoice_month_year", class: "form-control", placeholder: "Select Date" %>
+		  	</blockquote>
+			</div>
+			<div class="col-md-3">
+				<blockquote>
+				  <label class="invoice_label">Total No Of Days:</label>
 				  <%= text_field_tag :no_of_days, params[:no_of_days], class: "form-control", data: { invoice_no_url: invoice_number_invoices_path(format: :json) } %>
 				  <div class="alert alert-danger" id="total_no_days_alert" style="display:none;">
 				  	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 				  	No of Days Changed All amounts are Recalculated
 				  </div>
 				</blockquote>
-				<hr />
+			</div>
+			<div class="col-md-3">
 				<blockquote>
 			  	<input type="checkbox" name="invoice_project">
 			  	<br />
 			  	<div id="invoice_projects_select">
 			  		<%= select_tag :invoice_projects, options_for_select(@projects.map{|m| [m.name, m.id]}), class: "form-control", prompt: "--Select Project--" %>	
 			  	</div>
-		  		
 				</blockquote>
-				<hr />
+			</div>
+			<div class="col-md-3">
 				<blockquote>
 			  	<input type="checkbox" name="invoice_employee">
 			  	<br />
 			  	<div id="invoice_employees_select">
 		  			<%= select_tag :invoice_employees, options_for_select(@employees.map{|m| [m.full_name, m.EmployeeID]}), class: "form-control", prompt: "--Select Employee--" %>
-	  			</div>
+					</div>
 				</blockquote>
-				<hr />
-		    <%= link_to "javascript:void(0);", class: "btn btn-default btn-block", onclick: "syncInvoices(this, 'Synchronise Invoices');", data: { action: synchronisation_of_invoices_invoices_path(format: :json), method: "Get", isProject: false } do %>
-					<i class="glyphicon glyphicon-link"></i> Sync All Invoices
-				<% end %>
-				<hr />
-				<%= button_tag :class => 'btn btn-danger' do %>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<%= button_tag :class => 'btn btn-danger btn-block', id: "fetch_invoices_btn", "data-action" => fetch_invoices_invoices_path, "data-method" => "post" do %>
 					<i class="fa fa-search"></i> Get Invoices
 				<% end %>
-				<%= link_to "javascript:void(0);", class: "btn btn-primary pull-right", onclick: "syncInvoices(this, 'Synchronise Invoice');", data: { action: synchronisation_of_invoices_invoices_path(format: :json), method: "Get", isProject: true } do %>
+			</div>
+			<div class="col-md-8">
+				<%= link_to "javascript:void(0);", class: "btn btn-default btn-block", onclick: "syncInvoices(this, 'Synchronise Invoices');", data: { action: synchronisation_of_invoices_invoices_path(format: :json), method: "Get", isProject: false } do %>
+					<i class="glyphicon glyphicon-link"></i> Sync All Invoices
+				<% end %>
+			</div>
+			<div class="col-md-2">
+				<%= link_to "javascript:void(0);", class: "btn btn-primary pull-right btn-block", onclick: "syncInvoices(this, 'Synchronise Invoice');", data: { action: synchronisation_of_invoices_invoices_path(format: :json), method: "Get", isProject: true } do %>
 					<i class="glyphicon glyphicon-link"></i> Sync Data
 				<% end %>
-		  </div>
+			</div>
 		</div>
 	</div>
-	<div class="col-md-9">
-		<br />
-		<div id="fetched_invoices"></div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div id="fetched_invoices">
+			<%= render "fetching_invoices" %>
+		</div>
 	</div>
 </div>

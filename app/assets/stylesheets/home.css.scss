@@ -17,11 +17,11 @@
   top: 70px;  
   right: 150px;  
   width: 300px;  
-  padding: 15px; 
-  color: #a94442;
-  background-color: #f2dede;
+  padding: 15px;
   border-radius: 4px;  
-  border: solid 2px #ebccd1;  
+  border: solid 1px #000;
+  color: #fff;
+  background-color: #d9534f;
   &:first-letter { text-transform: uppercase };  
 }
 

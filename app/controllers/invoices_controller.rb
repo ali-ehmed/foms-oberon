@@ -2,6 +2,8 @@ class InvoicesController < ApplicationController
   EXCEPTIONS = [OpenURI::HTTPError, Exception, StandardError, ArgumentError, RuntimeError, ActiveRecord::StatementInvalid]
   prepend_before_action :get_old_invoices, only: [:synchronisation_of_invoices]
 
+  respond_to :json, :except => [:index]
+
   def index
     @projects = RmProject.active
     @employees = Employeepersonaldetail.is_inactive_or_consultant_employees
@@ -47,7 +49,7 @@ class InvoicesController < ApplicationController
           end
 
           if allocation.css("IsHourly").text == "true"
-            emp_hours = if params[:invoice_projects].present? then allocation.css("HoursWorked").text else allocation.css("Hours").text end
+            emp_hours = if params[:invoice_project].present? then allocation.css("HoursWorked").text else allocation.css("Hours").text end
             task_notes = allocation.css("TaskNotes").text
             percent_billing = 100
           else
@@ -202,8 +204,8 @@ class InvoicesController < ApplicationController
 
       @msg = "Invoices successfully synchronised"
 
-      if params[:invoice_projects].present?
-        proj_name = RmProject.get_project_name(params[:invoice_projects])
+      if params[:invoice_project].present?
+        proj_name = RmProject.get_project_name(params[:invoice_project])
         @msg = "Invoice successfully synchronised for project <strong>#{proj_name}</strong>"
       end
 
@@ -216,6 +218,34 @@ class InvoicesController < ApplicationController
         render :json => { status: :http_error_404, message: "There was something wrong in fetching records from RM Tool. Please Contact your developer" }
       else
         render :json => { status: :error, message: "Something went wrong Unfortunately. Please Contact your developer" }
+      end
+    end
+  end
+
+  def fetch_invoices
+    @month = params[:month] || Date.today.month
+    @year = params[:year] || Date.today.month
+    @project_id = nil || params[:invoice_project]
+    @employee_id = nil || params[:invoice_employee]
+
+    @project_name = RmProject.get_project_name(@project_id) unless @project_id.blank?
+    @project_name ||= "---"
+
+    @current_invoices = CurrentInvoice.get_invoices_for(@month, @year, @project_id, @employee_id).order("ishourly")
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def update
+    @current_invoice = CurrentInvoice.find(params[:id])
+
+    respond_to do |format|
+      if @current_invoice.update_attributes(current_invoice_params)
+        format.json { respond_with_bip(@current_invoice) }
+      else
+        format.json { respond_with_bip(@current_invoice) }
       end
     end
   end
@@ -238,12 +268,12 @@ class InvoicesController < ApplicationController
     doc = Nokogiri::XML(open(@url))
     @xml_data = doc.css("Projects Project")
 
-    if params[:invoice_projects]
-      unless params[:invoice_projects].present?
+    if params[:invoice_project]
+      unless params[:invoice_project].present?
         render :json => { status: :error, message: "Please Select Project" }
         return
       else
-        @invoice_project = params[:invoice_projects]
+        @invoice_project = params[:invoice_project]
         @url = @rm_url_initialize.get_project_alloc(@invoice_project.to_i, @month.to_i, @year.to_i)
 
         doc = Nokogiri::XML(open(@url))
@@ -254,7 +284,12 @@ class InvoicesController < ApplicationController
     @total_days = params[:no_of_days]
 
     logger.debug "Removing old Invoices for the month of #{@month} and year #{@year}"
-    CurrentInvoice.get_old_invoices_for(@month, @year, @invoice_project).destroy_all
+    CurrentInvoice.get_invoices_for(@month, @year, @invoice_project).destroy_all
+  end
 
+  def current_invoice_params
+    params.require(:current_invoice).permit(:hours, :description, :percent_billing, 
+                                            :no_of_days, :rates, :unpaid_leaves, 
+                                            :amount, :reminder)
   end
 end
