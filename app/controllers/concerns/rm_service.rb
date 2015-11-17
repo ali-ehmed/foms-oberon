@@ -54,4 +54,24 @@ class RmService
 
 		@all_project_url
 	end
+
+	def get_project_alloc(pro_id, month, year)
+		initialize_url = YAML.load_file("#{Rails.root.to_s}/config/rm_tool_service.yml")
+		@all_project_url = initialize_url['rm_tool']['project_allocations_url']
+
+		@all_project_url.gsub!(/%{root_url}|%{project_id}|%{month}|%{year}/) do |attributes|
+			case attributes
+			when "%{root_url}"
+				@root_url
+			when "%{project_id}"
+				pro_id.to_s
+			when "%{month}"
+				month.to_s
+			when "%{year}"
+				year.to_s
+			end
+		end
+
+		@all_project_url
+	end
 end

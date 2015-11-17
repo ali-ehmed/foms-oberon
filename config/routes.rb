@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   resources :invoices, only: [:index, :create] do
     collection do
       get "invoice_number" => "invoices#get_invoice_number"
-      get "sync_all_invoices" => "invoices#sync_all_invoices"
+      get "synchronisation_of_invoices" => "invoices#synchronisation_of_invoices"
     end
   end
 

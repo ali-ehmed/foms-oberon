@@ -33,7 +33,7 @@
 
 class CurrentInvoice < ActiveRecord::Base
 
-	scope :get_max_id, -> (project_id, emp_id, ishourly) { where("id = (select max(id) 
+	scope :get_max_invoice, -> (project_id, emp_id, ishourly) { where("id = (select max(id) 
 					                                                from current_invoices 
 					                                                where project_id = '#{project_id}' 
 					                                                and employee_id = '#{emp_id}' 
@@ -46,7 +46,9 @@ class CurrentInvoice < ActiveRecord::Base
 																				and employee_id = #{employee_id} 
 																				and ishourly = 0 AND IsShadow = 0)") }
 
-	scope :get_old_invoices_for, -> (month, year) { where("month = ? and year = ?", month, year) }
+	scope :get_old_invoices_for, -> (month, year, project_id = nil) do 
+		project_id.blank? ? where("month = ? and year = ?", month, year) : where("project_id = ? and month = ? and year = ?", project_id, month, year)
+	end
 
 	class << self
 
@@ -104,22 +106,6 @@ class CurrentInvoice < ActiveRecord::Base
 	    amount
 		end
 
-		# def generating_leaves_data(balanced_record)
-		# 	# Accured Leaves
-  #     accrued_leaves = build_emp_accured_leaves(no_of_days, temp_days, percent_billing, is_hourly, is_shadow)
-
-  #     # Leaves
-  #     leaves = build_emp_leaves(percent_billing)
-
-  #     #Balanced Leaves
-  #     balance_leaves = build_emp_balanced_leaves(balanced_record, accrued_leaves, leaves, is_hourly, is_shadow)
-
-  #     #Unpaid Leaves
-  #     unpaid_leaves = build_emp_unpaid_leaves(balance_leaves)
-
-  #     return accrued_leaves, leaves, balance_leaves, unpaid_leaves
-		# end
-
 		def create_project_invoice_number(project_id, month, year, total_no_days, prev_rate)
 			params = {
 				project_id: project_id,
@@ -146,7 +132,6 @@ class CurrentInvoice < ActiveRecord::Base
 	  end
 
 	  def get_amount_hourly(is_hourly, rates, hours, percent_billing, no_of_days, total_no_days)
-	  	# return :rate_nil if rates.blank?
 
 	  	if is_hourly == "true"
 	      temp_rate = rates.hour_based_rates.to_f
@@ -176,7 +161,6 @@ class CurrentInvoice < ActiveRecord::Base
           rate = Rate.get_max_rate(32).first
           temp_task = options[:ishourly] == "true" ? " : #{options[:task_notes]}" : ""
           description = "#{options[:emp_name]} #{options[:temp_task]}"
-          logger.debug "---------#{rate} abc"
         else
           rate = Rate.get_max_rate(employee.Designation).first
           temp_desc = employee.designation.designation_name unless employee.designation.blank?
@@ -184,15 +168,9 @@ class CurrentInvoice < ActiveRecord::Base
           temp_task = options[:ishourly] == "true" ? " : #{options[:task_notes]}" : ""
 
           description = "#{temp_desc} (#{employee.full_name}) #{temp_task}" 
-          logger.debug "---------#{rate} #{employee.inspect}  xyz"
         end
-        
-        # temp_rate = Rate.get_max_id(32).first unless rate.present?
-
         amount, temp_rate = CurrentInvoice.get_amount_hourly(options[:ishourly], rate, options[:hours], options[:percent_billing], options[:no_of_days], options[:total_days])
 
-        # byebug
-      	# return :rate_nil if amount == "rate_nil".to_sym
       else
         temp_rate = invoice.rates
 
@@ -202,13 +180,24 @@ class CurrentInvoice < ActiveRecord::Base
 
         temp_task = options[:ishourly] == "true" ? " : #{options[:task_notes]}" : ""
 
-        employee_name = employee_name.blank? ? options[:employee_name] : employee.full_name
-        
+        employee_name = employee.blank? ? options[:employee_name] : employee.full_name
         description =  "#{description} (#{employee_name}) #{temp_task}"
       end
 
       if options[:no_of_days].to_i < Time.days_in_month(options[:month].to_i, options[:year].to_i).to_i  and options[:ishourly] == "false"
-        description = "#{description} (#{options[:start_date].to_datetime.strftime("%b").upcase} #{options[:start_date].to_datetime.strftime("%d").upcase} to #{options[:end_date].to_datetime.strftime("%b").upcase} #{options[:end_date].to_datetime.strftime("%d").upcase})"
+    	 	description = "#{description} ( "
+    	 	description += "#{options[:start_date].to_datetime.strftime("%b").upcase} "
+    	 	description += "#{options[:start_date].to_datetime.strftime("%d").upcase} "
+    	 	description += "to "
+    	 	description += "#{options[:end_date].to_datetime.strftime("%b").upcase} "
+    	 	description += "#{options[:end_date].to_datetime.strftime("%d").upcase} )"
+        # description = "#{description} (
+	       #  							#{options[:start_date].to_datetime.strftime("%b").upcase}
+	       #  							#{options[:start_date].to_datetime.strftime("%d").upcase} 
+	       #  							to 
+	       #  							#{options[:end_date].to_datetime.strftime("%b").upcase} 
+	       #  							#{options[:end_date].to_datetime.strftime("%d").upcase}
+        # 							)"
       end
 
       return description, amount, temp_rate

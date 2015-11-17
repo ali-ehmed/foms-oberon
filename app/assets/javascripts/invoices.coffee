@@ -1,8 +1,11 @@
 $invoices =
   init: ->
+
     ### Initializing Methods ###
+
     $invoices.getInvoiceNumber()
     return
+
   getInvoiceNumber: ->
     $input = $('input[name=\'no_of_days\']')
     url = $input.data('invoice-no-url')
@@ -10,49 +13,61 @@ $invoices =
       $input.val response.invoice_number
       return
 
-  syncAllInvoices: (elem) ->
-	  $this = $(elem)
-	  date_input = $('input#invoice_month_year')
-	  month_param = date_input.val().split('-')[0]
-	  year_param = date_input.val().split('-')[1]
-	  no_of_days = $("#no_of_days").val()
-	  swal {
-	    title: 'Synchronize?'
-	    type: 'warning'
-	    showCancelButton: true
-	    confirmButtonColor: 'rgb(221, 107, 85) !important;'
-	    confirmButtonText: 'Sure!'
-	    closeOnConfirm: false
-	  }, ->
-			  $.ajax
-				  type: 'Get'
-				  url: $this.data("url")
-				  dataType: "json"
-				  data:
-				    month: month_param
-				    year: year_param
-				    no_of_days: no_of_days
-				  cache: false
-				  beforeSend: ->
-				    swal
-					    title: "<span class=\"fa fa-spinner fa-spin fa-3x\"></span>"
-					    text: "<h2>Synchronization is in progress</h2>"
-					    html: true
-					    showConfirmButton: false
-			    success: (response, data) ->
-			    	switch response.status
-			    		when "http_error_404" then swal 'Synchronization Stopped', "#{response.message}", "error"
-		    			when "error" then swal 'Synchronization Stopped', "#{response.message}", "error"
-		    			else
-		    				swal 'Synchronization Completed', "#{response.message}", "success"
-		      error: (response) ->
-		        swal 'oops', 'Something went wrong'
-		        false
-		        return
-    
+  synchronizeInvoicesFromRm: (elem, text = "") ->
+    $this = $(elem)
+    date_input = $('input#invoice_month_year')
+    month_param = date_input.val().split('-')[0]
+    year_param = date_input.val().split('-')[1]
+    no_of_days = $('#no_of_days').val()
+    project_id = $("#invoice_projects").val()
 
-window.syncAllInvoices = (elem) ->
-	$invoices.syncAllInvoices(elem)
+    params = {
+    	month: $.trim(month_param)
+    	year: $.trim(year_param)
+    	no_of_days: no_of_days
+    }
+
+    # If Project based sync
+    if $this.data("isproject") == true
+    	params["invoice_projects"] = project_id
+
+    swal {
+      title: text
+      type: 'warning'
+      showCancelButton: true
+      confirmButtonColor: 'rgb(221, 107, 85) !important;'
+      confirmButtonText: 'Sure!'
+      closeOnConfirm: false
+    }, ->
+      $.ajax
+        type: $this.data('method')
+        url: $this.data('action')
+        dataType: 'json'
+        data: params
+        cache: false
+        beforeSend: ->
+          swal
+            title: '<span class="fa fa-spinner fa-spin fa-3x"></span>'
+            text: '<h2>Synchronization is in progress</h2>'
+            html: true
+            showConfirmButton: false
+        success: (response, data) ->
+          switch response.status
+            when 'http_error_404' then swal 'Synchronization Stopped', '' + response.message, 'error'
+            when 'error' then swal 'Synchronization Stopped', '' + response.message, 'error'
+            else
+              swal
+              	title: 'Synchronization Completed'
+              	text: "#{response.message}"
+              	type: 'success'
+              	html: true
+          return
+        error: (response) ->
+          swal 'Oops', 'Something went wrong'
+          false
+          return
+window.syncInvoices = (elem, text = "") ->
+	$invoices.synchronizeInvoicesFromRm(elem, text)
 
 $(document).on "page:change", ->
 	$invoices.init()
@@ -72,7 +87,13 @@ $(document).on "page:change", ->
 		offText: "No"
 		state: true
 		labelText: "Project"
-		onSwitchChange: ->
+		onSwitchChange: (event, state) ->
+			if state == false
+				$("#invoice_projects_select").slideUp(500).fadeTo 500, 0, ->
+	    		$(this).hide()
+			else
+				$("#invoice_projects_select").slideDown(500).fadeTo 0, 500, ->
+	    		$(this).show()
 		)
 
 	$("[name='invoice_employee']").bootstrapSwitch(
@@ -81,15 +102,26 @@ $(document).on "page:change", ->
 		onText: "Yes"
 		offText: "No"
 		labelText: "Employee"
-		onSwitchChange: ->
+		state: false
+		onSwitchChange: (event, state) ->
+			if state == false
+				$("#invoice_employees_select").slideUp(500).fadeTo 500, 0, ->
+	    		$(this).hide()
+			else
+				$("#invoice_employees_select").slideDown(500).fadeTo 0, 500, ->
+	    		$(this).show()
 		)
 
 	$("#invoice_projects").select2
-	  placeholder: "--Select Project--",
+		placeholder: "--Select Project--",
 		allowClear: true
 
 	$("#invoice_employees").select2
 	  placeholder: "--Select Employee--",
 		allowClear: true
 
-	$('#no_of_days').TouchSpin initval: 40
+	$('#no_of_days').TouchSpin 
+		initval: 40
+		max: 31
+		min: 0
+		booster: true

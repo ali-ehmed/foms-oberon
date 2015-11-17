@@ -15,7 +15,7 @@
 #
 
 class ProjectInvoiceNumber < ActiveRecord::Base
-	scope :get_max_id, -> (project_id) { where("id = (
+	scope :get_max_invoice_no, -> (project_id) { where("id = (
 																							select max(id) 
 																							from project_invoice_numbers 
 																							where project_id='#{project_id}')") 
@@ -29,10 +29,10 @@ class ProjectInvoiceNumber < ActiveRecord::Base
 		total_days = options[:total_no_days]
     prev_dollar_rate = options[:prev_dollar_rate]
 
-		@invoice_no_max_id = ProjectInvoiceNumber.get_max_id(project_id).first
+		@invoice_no_max_id = get_max_invoice_no(project_id).first
 
 		invoice_record = find_by_project_id_and_month_and_year(project_id, @month, @year)
-    invoice_record.destroy if invoice_record
+
     if @invoice_no_max_id.blank?
       net_payment_term = "Net 30 Days"
     else
@@ -62,10 +62,12 @@ class ProjectInvoiceNumber < ActiveRecord::Base
       :no_of_days => total_days,
     }
 
-    # if invoice_record.blank?
-      ProjectInvoiceNumber.create(invoice_number_attributes)
-    # else
-    #   invoice_record.update_attributes(invoice_number_attributes)
-    # end
+    if invoice_record.blank?
+      logger.debug "Creating"
+      create(invoice_number_attributes)
+    else
+      logger.debug "Updating"
+      invoice_record.update_attributes(invoice_number_attributes)
+    end
 	end
 end	

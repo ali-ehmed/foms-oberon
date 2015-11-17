@@ -1,9 +1,10 @@
 class InvoicesController < ApplicationController
-  EXCEPTIONS = [OpenURI::HTTPError, NameError]
-  # OpenURI::HTTPError => http_error, NameError => error
-  prepend_before_action :sync_all_invoices, only: [:removing_old_ivnoices]
+  EXCEPTIONS = [OpenURI::HTTPError, Exception, StandardError, ArgumentError, RuntimeError, ActiveRecord::StatementInvalid]
+  prepend_before_action :get_old_invoices, only: [:synchronisation_of_invoices]
 
   def index
+    @projects = RmProject.active
+    @employees = Employeepersonaldetail.is_inactive_or_consultant_employees
   end
 
   def get_invoice_number
@@ -23,15 +24,7 @@ class InvoicesController < ApplicationController
     render :json => { status: :created, invoice_number: @invoice_number }, status: :created
   end
 
-  def sync_all_invoices
-    @month = params[:month].present? ? params[:month].delete(' ') : Date.today.month
-    @year = params[:year].present? ? params[:year].delete(' ') : Date.today.year
-    @total_days = params[:no_of_days]
-
-    @rm_url = RmService.new
-    doc = Nokogiri::XML(open(@rm_url.get_all_project_alloc(@month.to_i, @year.to_i)))
-
-    @xml_data = doc.css("Projects Project")
+  def synchronisation_of_invoices
     begin 
       @xml_data.each do |project|
 
@@ -54,7 +47,7 @@ class InvoicesController < ApplicationController
           end
 
           if allocation.css("IsHourly").text == "true"
-            emp_hours = allocation.css("Hours").text
+            emp_hours = if params[:invoice_projects].present? then allocation.css("HoursWorked").text else allocation.css("Hours").text end
             task_notes = allocation.css("TaskNotes").text
             percent_billing = 100
           else
@@ -82,7 +75,9 @@ class InvoicesController < ApplicationController
           @allocation_attributes << attriubutes
         end
         # XML FINISHED
-        logger.debug "------------_ #{project_name} #{@allocation_attributes.count}"
+
+        logger.debug "------------Building Invoices for #{project_name} #{@allocation_attributes.count}------------"
+
         @allocation_attributes.each do |alloc_attribute|
           
           percent_billing = alloc_attribute[:percent_billing]
@@ -91,7 +86,8 @@ class InvoicesController < ApplicationController
           start_date = alloc_attribute[:start_date]
           end_date = alloc_attribute[:end_date]
 
-          no_of_days = CurrentInvoice.get_business_days_between start_date, end_date
+
+          no_of_days = CurrentInvoice.get_business_days_between start_date, end_date #Getting Buisiness Days
 
           rm_allocation_attrubutes = {
             :year => @year, 
@@ -112,6 +108,8 @@ class InvoicesController < ApplicationController
             :email => alloc_attribute[:email]
           }
 
+
+          #Old Rm Allocation Record to update or create
           old_rm_allocation_record = RmAllocationRecord.find_by_project_id_and_employee_id_and_month_and_year(@project_id, rm_allocation_attrubutes[:employee_id], @month, @year)
 
           if old_rm_allocation_record.present?
@@ -122,17 +120,18 @@ class InvoicesController < ApplicationController
             RmAllocationRecord.create(rm_allocation_attrubutes)
           end
 
-          @invoice_no_max_id = ProjectInvoiceNumber.get_max_id(@project_id).first
+          @invoice_no_max_id = ProjectInvoiceNumber.get_max_invoice_no(@project_id).first
 
           @prev_dollar_rate = 1
           unless @invoice_no_max_id.blank?
             @prev_dollar_rate = @invoice_no_max_id.dollar_rate.to_f
           end
 
-          current_invoice = CurrentInvoice.get_max_id(@project_id, alloc_attribute[:emp_id], alloc_attribute[:ishourly]).first
+          current_invoice = CurrentInvoice.get_max_invoice(@project_id, alloc_attribute[:emp_id], alloc_attribute[:ishourly]).first
 
-          employee = Employeepersonaldetail.find_by_EmployeeID(alloc_attribute[:emp_id])
+          employee = Employeepersonaldetail.find_by_EmployeeID(alloc_attribute[:emp_id]) #Getting Employee
 
+          #Description Params
           description_params = {
             ishourly: alloc_attribute[:ishourly],
             hours: alloc_attribute[:hours],
@@ -151,8 +150,6 @@ class InvoicesController < ApplicationController
           logger.debug "Creating Description"
           description, amount, rate = CurrentInvoice.build_description(current_invoice, employee, description_params) 
 
-          # next if description == "rate_nil".to_sym
-
           temp_days = if @total_days.blank? then Time.days_in_month(@month.to_i, @year.to_i).to_i else @total_days.to_f end
 
           @balanced_invoice = CurrentInvoice.get_isShadow_and_hourly(@project_id, alloc_attribute[:emp_id]).first
@@ -169,6 +166,7 @@ class InvoicesController < ApplicationController
           #Unpaid Leaves
           unpaid_leaves = CurrentInvoice.build_emp_unpaid_leaves(balance_leaves)
 
+          #Current Invoice Params
           current_invoice_params = {
             :year => @year,
             :month => @month,
@@ -194,61 +192,69 @@ class InvoicesController < ApplicationController
             :unpaid_leaves => unpaid_leaves,
             :leaves => leaves
           }
-
-          # @initialize_invoice.project_id = @project_id
-          # @initialize_invoice.project_name = project_name
-          # @initialize_invoice.task_notes = alloc_attribute[:task_notes]
-          # @initialize_invoice.employee_id = alloc_attribute[:emp_id]
-          # @initialize_invoice.employee_name = alloc_attribute[:emp_name]
-          # @initialize_invoice.hours = alloc_attribute[:hours]
-          # @initialize_invoice.percentage_alloc = alloc_attribute[:percentage_alloc]
-          # @initialize_invoice.percent_billing = percent_billing
-          # @initialize_invoice.ishourly = is_hourly
-          # @initialize_invoice.IsShadow = is_shadow
-          # @initialize_invoice.start_date = start_date
-          # @initialize_invoice.end_date = end_date
-          # @initialize_invoice.rates = rate
-          # @initialize_invoice.amount = amount
-          # @initialize_invoice.no_of_days = no_of_days
-          # @initialize_invoice.description = description
-          # @initialize_invoice.email = alloc_attribute[:email]
-          # @initialize_invoice.accrued_leaves = accrued_leaves
-          # @initialize_invoice.balance_leaves = balance_leaves
-          # @initialize_invoice.unpaid_leaves = unpaid_leaves
-          # @initialize_invoice.leaves = leaves
-
-          # @get_current_invoice = CurrentInvoice.where(current_invoice_params).first
-
-          # if @get_current_invoice.present?
-          #   logger.debug "Updating Invoices"
-          #   @get_current_invoice.update_attributes(current_invoice_params)
-          # else
-            logger.debug "Creating Invoices"
-            CurrentInvoice.create(current_invoice_params)
-          # end
+          logger.debug "Creating Invoices"  
+          CurrentInvoice.create(current_invoice_params)
         end
 
-        logger.debug "Creating Project Invoice Number"
+        logger.debug "-----Project Invoice Number------"
         CurrentInvoice.create_project_invoice_number(@project_id, @month, @year, @total_days, @prev_dollar_rate)
       end
 
-      @msg = "Invoices successfully syncd"
+      @msg = "Invoices successfully synchronised"
+
+      if params[:invoice_projects].present?
+        proj_name = RmProject.get_project_name(params[:invoice_projects])
+        @msg = "Invoice successfully synchronised for project <strong>#{proj_name}</strong>"
+      end
+
       render :json => { status: :synced_all, message: @msg }
-    rescue => error
+
+    rescue *EXCEPTIONS => error
+      logger.debug "------------#{error}------------------"
+
       if error.message == '404 Not Found'
-        render :json => { status: :http_error_404, message: error.message }
+        render :json => { status: :http_error_404, message: "There was something wrong in fetching records from RM Tool. Please Contact your developer" }
       else
-        # raise error
-        render :json => { status: :error, message: error.message }
+        render :json => { status: :error, message: "Something went wrong Unfortunately. Please Contact your developer" }
       end
     end
   end
 
   private
 
-  def removing_old_ivnoices
-    @month = params[:month].present? ? params[:month].delete(' ') : Date.today.month
-    @year = params[:year].present? ? params[:year].delete(' ') : Date.today.year
-    CurrentInvoice.get_old_invoices_for(@month, @year).destroy_all
+  def get_old_invoices
+    @month = params[:month]
+    @year = params[:year]
+    @invoice_project = nil
+    
+    unless @month.present? and @year.present?
+      render :json => { status: :error, message: "Please Select Month and Year" }
+      return
+    end
+
+    @rm_url_initialize = RmService.new
+    @url = @rm_url_initialize.get_all_project_alloc(@month.to_i, @year.to_i)
+
+    doc = Nokogiri::XML(open(@url))
+    @xml_data = doc.css("Projects Project")
+
+    if params[:invoice_projects]
+      unless params[:invoice_projects].present?
+        render :json => { status: :error, message: "Please Select Project" }
+        return
+      else
+        @invoice_project = params[:invoice_projects]
+        @url = @rm_url_initialize.get_project_alloc(@invoice_project.to_i, @month.to_i, @year.to_i)
+
+        doc = Nokogiri::XML(open(@url))
+        @xml_data = doc.css("Project")
+      end
+    end
+
+    @total_days = params[:no_of_days]
+
+    logger.debug "Removing old Invoices for the month of #{@month} and year #{@year}"
+    CurrentInvoice.get_old_invoices_for(@month, @year, @invoice_project).destroy_all
+
   end
 end
