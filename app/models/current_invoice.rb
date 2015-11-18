@@ -61,7 +61,11 @@ class CurrentInvoice < ActiveRecord::Base
 
 	end
 
-	validates :hours, presence: true, on: :update
+	validates :hours, presence: true, on: :update, if: :check_hourly
+
+	def check_hourly
+		ishourly == true
+	end
 
 	class << self
 

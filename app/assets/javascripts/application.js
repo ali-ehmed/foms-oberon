@@ -36,5 +36,7 @@
 //= require jasny-bootstrap.min
 //= require jasny-bootstrap
 
+//= require underscore.min
+
 //= require turbolinks
 //= require_tree .

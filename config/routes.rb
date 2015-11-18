@@ -4,6 +4,7 @@ Rails.application.routes.draw do
       get "invoice_number" => "invoices#get_invoice_number"
       get "synchronisation_of_invoices" => "invoices#synchronisation_of_invoices"
       post "fetch_invoices" => "invoices#fetch_invoices"
+      post "custom_invoice" => "invoices#custom_invoice"
     end
   end
 

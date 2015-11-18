@@ -228,14 +228,43 @@ class InvoicesController < ApplicationController
     @project_id = nil || params[:invoice_project]
     @employee_id = nil || params[:invoice_employee]
 
-    @project_name = RmProject.get_project_name(@project_id) unless @project_id.blank?
+    render :json => { status: :error, message: "Please Select Project" } and return unless @project_id.present?
+
+    @project_name = RmProject.get_project_name(@project_id)
     @project_name ||= "---"
 
     @current_invoices = CurrentInvoice.get_invoices_for(@month, @year, @project_id, @employee_id).order("ishourly")
 
+    @total_hours = 0
+    @total_amount = 0
+
+    @current_invoices.each do |invoice|
+      @total_hours += invoice.hours if invoice.ishourly
+      @total_amount += invoice.amount
+    end
+
+    @total_hours = @total_hours == 0 ? "---" : @total_hours
+
     respond_to do |format|
       format.js
     end
+  end
+
+  def custom_invoice
+    invoice_params = {
+      month: params[:month],
+      year: params[:year],
+      project_id: params[:invoice_project],
+      description: params[:description],
+      add_less: params[:add_less],
+      amount: params[:amount],
+      :IsAdjustment => params[:is_adjustment]
+    }
+
+    @invoice = CurrentInvoice.new(invoice_params)
+    @invoice.save
+    
+    render :json => { :status => :ok, data: @invoice }
   end
 
   def update

@@ -37,4 +37,17 @@
 
 .d_btn {
   margin-top: 10px;
+  margin-right: 5px;
 }
+
+.table > thead > tr > td.for_total, .table > thead > tr > th.for_total, .table > thead > tr.for_total > td, .table > thead > tr.for_total > th, .table > tbody > tr > td.for_total, .table > tbody > tr > th.for_total, .table > tbody > tr.for_total > td, .table > tbody > tr.for_total > th, .table > tfoot > tr > td.for_total, .table > tfoot > tr > th.for_total, .table > tfoot > tr.for_total > td, .table > tfoot > tr.for_total > th {
+    background-color: #882828;
+    color: #fff;
+}
+
+.table-hover > tbody > tr > td.info:hover, .table-hover > tbody > tr > th.info:hover, .table-hover > tbody > tr.info:hover > td, .table-hover > tbody > tr:hover > .info, .table-hover > tbody > tr.info:hover > th {
+    background-color: #c4e3f3;
+}
+
+.save_invoice_btn { margin: 50% 0px; }
+.remove_invoice_btn { margin: 100% 0px; }

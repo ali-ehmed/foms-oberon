@@ -3,6 +3,9 @@ $invoices =
     ### Initializing Methods ###
     $invoices.getInvoiceNumber()
     $invoices.fetchingCurrentInvoices()
+    $invoices.addCustomInvoiceForm()
+    $invoices.removeCustomInvoiceForm()
+    $invoices.savingCustomInvoice()
 
     return
 
@@ -111,62 +114,212 @@ $invoices =
           false
           return
 
+  sumAndGetTotal: (elem, for_field, add_less_amount = "") ->
+    $elem = $(elem)
+    switch for_field
+      when "hours"
+        total_hours = 0
+
+        hours = []
+        hours.push $elem.val()
+
+        $(".invoice_hours").each ->
+          value = $(this).find("a span").html()
+          if $.isNumeric value
+            hours.push value
+
+        _.each hours, (val) ->
+          total_hours += parseFloat(val)
+
+        $("#invoice_total_hours").text total_hours.toFixed(1)
+
+        # return total_hours.toFixed(1)
+
+      when "amount"
+        total_amount = 0
+
+        elem_value = $elem.val()
+        elem_value = -Math.abs(elem_value) if add_less_amount == "less" # For new custom invoice
+
+        amount = []
+        amount.push elem_value
+
+        $(".invoice_amount").each ->
+          value = $(this).find("a span").html()
+          if $.isNumeric value
+            amount.push value
+
+        _.each amount, (val) ->
+          total_amount += parseFloat(val)
+
+        $("#invoice_total_amount").text total_amount.toFixed(1)
+
+        # return total_amount.toFixed(1)
+
+  getHtmlForNewInvoice: ->
+    html = 
+      "<tr id='inline_invoice_form'>
+        <td>
+          <a href='#' class='text-danger' data-toggle='tooltip' data-placement='top' title='Remove' id='remove_added_invoice'>
+            <i class='fa fa-minus-square-o fa-2x remove_invoice_btn'></i>
+          </a>
+        </td>
+        <td>---</td>
+        <td>---</td>
+        <td>---</td>
+        <td>
+          <select class='form-control' id='add_less_select'>
+            <option value='add'>Add</option>
+            <option value='less'>Less</option>
+          </select>
+        </td>
+        <td>
+          <textarea class='form-control' placeholder='Description' rows='3' cols='50' id='new_description' name='new_description'></textarea>
+        </td>
+        <td>---</td>
+        <td>---</td>
+        <td>
+          <input class='form-control' value='0' id='new_amount'/>
+        </td>
+        <td>
+          <a href='#' class='text-danger' data-url='/invoices/custom_invoice.json' data-toggle='tooltip' data-placement='top' title='Save' id='save_added_invoice'>
+            <i class='fa fa-check fa-2x save_invoice_btn'></i>
+          </a>
+        </td>
+      </tr>"
+
+    html
+
+
+  removeCustomInvoiceForm: ->
+    $(document).on "click", "#remove_added_invoice", (e) ->
+      e.preventDefault()
+      setTimeout ->
+        $('[data-toggle="tooltip"]').tooltip()
+      , 200
+
+      $this = $(this)
+      if $this.closest("#inline_invoice_form").length
+        row = $this.closest("#inline_invoice_form")
+        row.remove()
+
+  addCustomInvoiceForm: ->
+    $(document).on "click", "#add_inline_invoice_btn", (e) ->
+      e.preventDefault()
+      setTimeout ->
+        $('[data-toggle="tooltip"]').tooltip()
+      , 200
+
+      $this = $(this)
+      unless $("#inline_invoice_form").length
+        $('tr.all_invoices').last().after($invoices.getHtmlForNewInvoice)
+
+  savingCustomInvoice: ->
+    $(document).on "click", "#save_added_invoice", (e) ->
+      e.preventDefault()
+      $this = $(this)
+      $new_amount_elem = $("#new_amount")
+      $add_less_amount = $("#add_less_select").val()
+      url = $this.data("url")
+
+      params = $invoices.getInvoiceParams()      
+      params["description"] = $("textarea[name='new_description']").val()
+      params["is_adjustment"] = true
+
+      if $add_less_amount == "less"
+        params["amount"] = -Math.abs($add_less_amount)
+
+      params["amount"] = $new_amount_elem.val()
+      params["add_less"] = $add_less_amount
+
+      $.ajax
+        type: "Post"
+        url: url
+        data: params
+        cache: false
+        beforeSend: ->
+          swal
+            title: '<i class=\"fa fa-spinner fa-pulse fa-3x\"></i>'
+            text: "Saving Invoice"
+            type: 'info'
+            html: true
+            showConfirmButton: false
+        success: (response, data) ->
+          swal "Saved Successfully", "", "success"
+          # $invoices.sumAndGetTotal($new_amount_elem, "amount", $add_less_amount)
+          $("#fetch_invoices_btn").trigger("click")
+        error: (response) ->
+          swal 'Oops', 'Something went wrong'
+
+
+
 window.syncInvoices = (elem, text = "") ->
 	$invoices.synchronizeInvoicesFromRm(elem, text)
 
-$(document).on "page:change", ->
-	$invoices.init()
+window.calculateTotalData = (elem, for_field) ->
+  $invoices.sumAndGetTotal(elem, for_field)
 
-	$('#invoice_month_year').datepicker(
+$(document).on "page:change", ->
+  $invoices.init()
+  
+  $("#invoice_projects").select2
+    placeholder: "--Select Project--",
+    allowClear: true
+
+  $("#invoice_employees").select2
+    placeholder: "--Select Employee--",
+    allowClear: true
+
+  $('#no_of_days').TouchSpin 
+    initval: 40
+    max: 31
+    min: 0
+    booster: true
+  
+  $('#invoice_month_year').datepicker(
       format: 'm - yyyy'
       orientation: 'bottom left'
       minViewMode: 1
-  	).on 'changeDate', (e) ->
-    	$(this).datepicker 'hide'
+    ).on 'changeDate', (e) ->
+      $(this).datepicker 'hide'
 
 
-	$("[name='invoice_project']").bootstrapSwitch(
-		size: "small"
-		onColor: "info"
-		onText: "Yes"
-		offText: "No"
-		state: true
-		labelText: "Project"
-		onSwitchChange: (event, state) ->
-			if state == false
-				$("#invoice_projects_select").slideUp(500).fadeTo 500, 0, ->
-	    		$(this).hide()
-			else
-				$("#invoice_projects_select").slideDown(500).fadeTo 0, 500, ->
-	    		$(this).show()
-		)
+  $("[name='invoice_project']").bootstrapSwitch(
+    size: "small"
+    onColor: "info"
+    onText: "Yes"
+    offText: "No"
+    state: true
+    labelText: "Project"
+    onSwitchChange: (event, state) ->
+      if state == false
+        $("#invoice_projects").val("")
+        $("#invoice_projects_select .select2-selection__rendered").html("<span class=\"select2-selection__placeholder\">--Select Project--</span>")
 
-	$("[name='invoice_employee']").bootstrapSwitch(
-		size: "small"
-		onColor: "success"
-		onText: "Yes"
-		offText: "No"
-		labelText: "Employee"
-		state: false
-		onSwitchChange: (event, state) ->
-			if state == false
-				$("#invoice_employees_select").slideUp(500).fadeTo 500, 0, ->
-	    		$(this).hide()
-			else
-				$("#invoice_employees_select").slideDown(500).fadeTo 0, 500, ->
-	    		$(this).show()
-		)
+        $("#invoice_projects_select").slideUp(500).fadeTo 500, 0, ->
+          $(this).hide()
+      else
+        $("#invoice_projects_select").slideDown(500).fadeTo 0, 500, ->
+          $(this).show()
 
-	$("#invoice_projects").select2
-		placeholder: "--Select Project--",
-		allowClear: true
+  )
+  
+  $("[name='invoice_employee']").bootstrapSwitch(
+    size: "small"
+    onColor: "success"
+    onText: "Yes"
+    offText: "No"
+    labelText: "Employee"
+    state: false
+    onSwitchChange: (event, state) ->
+      if state == false
+        $("#invoice_employees").val("")
+        $("#invoice_employees_select .select2-selection__rendered").html("<span class=\"select2-selection__placeholder\">--Select Employee--</span>")
 
-	$("#invoice_employees").select2
-	  placeholder: "--Select Employee--",
-		allowClear: true
+        $("#invoice_employees_select").slideUp(500).fadeTo 500, 0, ->
+          $(this).hide()
+      else
+        $("#invoice_employees_select").slideDown(500).fadeTo 0, 500, ->
+          $(this).show()
+  )
 
-	$('#no_of_days').TouchSpin 
-		initval: 40
-		max: 31
-		min: 0
-		booster: true
