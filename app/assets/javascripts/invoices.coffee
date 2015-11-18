@@ -30,6 +30,9 @@ $invoices =
 
     return params
 
+  submitFetching: ->
+    $("#fetch_invoices_btn").trigger("click")
+
   fetchingCurrentInvoices: ->
     $("#fetch_invoices_btn").on 'click', ->
       $elem = $(this)
@@ -108,6 +111,7 @@ $invoices =
               	text: "#{response.message}"
               	type: 'success'
               	html: true
+              $invoices.submitFetching() if $this.data("isproject") == true #Submit Button
           return
         error: (response) ->
           swal 'Oops', 'Something went wrong'
@@ -133,13 +137,10 @@ $invoices =
 
         $("#invoice_total_hours").text total_hours.toFixed(1)
 
-        # return total_hours.toFixed(1)
-
       when "amount"
         total_amount = 0
 
         elem_value = $elem.val()
-        elem_value = -Math.abs(elem_value) if add_less_amount == "less" # For new custom invoice
 
         amount = []
         amount.push elem_value
@@ -153,8 +154,6 @@ $invoices =
           total_amount += parseFloat(val)
 
         $("#invoice_total_amount").text total_amount.toFixed(1)
-
-        # return total_amount.toFixed(1)
 
   getHtmlForNewInvoice: ->
     html = 
@@ -212,7 +211,7 @@ $invoices =
 
       $this = $(this)
       unless $("#inline_invoice_form").length
-        $('tr.all_invoices').last().after($invoices.getHtmlForNewInvoice)
+        $this.closest("#add_new_invoice").before("#{$invoices.getHtmlForNewInvoice}")
 
   savingCustomInvoice: ->
     $(document).on "click", "#save_added_invoice", (e) ->
@@ -226,10 +225,11 @@ $invoices =
       params["description"] = $("textarea[name='new_description']").val()
       params["is_adjustment"] = true
 
-      if $add_less_amount == "less"
-        params["amount"] = -Math.abs($add_less_amount)
-
       params["amount"] = $new_amount_elem.val()
+
+      if $add_less_amount == "less"
+        params["amount"] = -Math.abs($new_amount_elem.val())
+
       params["add_less"] = $add_less_amount
 
       $.ajax
@@ -246,8 +246,7 @@ $invoices =
             showConfirmButton: false
         success: (response, data) ->
           swal "Saved Successfully", "", "success"
-          # $invoices.sumAndGetTotal($new_amount_elem, "amount", $add_less_amount)
-          $("#fetch_invoices_btn").trigger("click")
+          $invoices.submitFetching() #Submit Button
         error: (response) ->
           swal 'Oops', 'Something went wrong'
 
@@ -259,8 +258,41 @@ window.syncInvoices = (elem, text = "") ->
 window.calculateTotalData = (elem, for_field) ->
   $invoices.sumAndGetTotal(elem, for_field)
 
+window.isShadowCompatibility = (elem, object) ->
+  $this = $(elem)
+  value = $this.find("span").html()
+  if object["IsAdjustment"] == false
+    if object["IsShadow"] == true
+      $.purrAlert '',
+        html: true
+        text: "<i class='glyphicon glyphicon-info-sign'></i> <strong>This Record is not editable</strong>"
+      return false
+
 $(document).on "page:change", ->
   $invoices.init()
+
+  # Custom Plugin For Notifications
+  (($) ->
+    $.extend purrAlert: (text_val = '', options) ->
+      $("body").prepend("<div class='purr' id='purr' style='display: none;'></div>")
+      settings = $.extend({
+        html: false
+        text: text_val
+      }, options)
+
+      if settings.html == true
+        $("#purr").html(settings.text)
+      else
+        $("#purr").text(settings.text)
+
+      $("#purr").fadeIn 1000, ->
+        setTimeout ->
+          $("#purr").fadeOut 1000, ->
+            $("#purr").remove()
+        , 5000
+
+    return
+  ) jQuery
   
   $("#invoice_projects").select2
     placeholder: "--Select Project--",

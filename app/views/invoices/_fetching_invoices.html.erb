@@ -1,7 +1,51 @@
 <% if @current_invoices.present? %>
-	<blockquote>
-		<h3><strong><%= @project_name %></strong></h3>
-	</blockquote>
+	<div class="row">
+		<div class="col-md-12">
+			<blockquote>
+				<h3><strong><%= @project_name %></strong></h3>
+			</blockquote>
+		</div>
+	</div>
+	<% @current_invoices.each do |employee| %>
+		<% if employee.employee_id.to_i < 0 %>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="list-group">
+					  <a href="#" class="list-group-item">
+					    <h4 class="list-group-item-heading">List group item heading</h4>
+					    <p class="list-group-item-text">...</p>
+					  </a>
+					</div>
+				</div>
+			</div>
+		<% end %>
+	<% end %>
+	<div class="row">
+		<div class="col-md-10">
+			<div class="row">
+				<div class="col-md-3">
+					<label>Currency</label>
+					<%= select_tag :pkr_and_dollar, options_for_select(["PKR", "US$"].map{|m| m}), class: "form-control" %>
+				</div>
+				<div class="col-md-3">
+					<label>payment Terms</label>
+					<%= select_tag :payment_terms, options_for_select(InvoicesHelper::PaymentTerms.map{|m| m}), class: "form-control" %>
+				</div>
+				<div class="col-md-3">
+					<label>Invoice Date</label>
+					<%= text_field :invoice_date, params[:invoice_date], class: "form-control", value: Date.today.strftime('%b %d, %Y'), id: "invoice_date" %>
+				</div>
+				<div class="col-md-3">
+					<label>Invoice Number</label>
+					<%= text_field :invoice_no, params[:invoice_no], class: "form-control", id: "invoice_no", placeholder: "Invoice Number" %>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<%= button_tag "Generate Invoice", class: "btn btn-info", style: "margin-top: 23px;" %>
+		</div>
+	</div>
+	<br />
 	<div class="table-responsive">
 		<table class="table table-striped table-hover" id="invoices_table">
 			<thead>
@@ -20,7 +64,7 @@
 			</thead>
 			<tbody>
 				<% @current_invoices.each do |invoice| %>
-					<tr class="all_invoices">
+					<tr>
 						<td></td>
 						<td class="<%= invoice_hours(invoice) %>"><%= editable_for(:hours, invoice) %></td>
 						<td><%= invoice.percentage_alloc %></td>

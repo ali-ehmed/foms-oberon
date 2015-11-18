@@ -233,7 +233,7 @@ class InvoicesController < ApplicationController
     @project_name = RmProject.get_project_name(@project_id)
     @project_name ||= "---"
 
-    @current_invoices = CurrentInvoice.get_invoices_for(@month, @year, @project_id, @employee_id).order("ishourly")
+    @current_invoices = CurrentInvoice.get_invoices_for(@month, @year, @project_id, @employee_id).order("ishourly desc")
 
     @total_hours = 0
     @total_amount = 0
@@ -251,19 +251,20 @@ class InvoicesController < ApplicationController
   end
 
   def custom_invoice
+    add_less = params[:add_less] == "add" ? 1 : 0
     invoice_params = {
       month: params[:month],
       year: params[:year],
       project_id: params[:invoice_project],
       description: params[:description],
-      add_less: params[:add_less],
+      add_less: add_less,
       amount: params[:amount],
       :IsAdjustment => params[:is_adjustment]
     }
 
     @invoice = CurrentInvoice.new(invoice_params)
     @invoice.save
-    
+
     render :json => { :status => :ok, data: @invoice }
   end
 
