@@ -1,0 +1,32 @@
+<% if @employee_education_details.present? %>
+	<span class="qualification_note" style="display:none;"><h3>Note: <small>These are the records you saved but your form was cancelled.</small></h3></span>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Qualification</th>
+				<th>From Year</th>
+				<th>To Year</th>
+				<th>Institute</th>
+				<th>Type</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @employee_education_details.each do |emp_education| %>
+				<tr>
+					<td><%= emp_education.Qualification %></td>
+					<td><%= emp_education.YearFrom %></td>
+					<td><%= emp_education.YearTo %></td>
+					<td><%= emp_education.Institute %></td>
+					<td><%= emp_education.Type %></td>
+					<td>
+						<%= link_to "javascript:void(0);", "data-href" => remove_qualification_employees_path(unregister_emp_id: emp_education.EmployeeID, format: :json), method: :delete, onclick: "Employee.removeEmployeeOtherDetails(this);" do %>
+							<i class="glyphicon glyphicon-trash"></i>
+						<% end %>
+					</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+<% end %>
+	

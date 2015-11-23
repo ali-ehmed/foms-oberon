@@ -1,0 +1,24 @@
+<div class="form-group">
+	<%= label_tag :first_name %>
+	<%= text_field_tag :first_name, params[:first_name], placeholder: "First Name" %>
+</div>
+<div class="form-group">
+	<%= label_tag :last_name %>
+	<%= text_field_tag :last_name, params[:last_name], placeholder: "Last Name" %>
+</div>
+<div class="form-group">
+	<%= label_tag :gender %>
+	<%= select_tag :gender, options_for_select(EmployeesHelper::Gender.map{|m| m}), prompt: "--Select Gender--" %>
+</div>
+<div class="form-group">
+	<%= label_tag :date_of_birth %>
+	<%= text_field_tag :date_of_birth, params[:date_of_birth], id: "employee_dob", placeholder: "Date of Birth" %>
+</div>
+<div class="form-group">
+	<%= label_tag :marital_status %>
+	<%= select_tag :marital_status, options_for_select(EmployeesHelper::MaritalStatus.map{|m| m.capitalize}), prompt: "--Select Marital Status--", onchange: "EmployeeFormDetail.checkMaritalStatus(this);" %>
+</div>
+<div class="form-group children_for_married_employee">
+	<%= label_tag :children %>
+	<%= text_field_tag :children, params[:children], placeholder: "No of Children" %>
+</div>

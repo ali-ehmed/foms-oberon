@@ -22,7 +22,7 @@ class ProfitabilityReport < ActiveRecord::Base
 	belongs_to :project, class_name: "RmProject", :foreign_key => :project_id
 	belongs_to :designation
 	
-	belongs_to :employee, -> (report) { unscope(where: :EmployeeID).where("EmployeeID = ?", "%04d" % report.employee_id.to_i) }, class_name: "Employeepersonaldetail"
+	belongs_to :employee, -> (report) { unscope(where: :EmployeeID).where("EmployeeID = ?", "%04d" % report.employee_id.to_i) }, class_name: "Employee::Employeepersonaldetail"
 
 
 
@@ -56,7 +56,7 @@ class ProfitabilityReport < ActiveRecord::Base
 		@year = year
 
 		@dollar_rate = DollarRates.find_by_month_and_year(@month, @year)
-		@employees = Employeepersonaldetail.is_inactive_or_consultant_employees
+		@employees = Employee::Employeepersonaldetail.is_inactive_or_consultant_employees
 
 		if !@employees.blank?
 			for employee in @employees

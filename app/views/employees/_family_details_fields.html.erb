@@ -1,0 +1,28 @@
+<% if @employee_family_details.present? %>
+	<span class="family_detail_note" style="display:none;"><h3>Note: <small>These are the records you saved but your form was cancelled.</small></h3></span>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Relationship</th>
+				<th>Date of Birth</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @employee_family_details.each do |emp_education| %>
+				<tr>
+					<td><%= emp_education.Name %></td>
+					<td><%= emp_education.Relationship %></td>
+					<td><%= emp_education.DateOfBirth %></td>
+					<td>
+						<%= link_to "javascript:void(0);", "data-href" => remove_family_detail_employees_path(unregister_emp_id: emp_education.EmployeeID, format: :json), method: :delete, onclick: "Employee.removeEmployeeOtherDetails(this);" do %>
+							<i class="glyphicon glyphicon-trash"></i>
+						<% end %>
+					</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+<% end %>
+	

@@ -31,6 +31,8 @@
  *= require boostrap-select2
  *= require jasny-bootstrap
 
+ *= require bootstrapValidator.min
+
  *= require_tree .
  *= require_self
  */
@@ -62,5 +64,34 @@ body { padding-top: 60px; }
 // Font Awesome
 @import "font-awesome-sprockets";
 @import "font-awesome";
+
+// Purr Alert css
+.purrAlert {
+	position: fixed;  
+  top: 70px;  
+  right: 150px; 
+  padding: 15px;
+  border-radius: 4px;
+  color: #fff;
+  z-index: 10000;
+}
+
+.purr_danger {
+  border: solid 2px #791111;
+  background-color: rgba(217, 83, 79, 0.79);
+  // &:first-letter { text-transform: uppercase }; 
+}
+.purr_success {
+  border: solid 2px #177911;
+  background-color: rgba(79, 217, 109, 0.79);
+}
+.purr_warning { 
+  border: solid 2px #797611;
+  background-color: rgba(209, 212, 58, 0.79);
+}
+.purr_info {  
+  border: solid 2px #117957;
+  background-color: rgba(58, 212, 155, 0.79);
+}
 
 

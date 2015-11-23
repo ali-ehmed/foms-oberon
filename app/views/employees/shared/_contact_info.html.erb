@@ -1,0 +1,24 @@
+<div class="form-group">
+	<%= label_tag :nic, "NIC" %>
+	<%= text_field_tag :nic, params[:nic], placeholder: "99999-9999999-9" %>
+</div>
+<div class="form-group">
+	<%= label_tag :home_phone %>
+	<%= text_field_tag :home_phone, params[:home_phone], placeholder: "Home Number" %>
+</div>
+<div class="form-group">
+	<%= label_tag :cell_phone %>
+	<%= text_field_tag :cell_phone, params[:cell_phone], placeholder: "Cell Phone Number" %>
+</div>
+<div class="form-group">
+	<%= label_tag :personal_email %>
+	<%= text_field_tag :personal_email, params[:personal_email], placeholder: "Personal Email" %>
+</div>
+<div class="form-group">
+	<%= label_tag :office_email %>
+	<%= text_field_tag :office_email, params[:office_email], placeholder: "Office Email" %>
+</div>
+<div class="form-group">
+	<%= label_tag :address %>
+	<%= text_area_tag :address, params[:address], placeholder: "Address" %>
+</div>

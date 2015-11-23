@@ -15,9 +15,23 @@
           <%= link_to "View Full Report", "#", class: "list-group-item", id: "view_full_profitability_report" %>
         </div>
         <br />
-        <%= link_to "#", class: "btn btn-info", id: "recalculate_reports"  do %>
-          <strong>Re-Calculate Profitability Reports</strong>
-        <% end %>
+        <div class="well">
+        <form id="re_calculate_reports" data-url="<%= calculate_profitability_reports_reports_re_calculate_reports_path %>">
+          <fieldset>
+            <legend>Re-Calculate Profitability Reports</legend>
+            <div class="form-group">
+              <label for="inputEmail">Select Date to Recalculate:</label>
+              <%= text_field_tag :recalculate_month_and_year, params[:recalculate_month_and_year], id: "recalculate_month_and_year", class: "form-control", placeholder: "Select Date" %>
+            </div>
+            <div class="form-group">
+              <button type="button" class="btn btn-primary" id="calculate_reports_data">Calculate</button>
+            </div>
+          </fieldset>
+        </form>
+        </div>
+        <%#= link_to "#", class: "btn btn-info", id: "recalculate_reports"  do %>
+          <!-- <strong>Re-Calculate Profitability Reports</strong> -->
+        <%# end %>
       </div>
       <div class="col-md-9">
         <div id="profitability_reports">
@@ -27,6 +41,6 @@
     </div>
   </div>
   <hr />
-  <%= render "/reports/shared/re_calculate" %>
+  <%#= render "/reports/shared/re_calculate" %>
   <%= render "/reports/shared/full_profitability_report_modal" %>
 <% end %>

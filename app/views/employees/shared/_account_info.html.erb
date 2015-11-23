@@ -1,0 +1,24 @@
+<div class="form-group">
+	<%= label_tag :ntn_no, "NTN #" %>
+	<%= text_field_tag :ntn_no, params[:ntn_no], placeholder: "NTN No" %>
+</div>
+<div class="form-group">
+	<%= label_tag :bank_account_no %>
+	<%= text_field_tag :bank_account_no, params[:bank_account_no], placeholder: "Bank Account No" %>
+</div>
+<div class="form-group">
+	<%= label_tag :bank_name %>
+	<%= text_field_tag :bank_name, params[:bank_name], placeholder: "Bank Name" %>
+</div>
+<div class="form-group">
+	<%= label_tag :bank_branch %>
+	<%= text_field_tag :bank_branch, params[:bank_branch], placeholder: "Branch" %>
+</div>
+<div class="form-group">
+	<%= label_tag "Ins. Type" %>
+	<%= text_field_tag :ins_type, params[:ins_type], placeholder: "Type" %>
+</div>
+<div class="form-group">
+	<%= label_tag :accrual_bonus %>
+	<%= text_field_tag :accrual_bonus, params[:accrual_bonus], placeholder: "Accrual Bonus" %>
+</div>

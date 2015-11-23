@@ -51,10 +51,15 @@ gem 'jquery-datatables-rails', github: "rweng/jquery-datatables-rails", branch: 
 gem 'ajax-datatables-rails', git: 'git://github.com/antillas21/ajax-datatables-rails.git', branch: 'legacy'
 
 
+gem 'bootstrap-validator-rails'
+
 
 # Thin Server
 gem 'thin'
 
+# Nested Assiciations
+
+gem "cocoon"
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'

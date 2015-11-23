@@ -1,0 +1,122 @@
+<%= form_tag "", method: :post, id: "new_employee_form" do %>
+	<div class="row">
+		<div class="col-md-3">
+			<fieldset>
+				<legend>Basic Info</legend>
+				<%= render "employees/shared/basic_info" %>
+			</fieldset>
+		</div>
+		<div class="col-md-3">
+			<fieldset>
+				<legend>Contact Info</legend>
+			</fieldset>
+			<%= render "employees/shared/contact_info" %>
+		</div>
+		<div class="col-md-3">
+			<fieldset>
+				<legend>Employee Info</legend>
+			</fieldset>
+			<%= render "employees/shared/employee_info" %>
+		</div>
+		<div class="col-md-3">
+			<fieldset>
+				<legend>Account Info</legend>
+			</fieldset>
+			<%= render "employees/shared/account_info" %>
+		</div>
+	</div>
+<% end %>
+<hr />
+<blockquote>
+	<h3>Add Employee Details</h3>
+</blockquote>
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" class="active"><a href="#emp_qualification_tab" aria-controls="home" role="tab" data-toggle="tab"><strong>Qualification</strong></a></li>
+  <li role="presentation"><a href="#emp_family_tab" aria-controls="profile" role="tab" data-toggle="tab"><strong>Family Details</strong></a></li>
+</ul>
+<br />
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane active fade in" id="emp_qualification_tab">
+		<div class="qualification_records">
+			<%= render "/employees/qualifications_fields" %>
+		</div>
+		<!-- Education Details Form -->
+		<%= form_tag qualifications_employees_path(unregister_emp_id: @employee_id, format: :js), method: :post, id: "employee_qualification_form" do %>
+			<div class="row">
+				<div class="col-md-8">
+					<div class="form-group">
+						<label>Qualification</label>
+						<%= text_area_tag :qualification, params[:qualification], rows: 5, placeholder: "Qualification" %>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="form-group">
+						<label>From Date</label>
+						<%= text_field_tag :from_date, params[:from_date], placeholder: "From Year", class: "from_date" %>
+					</div>
+					<div class="form-group">
+						<label>To Date</label>
+						<%= text_field_tag :to_date, params[:to_date], placeholder: "To Year", class: "to_date" %>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<label>Institute</label>
+					<%= text_field_tag :institute, params[:institute], placeholder: "Institute" %>
+				</div>
+				<div class="col-md-6">
+					<label>Type</label>
+					<%= text_field_tag :type, params[:type], placeholder: "Type" %>
+				</div>
+			</div>
+			<br />
+			<div class="row">
+				<div class="col-md-6 pull-right">
+					<div class="form-group">
+						<%= button_tag "Save", type: "button", class: "btn btn-primary pull-right", onclick: "Employee.submitQualificationForm(this);" %>
+					</div>
+				</div>
+			</div>
+		<% end %>
+  </div>
+
+  <div role="tabpanel" class="tab-pane" id="emp_family_tab">
+		<div class="family_details_records">
+			<%= render "/employees/family_details_fields" %>
+		</div>
+
+		<!-- Family Details Form -->
+		<%= form_tag family_details_employees_path(unregister_emp_id: @employee_id, format: :js), method: :post, id: "employee_family_details_form" do %>
+			<div class="row">
+				<div class="col-md-4">
+					<div class="form-group">
+						<%= label_tag :member_name %>
+						<%= text_field_tag :member_name, params[:member_name], placeholder: "Memeber Name" %>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="form-group">
+						<%= label_tag :relationship %>
+						<%= text_field_tag :relationship, params[:relationship], placeholder: "Relationship" %>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="form-group">
+						<%= label_tag :family_dob %>
+						<%= text_field_tag :family_dob, params[:family_dob], placeholder: "Date of Birth", class: "family_dob" %>
+					</div>
+				</div>
+			</div>
+			<br />
+			<div class="row">
+				<div class="col-md-6 pull-right">
+					<div class="form-group">
+						<%= button_tag "Save", type: "button", class: "btn btn-primary pull-right", onclick: "Employee.submitFamilyDetailForm(this);" %>
+					</div>
+				</div>
+			</div>
+		<% end %>
+  </div>
+</div>
+

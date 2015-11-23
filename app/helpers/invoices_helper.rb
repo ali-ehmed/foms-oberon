@@ -1,5 +1,6 @@
 module InvoicesHelper
 	PaymentTerms = ["Net 10 Days", "Net 15 Days", "Net 20 Days", "Net 30 Days", "Net 45 Days", "Net 60 Days", "Immediate"]
+	Currency = ["PKR", "US$"]
 	
 	def invoice_hours(invoice)
 		"invoice_hours" if invoice.ishourly

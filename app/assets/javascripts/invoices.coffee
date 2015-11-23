@@ -265,35 +265,13 @@ window.isShadowCompatibility = (elem, object) ->
     if object["IsShadow"] == true
       $.purrAlert '',
         html: true
-        text: "<i class='glyphicon glyphicon-info-sign'></i> <strong>This Record is not editable</strong>"
+        text: "<strong>This Record is not editable</strong>"
+        type: "error"
       return false
 
 $(document).on "page:change", ->
   $invoices.init()
 
-  # Custom Plugin For Notifications
-  (($) ->
-    $.extend purrAlert: (text_val = '', options) ->
-      $("body").prepend("<div class='purr' id='purr' style='display: none;'></div>")
-      settings = $.extend({
-        html: false
-        text: text_val
-      }, options)
-
-      if settings.html == true
-        $("#purr").html(settings.text)
-      else
-        $("#purr").text(settings.text)
-
-      $("#purr").fadeIn 1000, ->
-        setTimeout ->
-          $("#purr").fadeOut 1000, ->
-            $("#purr").remove()
-        , 5000
-
-    return
-  ) jQuery
-  
   $("#invoice_projects").select2
     placeholder: "--Select Project--",
     allowClear: true

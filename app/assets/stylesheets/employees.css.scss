@@ -1,0 +1,16 @@
+#new_employee { padding-top: 4px; cursor: pointer; }
+#new_employee_form {
+	::-webkit-input-placeholder {
+		text-transform: capitalize;
+	}
+	.capitalize {
+    text-transform: capitalize;
+	}
+	.children_for_married_employee { display: none; }
+
+  .checkbox label, label { font-weight: bold; }
+}
+#employee_qualification_form, #employee_family_details_form {
+	label { font-weight: bold; }
+	// button { margin-top: 21px; margin-bottom: 0 !important; }
+}

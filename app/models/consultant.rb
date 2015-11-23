@@ -11,5 +11,5 @@
 #
 
 class Consultant < ActiveRecord::Base
-	belongs_to :employee, class_name: "Employeepersonaldetail", foreign_key: :employee_id
+	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :employee_id
 end

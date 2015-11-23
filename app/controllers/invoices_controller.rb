@@ -3,10 +3,11 @@ class InvoicesController < ApplicationController
   prepend_before_action :get_old_invoices, only: [:synchronisation_of_invoices]
 
   respond_to :json, :except => [:index]
+  respond_to :js, only: [:unregistered_employee]
 
   def index
     @projects = RmProject.active
-    @employees = Employeepersonaldetail.is_inactive_or_consultant_employees
+    @employees = Employee::Employeepersonaldetail.is_inactive_or_consultant_employees
   end
 
   def get_invoice_number
@@ -39,7 +40,7 @@ class InvoicesController < ApplicationController
 
         # XML Start
         @xml_allocation.each do |allocation|
-          employee_record = Employeepersonaldetail.find_by_OfficeEmail_and_isInactive(allocation.css("Email").text, 0)
+          employee_record = Employee::Employeepersonaldetail.find_by_OfficeEmail_and_isInactive(allocation.css("Email").text, 0)
           alloc_emp_id = allocation.css("FormsId").text.to_i
 
           if employee_record.blank?
@@ -131,7 +132,7 @@ class InvoicesController < ApplicationController
 
           current_invoice = CurrentInvoice.get_max_invoice(@project_id, alloc_attribute[:emp_id], alloc_attribute[:ishourly]).first
 
-          employee = Employeepersonaldetail.find_by_EmployeeID(alloc_attribute[:emp_id]) #Getting Employee
+          employee = Employee::Employeepersonaldetail.find_by_EmployeeID(alloc_attribute[:emp_id]) #Getting Employee
 
           #Description Params
           description_params = {
@@ -238,6 +239,11 @@ class InvoicesController < ApplicationController
     @total_hours = 0
     @total_amount = 0
 
+    @is_unregistered_employee = false
+    @unregistered_employees = CurrentInvoice.unregistered_employees(@month, @year, @project_id)
+
+    @is_unregistered_employee = true if @unregistered_employees.present?
+
     @current_invoices.each do |invoice|
       @total_hours += invoice.hours if invoice.ishourly
       @total_amount += invoice.amount
@@ -278,6 +284,21 @@ class InvoicesController < ApplicationController
         format.json { respond_with_bip(@current_invoice) }
       end
     end
+  end
+
+
+  def unregistered_employee
+    get_params = {
+      index: params[:employee_index],
+      month: params[:month],
+      year: params[:year],
+      project_id: params[:project_id],
+      employee_id: params[:employee_id]
+    }
+    @index = get_params[:index]
+    @employee_id = get_params[:employee_id]
+    @employee_education_details = Employee::Educationdetail.for_unregisted_employee(@employee_id)
+    @employee_family_details = Employee::Employeefamilydetail.for_unregisted_employee(@employee_id)
   end
 
   private

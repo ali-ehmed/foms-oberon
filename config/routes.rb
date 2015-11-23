@@ -5,6 +5,16 @@ Rails.application.routes.draw do
       get "synchronisation_of_invoices" => "invoices#synchronisation_of_invoices"
       post "fetch_invoices" => "invoices#fetch_invoices"
       post "custom_invoice" => "invoices#custom_invoice"
+      get "new_employee" => "invoices#unregistered_employee"
+    end
+  end
+
+  resources :employees, :only => [:create] do 
+    collection do 
+      post "/qualifications/:unregister_emp_id" => "employees#qualifications", as: :qualifications
+      post "/family_details/:unregister_emp_id" => "employees#family_details", as: :family_details
+      delete "/destroy_qualification/:unregister_emp_id" => "employees#destroy_qualification", as: :remove_qualification
+      delete "/destroy_family_detail/:unregister_emp_id" => "employees#destroy_family_detail", as: :remove_family_detail
     end
   end
 

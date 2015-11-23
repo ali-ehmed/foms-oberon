@@ -21,3 +21,11 @@
 
 en:
   hello: "Hello world"
+
+  time:
+    formats:
+      short_datetime: "%B %d, %Y"
+  date:
+    formats:
+      short_date: "%b %d, %Y"
+      current_year: "%y"

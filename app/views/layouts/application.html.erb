@@ -16,7 +16,9 @@
 			<%= render 'layouts/messages' %>
 			<main	role="main">
 				<%= render 'layouts/reports' %>
-				<%= yield %>
+				<div id="pjax-container">
+					<%= yield %>
+				</div>
 			</main>
 			<footer>
 				<%= render "layouts/footer" %>

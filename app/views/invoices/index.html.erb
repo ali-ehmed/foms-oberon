@@ -24,13 +24,15 @@
 			<div class="col-md-3">
 				<blockquote>
 		  		<label class="invoice_label">View Invoices For The Month Of:</label>
-  				<%= text_field_tag :month_year, params[:month_year], id: "invoice_month_year", class: "form-control", placeholder: "Select Date" %>
+  				<%= text_field_tag :month_year, params[:month_year], id: "invoice_month_year", class: "form-control invoice_input", placeholder: "Select Date" %>
 		  	</blockquote>
 			</div>
 			<div class="col-md-3">
 				<blockquote>
 				  <label class="invoice_label">Total No Of Days:</label>
-				  <%= text_field_tag :no_of_days, params[:no_of_days], class: "form-control", data: { invoice_no_url: invoice_number_invoices_path(format: :json) } %>
+				  <div class="invoice_input">
+				  	<%= text_field_tag :no_of_days, params[:no_of_days], class: "form-control", data: { invoice_no_url: invoice_number_invoices_path(format: :json) } %>
+			  	</div>
 				  <div class="alert alert-danger" id="total_no_days_alert" style="display:none;">
 				  	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 				  	No of Days Changed All amounts are Recalculated
@@ -82,3 +84,4 @@
 		</div>
 	</div>
 </div>
+<div id="employee_form"></div>

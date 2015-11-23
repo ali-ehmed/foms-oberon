@@ -1,0 +1,25 @@
+<div class="form-group">
+	<%= label_tag :joining_date %>
+	<%= text_field_tag :joining_date, params[:joining_date], id: "emp_joining_date", placeholder: "Joining Date" %>
+</div>
+<div class="form-group">
+	<br />
+	<div class="checkbox">
+    <%= check_box_tag :is_internee, { :class => "styled" } %>
+    <label>
+      Is Internee
+    </label>
+  </div>
+</div>
+<div class="form-group">
+	<%= label_tag :designation %>
+	<%= select_tag :emp_designation, options_for_select(Designation.all.map{|m| [m.designation, m.designation_id]}), prompt: "--Select Designation--" %>
+</div>
+<div class="form-group">
+	<%= label_tag :conveyance %>
+	<%= select_tag :conveyance, options_for_select(EmployeesHelper::Conveyance.map{|m| m.split("_").map{|conveyance| conveyance.capitalize }.join(" ")}), prompt: "--Select Conveyance--" %>
+</div>
+<div class="form-group">
+	<%= label_tag :gross_salary %>
+	<%= text_field_tag :gross_salary, params[:gross_salary], placeholder: "Salary" %>
+</div>

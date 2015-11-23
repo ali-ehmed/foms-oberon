@@ -6,34 +6,43 @@
 			</blockquote>
 		</div>
 	</div>
-	<% @current_invoices.each do |employee| %>
-		<% if employee.employee_id.to_i < 0 %>
-			<div class="row">
-				<div class="col-md-6">
-					<div class="list-group">
-					  <a href="#" class="list-group-item">
-					    <h4 class="list-group-item-heading">List group item heading</h4>
-					    <p class="list-group-item-text">...</p>
-					  </a>
-					</div>
+	<% if @is_unregistered_employee == true %>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="list-group">
+				  <a href="javascript:void(0);" class="list-group-item">
+				    <h4 class="list-group-item-heading">
+				    	<blockquote>Records for these Employees are not found in FOMS</blockquote>
+			    	</h4>
+				    <ul class="list-group">
+				    	<% @unregistered_employees.each_with_index do |employee, count| %>
+				    		<% count += 1 %>
+							  <li class="list-group-item">
+							    <label class="label label-primary pull-right" id="new_employee" onclick="EmployeeFormDetail.openEmployeeForm(this);" method="get" action="<%= new_employee_invoices_path(format: :js) %>" data-employee-index="<%= count %>" data-toggle="tooltip" data-project-id="<%= @project_id %>" data-month="<%= @month %>" data-year="<%= @year %>" data-employee-id="<%= employee.employee_id %>" data-placement="left" title="Add This Employee">Add</label>
+							    <strong><%= employee.employee_name %></strong>
+							  </li>
+						  <% end %>
+						</ul>
+				  </a>
 				</div>
 			</div>
-		<% end %>
+		</div>
 	<% end %>
 	<div class="row">
 		<div class="col-md-10">
 			<div class="row">
 				<div class="col-md-3">
 					<label>Currency</label>
-					<%= select_tag :pkr_and_dollar, options_for_select(["PKR", "US$"].map{|m| m}), class: "form-control" %>
+					<%= select_tag :pkr_and_dollar, options_for_select(InvoicesHelper::Currency.map{|m| m}), class: "form-control" %>
 				</div>
 				<div class="col-md-3">
-					<label>payment Terms</label>
+					<label>Payment Terms</label>
 					<%= select_tag :payment_terms, options_for_select(InvoicesHelper::PaymentTerms.map{|m| m}), class: "form-control" %>
 				</div>
 				<div class="col-md-3">
 					<label>Invoice Date</label>
-					<%= text_field :invoice_date, params[:invoice_date], class: "form-control", value: Date.today.strftime('%b %d, %Y'), id: "invoice_date" %>
+					<%= text_field :invoice_date, params[:invoice_date], class: "form-control", value: (l Date.today, format: :short_date), id: "invoice_date" %>
+
 				</div>
 				<div class="col-md-3">
 					<label>Invoice Number</label>

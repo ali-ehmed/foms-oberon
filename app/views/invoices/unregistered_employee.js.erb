@@ -1,0 +1,30 @@
+$("#employee_form").html("<%= escape_javascript(render 'employees/form', unregistered_emp_index: @index) %>")
+
+$("#employee_form").find("#new_employee_with_<%= @index %>").modal({
+	keyboard: false,
+	show: true,
+	backdrop: 'static'
+});
+$('#new_employee_with_<%= @index %>').on('shown.bs.modal', function(){
+	$this = $(this)
+	$this.find(".modal-body").hide().html("<%= escape_javascript(render 'employees/shared/form_inputs') %>").fadeIn(350)
+	
+	$(".qualification_note").show()
+
+	// Adding Functions To Inputs
+	var form = new EmployeeFormDetail(this);
+	form.addingClassToInputs();
+	
+	form.employeeDateSelector($this.find("#employee_dob"));
+	form.employeeDateSelector($this.find("#emp_joining_date"));
+
+	form.employeeDateSelector($this.find("#employee_qualification_form").find(".from_date"), "", "year", "yyyy");
+	form.employeeDateSelector($this.find("#employee_qualification_form").find(".to_date"), "", "year", "yyyy");
+	form.employeeDateSelector($this.find("#employee_family_details_form").find(".family_dob"), "top");
+	form.employeeDesignationSelector();
+	form.validate();
+});
+
+
+
+    

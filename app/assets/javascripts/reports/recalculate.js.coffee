@@ -16,7 +16,7 @@ recalculateReports = ->
     month_param = date_input.val().split('-')[0]
     year_param = date_input.val().split('-')[1]
     if date_input.val() == ''
-      date_input.css 'border', '1px solid #D4220F'
+      date_input.closest(".form-group").addClass("has-error")
       date_input.after '<p id="calculate-report-error-msg">Date can\'t be blank?</p>' unless $('#calculate-report-error-msg').length
     else
       closeForm $this
@@ -41,7 +41,8 @@ recalculateReports = ->
               html: true
               type: 'info'
             )
-            $this.closest('#re_calculate_reports').modal('hide')
+            # $this.closest('#re_calculate_reports').modal('hide')
+            date_input.closest(".form-group").removeClass("has-error")
             date_input.val('')
           else
             swal 'Please Check the following error', response.error_message, 'error'

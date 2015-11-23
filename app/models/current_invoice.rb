@@ -33,6 +33,8 @@
 
 class CurrentInvoice < ActiveRecord::Base
 
+	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :employee_id
+
 	scope :get_max_invoice, -> (project_id, emp_id, ishourly) { where("id = (select max(id) 
 					                                                from current_invoices 
 					                                                where project_id = '#{project_id}' 
@@ -47,7 +49,6 @@ class CurrentInvoice < ActiveRecord::Base
 																				and ishourly = 0 AND IsShadow = 0)") }
 
 	scope :get_invoices_for, -> (month, year, project_id = nil, employee_id = nil) do 
-
 		if project_id.blank? and employee_id.blank?
 			where("month = ? and year = ?", month, year)
 		elsif employee_id.blank? and project_id.present?
@@ -58,8 +59,9 @@ class CurrentInvoice < ActiveRecord::Base
 			logger.debug "-----"
 			where("employee_id = ? and project_id = ? and month = ? and year = ?", employee_id, project_id, month, year)
 		end
-
 	end
+
+	scope :unregistered_employees, -> (month, year, project_id) { select("distinct employee_id, employee_name").where("month = ? and year = ? and project_id = ? and employee_id < 0", month, year, project_id) }
 
 	validates :hours, presence: true, on: :update, if: :check_hourly
 
