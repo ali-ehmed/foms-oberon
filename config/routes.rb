@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       post "fetch_invoices" => "invoices#fetch_invoices"
       post "custom_invoice" => "invoices#custom_invoice"
       get "new_employee" => "invoices#unregistered_employee"
+      get "resync_status" => "invoices#resync_status"
     end
   end
 

@@ -59,12 +59,26 @@ class RmService
 		initialize_url = YAML.load_file("#{Rails.root.to_s}/config/rm_tool_service.yml")
 		@all_project_url = initialize_url['rm_tool']['project_allocations_url']
 
-		@all_project_url.gsub!(/%{root_url}|%{project_id}|%{month}|%{year}/) do |attributes|
+		urls_changed_for_and_by(@all_project_url, pro_id, month, year)
+	end
+
+	def get_invoices_status(p_id, month, year)
+		initialize_url = YAML.load_file("#{Rails.root.to_s}/config/rm_tool_service.yml") #loading file every time this function is call
+
+		@status_url = initialize_url['rm_tool']['get_invoices_status']
+		
+		urls_changed_for_and_by(@status_url, p_id, month, year)
+	end
+
+	private 
+
+	def urls_changed_for_and_by(url, p_id, month, year)
+		url.gsub!(/%{root_url}|%{project_id}|%{month}|%{year}/) do |attributes|
 			case attributes
 			when "%{root_url}"
 				@root_url
 			when "%{project_id}"
-				pro_id.to_s
+				p_id.to_s
 			when "%{month}"
 				month.to_s
 			when "%{year}"
@@ -72,6 +86,6 @@ class RmService
 			end
 		end
 
-		@all_project_url
+		url
 	end
 end

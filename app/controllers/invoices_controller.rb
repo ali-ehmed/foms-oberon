@@ -301,6 +301,23 @@ class InvoicesController < ApplicationController
     @employee_family_details = Employee::Employeefamilydetail.for_unregistered_employee(@employee_id)
   end
 
+  def resync_status
+    @month = params[:month]
+    @year = params[:month_year]
+    @project_id = params[:invoice_project]
+
+    @rm_url_initialize = RmService.new
+    @url = @rm_url_initialize.get_invoices_status(@project_id, @month.to_i, @year.to_i)
+    doc = Nokogiri::XML(open(@url))
+    @status = doc.css("Status IsChanged")
+
+    if @status.text == "false"
+      render :json => { status: false }
+    else
+      render :json => { status: true, message: "Please resynchronise this project's data." }
+    end
+  end
+
   private
 
   def get_old_invoices

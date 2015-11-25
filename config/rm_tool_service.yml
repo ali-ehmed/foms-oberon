@@ -8,3 +8,4 @@ rm_tool:
   history_of_allocations_url: '%{root_url}/GetHistoryOfAllocations?projId=%{project_id}&RoleId=0&EmpFomsId=0&AllocStatus=2&userId=336&positionId=0&startDate=%{start_date}&endDate=%{end_date}'
   all_projects_allocation_url: '%{root_url}/GetAllProjectsAllocations?$&month=%{month}&&year=%{year}'
   project_allocations_url: "%{root_url}/GetProjectAllocations?projectId=%{project_id}&&month=%{month}&&year=%{year}"
+  get_invoices_status: "%{root_url}/GetStatus?pid=%{project_id}&&month=%{month}&&year=%{year}"

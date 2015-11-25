@@ -1,3 +1,4 @@
+                                            ### Invoices ###
 $invoices =
   init: ->
     ### Initializing Methods ###
@@ -40,15 +41,15 @@ $invoices =
       url = $elem.data("action")
 
       employee_id = $("#invoice_employees").val()
-      params = $invoices.getInvoiceParams()
+      $_params = $invoices.getInvoiceParams()
 
-      params["invoice_employee"] = employee_id if employee_id
+      $_params["invoice_employee"] = employee_id if employee_id
 
       $btn_html = $elem.html()
       $.ajax
         type: method
         url: url
-        data: params
+        data: $_params
         cache: false
         beforeSend: ->
           $elem.html("<i class=\"fa fa-spinner fa-pulse\"></i> <strong>Fetching</strong>")
@@ -62,9 +63,31 @@ $invoices =
           else
             console.log "Status OK"
           $elem.html($btn_html)
+        complete: ->
+          ## Checking Resyncing Data ##
+          $invoices.get_resync_status($_params)
         error: (response) ->
           swal 'oops', 'Something went wrong'
           $elem.html($btn_html)
+
+  get_resync_status: (_params_) ->
+    $.ajax
+      type: "get"
+      url: "/invoices/resync_status"
+      data: _params_
+      cache: false
+      dataType: "json"
+      success: (response, data) ->
+        if response.status == 'true'
+          swal
+            title: 'Update Required'
+            text: response.message
+            type: 'info'
+            html: true
+        else
+          console.log "Status false, no resync required"
+      error: (response) ->
+        swal 'Oops!', 'Something went wrong'
 
   synchronizeInvoicesFromRm: (elem, text = "") ->
     $this = $(elem)
@@ -270,7 +293,7 @@ window.isShadowCompatibility = (elem, object) ->
       return false
 
 $(document).on "page:change", ->
-  $invoices.init()
+  $invoices.init() ### Initializing Invoices Coffee Script ###
 
   $("#invoice_projects").select2
     placeholder: "--Select Project--",

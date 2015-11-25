@@ -105,18 +105,30 @@ class window.EmployeeFormDetail
               format: "MM/DD/YYYY"
               message: "Not valid format"
         cell_phone:
-          validators: notEmpty: message: '* required'
+          validators: 
+            notEmpty: message: '* required'
+            integer: message: '* only numbers allowed'
         personal_email:
-          validators: notEmpty: message: '* required'
+          validators: 
+            notEmpty: message: '* required'
+            regexp:
+              regexp: '^[^@\\s]+@([^@\\s]+\\.)+[^@\\s]+$'
+              message: '* invalid email'
         office_email:
-          validators: notEmpty: message: '* required'
+          validators: 
+            notEmpty: message: '* required'
+            regexp:
+              regexp: '^[^@\\s]+@([^@\\s]+\\.)+[^@\\s]+$'
+              message: '* invalid email'
         nic:
           validators: 
             notEmpty: message: '* required'
         address:
           validators: notEmpty: message: '* required'
         home_phone:
-          validators: notEmpty: message: '* required'
+          validators: 
+            notEmpty: message: '* required'
+            integer: message: '* only numbers allowed'
         ntn_no:
           validators: notEmpty: message: '* required'
         bank_account_no:
@@ -132,8 +144,6 @@ class window.EmployeeFormDetail
         gross_salary:
           validators: notEmpty: message: '* required'
         children:
-          validators: notEmpty: message: '* required'
-        is_internee:
           validators: notEmpty: message: '* required'
     }).on 'success.form.bv', (e) ->
       Employee.createEmployee()
