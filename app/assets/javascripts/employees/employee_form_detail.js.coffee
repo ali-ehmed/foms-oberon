@@ -84,57 +84,57 @@ class window.EmployeeFormDetail
       fields:
         first_name:
           validators: notEmpty: message: '* required'
-        # last_name:
-        #   validators: notEmpty: message: '* required'
-        # gender:
-        #   validators: notEmpty: message: '* required'
-        # marital_status:
-        #   validators: notEmpty: message: '* required'
-        # date_of_birth:
-        #   validators: 
-        #     notEmpty: 
-        #       message: '* required'
-        #     date:
-        #       format: "MM/DD/YYYY"
-        #       message: "Not valid format"
-        # joining_date:
-        #   validators: 
-        #     notEmpty: 
-        #       message: '* required'
-        #     date:
-        #       format: "MM/DD/YYYY"
-        #       message: "Not valid format"
-        # cell_phone:
-        #   validators: notEmpty: message: '* required'
-        # personal_email:
-        #   validators: notEmpty: message: '* required'
-        # office_email:
-        #   validators: notEmpty: message: '* required'
-        # nic:
-        #   validators: 
-        #     notEmpty: message: '* required'
-        # address:
-        #   validators: notEmpty: message: '* required'
-        # home_phone:
-        #   validators: notEmpty: message: '* required'
-        # ntn_no:
-        #   validators: notEmpty: message: '* required'
-        # bank_account_no:
-        #   validators: notEmpty: message: '* required'
-        # bank_name:
-        #   validators: notEmpty: message: '* required'
-        # bank_branch:
-        #   validators: notEmpty: message: '* required'
-        # medical_insurance:
-        #   validators: notEmpty: message: '* required'
-        # conveyance:
-        #   validators: notEmpty: message: '* required'
-        # gross_salary:
-        #   validators: notEmpty: message: '* required'
-        # children:
-        #   validators: notEmpty: message: '* required'
-        # is_internee:
-        #   validators: notEmpty: message: '* required'
+        last_name:
+          validators: notEmpty: message: '* required'
+        gender:
+          validators: notEmpty: message: '* required'
+        marital_status:
+          validators: notEmpty: message: '* required'
+        date_of_birth:
+          validators: 
+            notEmpty: 
+              message: '* required'
+            date:
+              format: "MM/DD/YYYY"
+              message: "Not valid format"
+        joining_date:
+          validators: 
+            notEmpty: 
+              message: '* required'
+            date:
+              format: "MM/DD/YYYY"
+              message: "Not valid format"
+        cell_phone:
+          validators: notEmpty: message: '* required'
+        personal_email:
+          validators: notEmpty: message: '* required'
+        office_email:
+          validators: notEmpty: message: '* required'
+        nic:
+          validators: 
+            notEmpty: message: '* required'
+        address:
+          validators: notEmpty: message: '* required'
+        home_phone:
+          validators: notEmpty: message: '* required'
+        ntn_no:
+          validators: notEmpty: message: '* required'
+        bank_account_no:
+          validators: notEmpty: message: '* required'
+        bank_name:
+          validators: notEmpty: message: '* required'
+        bank_branch:
+          validators: notEmpty: message: '* required'
+        medical_insurance:
+          validators: notEmpty: message: '* required'
+        conveyance:
+          validators: notEmpty: message: '* required'
+        gross_salary:
+          validators: notEmpty: message: '* required'
+        children:
+          validators: notEmpty: message: '* required'
+        is_internee:
+          validators: notEmpty: message: '* required'
     }).on 'success.form.bv', (e) ->
       Employee.createEmployee()
     $('#employee_dob').on 'changeDate', (e) ->
