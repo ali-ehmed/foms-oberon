@@ -9,15 +9,15 @@
 #
 
 class Employee::Employeebankaccountdetail < ActiveRecord::Base
-	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID
+	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID, :dependent => :delete
 
-	before_create :default_values
-	
+	after_initialize :default_values
+
 	private
 
 	def default_values
-    self.BankAccountNo ||= "0"
-    self.BankName ||= "0"
-    self.BankBranch ||= "0"
+    self.BankAccountNo = "0" if self.BankAccountNo.blank?
+    self.BankName = "0" if self.BankName.blank?
+    self.BankBranch = "0" if self.BankBranch.blank?
   end
 end

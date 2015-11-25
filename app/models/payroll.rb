@@ -12,8 +12,5 @@
 #
 
 class Payroll < ActiveRecord::Base
-
-	scope :get_month_of_incompleted, -> { where("iscomplete != 1").order("idpayroll desc") }
-	scope :get_year_of_incompleted, -> { where("iscomplete != 1").order("idpayroll desc") }
-
+	scope :get_month_and_year_of_incompleted, -> { select("month, year").where("iscomplete != 1").order("idpayroll desc") }
 end

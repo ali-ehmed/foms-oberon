@@ -12,8 +12,8 @@
 #
 
 class Employee::Educationdetail < ActiveRecord::Base
-	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID
-	scope :for_unregisted_employee, -> (employee_id) { where("EmployeeID = '#{employee_id}'") }
+	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID, :dependent => :delete
+	scope :for_unregistered_employee, -> (employee_id) { where("EmployeeID = '#{employee_id}'") }
 
 	validates :Qualification, :Institute , :YearFrom, :YearTo, :Type, presence: true
 	validate :qualification_length

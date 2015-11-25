@@ -1,4 +1,4 @@
 $(document).on "page:change", ->
 	employee = new Employee
-	employee.createQualification()
-	employee.createFamilyDetails()
+	employee.createEmployeeOtherDetails("qualifications", "#employee_qualification_form")
+	employee.createEmployeeOtherDetails("education_details", "#employee_family_details_form")

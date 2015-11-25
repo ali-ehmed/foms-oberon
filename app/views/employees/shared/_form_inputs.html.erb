@@ -1,4 +1,4 @@
-<%= form_tag "", method: :post, id: "new_employee_form" do %>
+<%= form_tag employees_path(unregister_emp_id: @employee_id, format: :json), method: :post, id: "new_employee_form" do %>
 	<div class="row">
 		<div class="col-md-3">
 			<fieldset>

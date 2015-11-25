@@ -8,5 +8,14 @@
 #
 
 class Employee::Employeefamily < ActiveRecord::Base
-	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID
+	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID, :dependent => :delete
+
+	after_initialize :default_values
+
+	private
+
+	def default_values
+		self.MaritalStatus = "Single" if self.MaritalStatus.blank?
+    self.NoOfChildren ||= "0"
+  end
 end

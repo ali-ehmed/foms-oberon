@@ -30,24 +30,32 @@
 class Employee::Employeepersonaldetail < ActiveRecord::Base
 	# has_many :profitability_reports, class_name: "EmployeeProfitibilityReport"
 
-	has_many :consultants, class_name: "Consultant", foreign_key: :employee_id
+	has_many :consultants, class_name: "Consultant", foreign_key: :employee_id, dependent: :destroy
 
-	has_one :employee_profitability_report, class_name: "Employee::EmployeeProfitibilityReport", foreign_key: :employee_id
+	has_one :employee_profitability_report, class_name: "Employee::EmployeeProfitibilityReport", foreign_key: :employee_id, dependent: :destroy
 
-	belongs_to :designation, -> { unscope(where: :Designation)}, class_name: "Designation", foreign_key: :Designation
+	belongs_to :designation, -> { unscope(where: :Designation)}, class_name: "Designation", foreign_key: :Designation, dependent: :destroy
 
-	has_many :qualifications, class_name: "Employee::Educationdetail", foreign_key: :EmployeeID
-	has_many :family_details, class_name: "Employee::Employeefamilydetail", foreign_key: :EmployeeID
+	has_many :qualifications, class_name: "Employee::Educationdetail", foreign_key: :EmployeeID, dependent: :destroy
+	has_many :family_details, class_name: "Employee::Employeefamilydetail", foreign_key: :EmployeeID, dependent: :destroy
 
-	has_one :employee_salary, class_name: "Employee::Employeesalary", foreign_key: :EmployeeID
-	has_one :employee_benefit, class_name: "Employee::Employeebenefit", foreign_key: :EmployeeID
-	has_one :employee_family, class_name: "Employee::Employeefamily", foreign_key: :EmployeeID
+	has_one :employee_salary, class_name: "Employee::Employeesalary", foreign_key: :EmployeeID, dependent: :destroy
+	has_one :employee_benefit, class_name: "Employee::Employeebenefit", foreign_key: :EmployeeID, dependent: :destroy
+	has_one :employee_family, class_name: "Employee::Employeefamily", foreign_key: :EmployeeID, dependent: :destroy
+	has_one :bank_account_detail, class_name: "Employee::Employeebankaccountdetail", foreign_key: :EmployeeID, dependent: :destroy
 
-	validate :valid_joining_date
+	validate :valid_joining_date, on: :create
 
-	after_initialize :default_values, :set_nested_fields
+	after_initialize :default_values
 
-	attr_accessor :nested_associations
+	before_create :generate_new_employee_id
+	after_create :update_invoice, :updating_qualifications_family_details
+
+	attr_accessor :unregister_emp_id
+
+	validates :FirstName, :LastName, :Address, :HomePhoneNo, :CellPhoneNo,
+						:DateOfBirth, :DateOfJoining, :NTNNo, :NICNo, :OfficeEmail, 
+						:HomeEmail, :IsInternee, presence: true
 
 	accepts_nested_attributes_for :qualifications, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :family_details, reject_if: :all_blank, allow_destroy: true
@@ -61,11 +69,9 @@ class Employee::Employeepersonaldetail < ActiveRecord::Base
 	end
 
 	def self.build_employee(params = {})
-		self.Transaction do 
-			new params
-		end
+		new params
 	end
-
+	
 	def set_nested_fields
 		if nested_associations == true
 			qualifications.build
@@ -73,16 +79,45 @@ class Employee::Employeepersonaldetail < ActiveRecord::Base
 		end
 	end
 
+	def generate_new_employee_id
+		employee_id = self.class.last.EmployeeID.nil? ? "1" : (self.class.last.EmployeeID.to_i + 1).to_s
+		self.EmployeeID = "%04d" % employee_id
+	end
+
 	def valid_joining_date
-		joining_date =  DateOfJoining.to_date
+		joining_date =  self.DateOfJoining
+		if joining_date.present?
+	    @sec = Time.parse(joining_date.to_date.to_s).to_i
+	    @now = Time.parse(DateManipulator.payroll_end_date).to_i
 
-    @sec = Time.parse(joining_date.to_s).to_i
-    @now = Time.parse(DateManipulator.payroll_end_date).to_i
-
-    @time = @now - @sec
-    unless @time.blank?
-      errors.add :base, "Date of Joining should be less then equal to Payroll End Date" if @time < 0
+	    @time = @now - @sec
+	    unless @time.blank?
+	      errors.add :base, "Date of Joining should less than equal to Payroll End Date" if @time < 0
+	    end
     end
+	end
+
+	def updating_qualifications_family_details
+		logger.debug "-----#{self.unregister_emp_id}"
+		@unregistered_employee_qualifications = Employee::Educationdetail.for_unregistered_employee(self.unregister_emp_id)
+		@unregistered_employee_family_details = Employee::Employeefamilydetail.for_unregistered_employee(self.unregister_emp_id)
+
+		@unregistered_employee_qualifications.update_all(:EmployeeID => self.EmployeeID)
+		@unregistered_employee_family_details.update_all(:EmployeeID => self.EmployeeID)
+	end
+
+	def update_invoice
+		unregistered_employee_id = self.unregister_emp_id
+		registered_employee_id = self.EmployeeID
+		CurrentInvoice.get_updated_by_registered_employee_id(unregistered_employee_id, registered_employee_id)
+	end
+
+	def self.perform_rollback!(*args)
+		args.each do |entities|
+			if !entities.save
+				raise ActiveRecord::Rollback, "Call tech support!"
+			end
+		end
 	end
 
 	private
@@ -91,5 +126,6 @@ class Employee::Employeepersonaldetail < ActiveRecord::Base
     self.NTNNo ||= "0"
     self.NICNo ||= "0"
     self.isInactive ||= "0"
+    self.Type ||= "Full Time"
   end
 end

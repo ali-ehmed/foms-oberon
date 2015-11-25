@@ -8,11 +8,11 @@
 </div>
 <div class="form-group">
 	<%= label_tag :gender %>
-	<%= select_tag :gender, options_for_select(EmployeesHelper::Gender.map{|m| m}), prompt: "--Select Gender--" %>
+	<%= select_tag :gender, options_for_select(EmployeesHelper::Gender.map{|m| [m[:gender_name], m[:gender_id]]}), prompt: "--Select Gender--" %>
 </div>
 <div class="form-group">
 	<%= label_tag :date_of_birth %>
-	<%= text_field_tag :date_of_birth, params[:date_of_birth], id: "employee_dob", placeholder: "Date of Birth" %>
+	<%= text_field_tag :date_of_birth, params[:date_of_birth], id: "employee_dob", placeholder: "MM/DD/YYYY" %>
 </div>
 <div class="form-group">
 	<%= label_tag :marital_status %>

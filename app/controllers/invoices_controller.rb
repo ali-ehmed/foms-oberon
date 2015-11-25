@@ -297,8 +297,8 @@ class InvoicesController < ApplicationController
     }
     @index = get_params[:index]
     @employee_id = get_params[:employee_id]
-    @employee_education_details = Employee::Educationdetail.for_unregisted_employee(@employee_id)
-    @employee_family_details = Employee::Employeefamilydetail.for_unregisted_employee(@employee_id)
+    @employee_education_details = Employee::Educationdetail.for_unregistered_employee(@employee_id)
+    @employee_family_details = Employee::Employeefamilydetail.for_unregistered_employee(@employee_id)
   end
 
   private

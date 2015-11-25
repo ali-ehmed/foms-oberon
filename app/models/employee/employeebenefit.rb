@@ -10,10 +10,20 @@
 #
 
 class Employee::Employeebenefit < ActiveRecord::Base
-	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID
-	before_create :default_values
+	belongs_to :employee, class_name: "Employee::Employeepersonaldetail", foreign_key: :EmployeeID, :dependent => :delete
 	
 	def default_values
     self.isPickAndDropAvailed ||= 0
+  end
+
+
+  after_initialize :default_values
+
+	private
+
+	def default_values
+    self.isPickAndDropAvailed ||= 0
+    self.MedicalInsuranceType = "Takaful" if self.MedicalInsuranceType.blank?
+    self.ConveyancePolicy = 0 if self.ConveyancePolicy.blank?
   end
 end

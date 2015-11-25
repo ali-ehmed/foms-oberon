@@ -210,16 +210,14 @@ class CurrentInvoice < ActiveRecord::Base
     	 	description += "to "
     	 	description += "#{options[:end_date].to_datetime.strftime("%b").upcase} "
     	 	description += "#{options[:end_date].to_datetime.strftime("%d").upcase} )"
-        # description = "#{description} (
-	       #  							#{options[:start_date].to_datetime.strftime("%b").upcase}
-	       #  							#{options[:start_date].to_datetime.strftime("%d").upcase} 
-	       #  							to 
-	       #  							#{options[:end_date].to_datetime.strftime("%b").upcase} 
-	       #  							#{options[:end_date].to_datetime.strftime("%d").upcase}
-        # 							)"
       end
 
       return description, amount, temp_rate
 	  end
+
+	  def get_updated_by_registered_employee_id(unregistered_emp_id, registered_emp_id)
+			invoice = CurrentInvoice.where("employee_id = ?", unregistered_emp_id)
+			invoice.update_all(:employee_id => registered_emp_id)
+		end
 	end
 end

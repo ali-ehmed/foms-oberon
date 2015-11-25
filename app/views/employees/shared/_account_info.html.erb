@@ -15,8 +15,8 @@
 	<%= text_field_tag :bank_branch, params[:bank_branch], placeholder: "Branch" %>
 </div>
 <div class="form-group">
-	<%= label_tag "Ins. Type" %>
-	<%= text_field_tag :ins_type, params[:ins_type], placeholder: "Type" %>
+	<%= label_tag "Medical Insurance" %>
+	<%= select_tag :medical_insurance, options_for_select(EmployeesHelper::MedicalInsurance.map{|m| m.split("_").map{|medical| medical.capitalize }.join(" ")}), prompt: "--Select Medical Insurance--" %>
 </div>
 <div class="form-group">
 	<%= label_tag :accrual_bonus %>
