@@ -24,8 +24,11 @@ en:
 
   time:
     formats:
-      short_datetime: "%B %d, %Y"
+      short_time: "%H:%M"
+      invoices_datetime: "%Y-%m-%d %H:%M:%S"
   date:
     formats:
       short_date: "%b %d, %Y"
       current_year: "%y"
+      general_date: "%Y-%b-%d"
+

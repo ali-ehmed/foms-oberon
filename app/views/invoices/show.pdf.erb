@@ -1,0 +1,44 @@
+<div class="content">
+	<div class="bottom"></div>
+	<div class="invoice_info">
+		<div class="project_name_for_pdf">
+			<%= @project.name %>
+		</div>
+		<br />
+		<span class="heading">Customer Info:</span>
+		<ul class="list-names">
+			<li><strong>Customer Name:</strong> <%= @customer_name %></li>
+			<li><strong>Customer Address:</strong> <%= @customer_address %></li>
+			<li><strong>Customer Email:</strong> <%= @customer_email %></li>
+		</ul>
+		<span class="heading">Invoice Info:</span>
+		<ul class="list-names">
+			<li><strong>Invoice No:</strong> <%= @invoice_no %></li>
+			<li><strong>Invoice Date:</strong> <%= l @invoice_date, format: :short_date %></li>
+		</ul>
+	</div>
+	</div>
+	<div id="total_invoices_for_customer_pdf">
+		<%= render "invoices/shared/pdf_invoices.html.erb" %>
+	</div>
+</div>
+<br />
+<div class="footer">
+	<div class="row">
+		<div class="col-md-6">
+			<p><strong>Payment Terms</strong>
+			<br /><%= @payment_terms %></p>
+			<p><strong>Wire Transfer Instructions:</strong>
+			<br />Remit US Dollars to Folio3 Software Inc account number 16629-66005 at Bank of America, routing number 121000358.</p>
+			<p><strong>Check Payment:</strong>
+			<br />Alternatively, send a check to our US Address: 
+				<strong>Folio3, c/o Kathy Chao, C. G. Uhlenberg LLP, 333 Twin Dolphin Drive, Suite 230, Redwood City, CA 94065.</strong></p>
+		</div>
+	</div>
+	<div class="bottom"></div>
+	<div class="row">
+		<div class="col-md-12">
+			<div style="text-align:center;font-weight:bold;">Invoice Generated On <%= @invoice_created_date %></div>
+		</div>
+	</div>
+</div>

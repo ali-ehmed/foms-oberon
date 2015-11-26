@@ -1,4 +1,4 @@
-                                            ### Invoices ###
+### Invoices ###
 $invoices =
   init: ->
     ### Initializing Methods ###
@@ -7,6 +7,7 @@ $invoices =
     $invoices.addCustomInvoiceForm()
     $invoices.removeCustomInvoiceForm()
     $invoices.savingCustomInvoice()
+    $invoices.generatingTotalInvoices()
 
     return
 
@@ -22,6 +23,13 @@ $invoices =
     month_param = date_input.val().split('-')[0]
     year_param = date_input.val().split('-')[1]
     project_param = $("#invoice_projects").val()
+
+    curr_date = new Date
+    get_curr_month = curr_date.getMonth()
+    get_curr_year = curr_date.getFullYear()
+
+    month_param ?= get_curr_month
+    year_param ?= get_curr_year
 
     params = {
       month: $.trim(month_param)
@@ -78,12 +86,14 @@ $invoices =
       cache: false
       dataType: "json"
       success: (response, data) ->
-        if response.status == 'true'
+        if response.status == true
           swal
             title: 'Update Required'
             text: response.message
             type: 'info'
             html: true
+        else if response.status == "error"
+          swal 'Error Occur!', "#{response.message}", "error"
         else
           console.log "Status false, no resync required"
       error: (response) ->
@@ -91,11 +101,8 @@ $invoices =
 
   synchronizeInvoicesFromRm: (elem, text = "") ->
     $this = $(elem)
-    date_input = $('input#invoice_month_year')
-    month_param = date_input.val().split('-')[0]
-    year_param = date_input.val().split('-')[1]
+
     no_of_days = $('#no_of_days').val()
-    project_id = $("#invoice_projects").val()
 
     params = $invoices.getInvoiceParams()
     params["no_of_days"] = no_of_days
@@ -244,7 +251,7 @@ $invoices =
       $add_less_amount = $("#add_less_select").val()
       url = $this.data("url")
 
-      params = $invoices.getInvoiceParams()      
+      params = $invoices.getInvoiceParams()
       params["description"] = $("textarea[name='new_description']").val()
       params["is_adjustment"] = true
 
@@ -273,6 +280,77 @@ $invoices =
         error: (response) ->
           swal 'Oops', 'Something went wrong'
 
+  generatingTotalInvoices: ->
+    $(document).on "click", "#generate_invoices", (e) ->
+      e.preventDefault()
+      $this = $(this)
+      params = $invoices.getInvoiceParams()
+
+      ## Validate Invoice Number
+      if $invoices.validateInvoiceNumber() == true
+        false
+      else
+        params["invoice_no"] = $("#invoice_no").val()
+        params["invoice_sent_date"] = $("#invoice_date").val()
+        params["pkr_and_dollar"] = $("#pkr_and_dollar").val()
+        params["payment_terms"] = $("#payment_terms").val()
+
+        swal {
+          title: "Generate These Invoices?"
+          type: 'info'
+          showCancelButton: true
+          confirmButtonColor: 'rgb(221, 107, 85) !important;'
+          confirmButtonText: 'Sure!'
+          closeOnConfirm: false
+        }, ->
+          $.ajax
+            type: $this.data("method")
+            url: $this.data("action")
+            data: params
+            cache: false
+            beforeSend: ->
+              swal
+                title: '<i class=\"fa fa-spinner fa-pulse fa-3x\"></i>'
+                text: "Generating Total Invoices"
+                type: 'info'
+                html: true
+                showConfirmButton: false
+            success: (response, data) ->
+              if response.status == "error"
+                swal "#{response.message}", "Please contact your developer", "success"
+              else
+                swal "Successfully", "#{response.message}", "success"
+                $invoices.submitInvoicePdfGenerateForm()
+            error: (response) ->
+              swal 'Oops', 'Something went wrong'
+  
+  validateInvoiceNumber: ->
+    $invoice_no = $("#invoice_no")
+    $invoice_date = $("#invoice_date")
+
+    if $invoice_date.val() == ""
+      $invoice_date.closest(".form-group").addClass "has-warning"
+      unless $invoice_date.closest(".form-group").find(".invoice_error").text()
+        $invoice_date.closest(".form-group").find(".invoice_error").append("* Please set the invoice date").show()
+      true
+    else
+      $invoice_date.closest(".form-group").removeClass "has-warning"
+      $invoice_date.next().empty().hide()
+
+      if $invoice_no.val() == ""
+        $invoice_no.closest(".form-group").addClass "has-warning"
+        unless $invoice_no.closest(".form-group").find(".invoice_error").text()
+          $invoice_no.closest(".form-group").find(".invoice_error").append("* Please set the invoice number").show()
+        true
+      else
+        $invoice_no.closest(".form-group").removeClass "has-warning"
+        $invoice_no.next().empty().hide()
+        false
+
+  submitInvoicePdfGenerateForm: ->
+    $("#invoices_pdf_generate_form").submit()
+    # $(document).on "submit", "#invoices_pdf_generate_form", (e) ->
+    #   e.preventDefault()
 
 
 window.syncInvoices = (elem, text = "") ->
@@ -293,7 +371,8 @@ window.isShadowCompatibility = (elem, object) ->
       return false
 
 $(document).on "page:change", ->
-  $invoices.init() ### Initializing Invoices Coffee Script ###
+  ### Initializing Invoices Coffee Script ###
+  $invoices.init() 
 
   $("#invoice_projects").select2
     placeholder: "--Select Project--",

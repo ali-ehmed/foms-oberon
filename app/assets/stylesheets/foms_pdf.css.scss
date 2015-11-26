@@ -1,0 +1,77 @@
+// Page Break
+table tbody { 
+		tr, td {
+    	page-break-inside: avoid !important;
+  	}
+}
+.footer {
+	page-break-inside: avoid;
+}
+// For PDF
+#total_invoices_for_customer_pdf {
+	table {
+		border-collapse: collapse;
+		border: 1px solid black;
+		tr {
+			border-bottom: 1px solid black;
+			td {
+				border: 1px solid black;
+			}
+		}
+		thead tr.head {
+	    background-color: #D2C484;
+	    td { color: #fff; }
+		}
+	}
+}
+// PDF OVERVIEW
+.header {
+  margin-bottom: 25px;
+}
+
+.bottom {
+	background: -moz-linear-gradient(left, #fefdf6 0%, #cecd04 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, #fefdf6), color-stop(100%, #cecd04)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(left, #fefdf6 0%, #cecd04 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(left, #fefdf6 0%, #cecd04 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(left, #fefdf6 0%, #cecd04 100%); /* IE10+ */
+  background: linear-gradient(to right, #fefdf6 0%, #cecd04 100%); /* W3C */
+  height: 3px;
+  margin-top: 12px;
+}
+.content {
+	.invoice_info {
+		span.heading {
+			font-size: 20px;
+			font-size: 20px;
+    	border-bottom: 2px solid;
+    	font-weight: bold;
+		}
+		ul.list-names { 
+			margin-top: 10px;
+		}
+
+		.project_name { font-size: 55px; }
+		.project_name_for_pdf { font-size: 38px; }
+	}
+
+	#total_invoices_for_customer {
+		#total_invoices_table {
+			font-size: 18px;
+			thead td {
+				font-weight: bold;
+        vertical-align: middle;
+			}
+			thead tr.head {
+		    background-color: #D2C484;
+        td { color: #fff; }
+			}
+			thead tr.head-detail {
+				td { color: #676161 }
+			}
+			tbody.table-content {
+				tr.odd { background-color: #f5f5f5; }
+			}
+		}
+	}
+}

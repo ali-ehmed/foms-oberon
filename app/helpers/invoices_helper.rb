@@ -6,6 +6,24 @@ module InvoicesHelper
 		"invoice_hours" if invoice.ishourly
 	end
 
+	def hourly_or_non_hourly(generated_invoice)
+		if generated_invoice.ishourly == "true"
+			generated_invoice.hours
+		else
+			generated_invoice.percent_billing
+		end
+	end
+
+	def generated_invoice_rates(generated_invoice)
+		if generated_invoice.ishourly == "true"
+			rate_type = "hour"
+		else
+			rate_type = "month"
+		end
+		
+		"#{generated_invoice.rates} / #{rate_type}"
+	end
+
 	def editable_for(field_name, invoice)
 
 		if invoice.IsAdjustment == false and invoice.IsShadow == true

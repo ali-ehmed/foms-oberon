@@ -1,0 +1,42 @@
+<table class="table table-striped table-hover table-bordered" id="total_invoices_table">
+	<thead>
+		<tr class="head">
+			<td align="middle">Quantity</td>
+			<td align="middle">Description</td>
+			<td rowspan="2" align="middle">Rate (US$)</td>
+			<td rowspan="2" align="middle">Amount (US$)</td>
+		</tr>
+		<tr class="head-detail">
+			<td align="middle">Resources / Hours</td>
+			<td align="middle">Software Development Cost for the Month of <%= I18n.t("date.abbr_month_names")[@total_invoices.first.month.to_i] %> <%= @total_invoices.first.year %></td>
+		</tr>
+	</thead>
+	<tbody class="table-content">
+		<% @total_invoices.each_with_index do |generated_invoice, index| %>
+			<% index += 1 %>
+			<tr class="<%= index.odd? ? 'odd' : 'even' %>">
+				<td align="middle"><%= hourly_or_non_hourly(generated_invoice) %></td>
+				<td align="middle"><%= generated_invoice.description %></td>
+				<td align="middle"><%= generated_invoice_rates(generated_invoice) %></td>
+				<td>
+					<span><%= @currency == "US$" ? "$" : @currency %></span>
+					<span class="pull-right"><%= number_to_currency(generated_invoice.amount, :unit => "", :separator => ".", :delimiter => ",") %></span>
+				</td>
+			</tr>
+		<% end %>
+		<tr>
+			<td colspan="4" align="middle"><strong>Total</strong></td>
+		</tr>
+		<tr>
+			<td align="middle"><strong><%= @total_hours %> Hrs</strong></td>
+			<td></td>
+			<td></td>
+			<td>
+				<strong>
+					<span><%= @currency == "US$" ? "$" : @currency %></span>
+					<span class="pull-right"><%= number_to_currency(@total_amount, precision: 2, unit: "") %></span>
+				</strong>
+			</td>
+		</tr>
+	</tbody>
+</table>

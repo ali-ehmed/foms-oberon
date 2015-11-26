@@ -125,7 +125,7 @@ module Reports
       	month = @start_date.to_date.strftime("%m") 
         year = @start_date.to_date.strftime("%Y")
 
-        emp_report = EmployeeProfitibilityReport.get_history_report_of(emp_id.to_i, month, year).first
+        emp_report = Employee::EmployeeProfitibilityReport.get_history_report_of(emp_id.to_i, month, year).first
         if emp_report.present?
         	cost = (emp_report.total / 100) * prorated_percent.to_f
           total_cost += cost

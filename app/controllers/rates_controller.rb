@@ -1,8 +1,8 @@
 class RatesController < ApplicationController
   def index
-    @rates = Rate.where("iscurrent = ?", true).order("designation_id asc").paginate(:page => params[:page], :per_page => 10)
-
-		respond_to do |format|
+    # @rates = Rate.joins(:designation).where("iscurrent = ?", true).order("designation.designation_name asc").paginate(:page => params[:page], :per_page => 10)
+    @rates = Rate.joins(:designation).where("iscurrent = ?", true).order("designations.designation asc").paginate(:page => params[:page], :per_page => 10)
+		respond_to do |format|  
 			format.html
 			format.js
 		end

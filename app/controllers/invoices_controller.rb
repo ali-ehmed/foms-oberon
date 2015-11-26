@@ -10,6 +10,43 @@ class InvoicesController < ApplicationController
     @employees = Employee::Employeepersonaldetail.is_inactive_or_consultant_employees
   end
 
+  def show
+    @invoice_created_date = session[:invoice_created_date]
+    @total_invoices = TotalInvoice.get_all_by_created_date(@invoice_created_date)
+
+    @project = @total_invoices.first.project
+
+    @customer_name = @project.customer_name.nil? ? "Test Customer" : @project.customer_name
+    @customer_address = @project.customer_name.nil? ? "XYZ Road, ABC Town" : @project.customer_address
+    @customer_email = @project.customer_personal_email.nil? ? "abc@example.com" : @project.customer_personal_email
+
+    @invoice_no = params[:invoice_no].join
+    @invoice_date = params[:invoice_sent_date].to_date
+    @payment_terms = params[:payment_terms]
+    @currency = params[:pkr_and_dollar]
+
+    @total_hours = 0
+    @total_amount = 0
+
+    @total_invoices.each do |generated_invoice|
+      @total_hours += generated_invoice.hours if generated_invoice.ishourly == "true"
+      @total_amount += generated_invoice.amount
+    end
+
+    respond_to do |format|
+      format.html
+      format.pdf do
+        pdf  = render_to_string pdf: "invoice",
+               template: 'invoices/show.pdf.erb',
+               layout: '/layouts/foms_receipt.html.erb',
+               print_media_type: true,
+               title: 'Invoice Number',
+               :disposition => "attachment"
+        send_data(pdf, :filename => "#{@invoice_created_date}",  :type=>"application/pdf")
+      end
+    end
+  end
+
   def get_invoice_number
   	@month = params[:month_year].present? ? params[:month_year].delete(' ').split("-").first : Date.today.month
 		@year = params[:month_year].present? ? params[:month_year].delete(' ').split("-").last : Date.today.year
@@ -40,10 +77,11 @@ class InvoicesController < ApplicationController
 
         # XML Start
         @xml_allocation.each do |allocation|
-          employee_record = Employee::Employeepersonaldetail.find_by_OfficeEmail_and_isInactive(allocation.css("Email").text, 0)
+          employee_record = Employee::Employeepersonaldetail.find_by_OfficeEmail(allocation.css("Email").text)
           alloc_emp_id = allocation.css("FormsId").text.to_i
 
-          if employee_record.blank?
+          
+          if employee_record.isInactive and !employee_record.isConsultant
             employee_id = alloc_emp_id * -1
           else
             employee_id = employee_record.EmployeeID
@@ -195,6 +233,7 @@ class InvoicesController < ApplicationController
             :unpaid_leaves => unpaid_leaves,
             :leaves => leaves
           }
+          logger.debug "----------------------------------------------------------#{alloc_attribute[:task_notes]}"
           logger.debug "Creating Invoices"  
           CurrentInvoice.create(current_invoice_params)
         end
@@ -224,8 +263,8 @@ class InvoicesController < ApplicationController
   end
 
   def fetch_invoices
-    @month = params[:month] || Date.today.month
-    @year = params[:year] || Date.today.month
+    @month = params[:month]
+    @year = params[:year]
     @project_id = nil || params[:invoice_project]
     @employee_id = nil || params[:invoice_employee]
 
@@ -302,19 +341,91 @@ class InvoicesController < ApplicationController
   end
 
   def resync_status
+    begin
+      @month = params[:month]
+      @year = params[:year]
+      @project_id = params[:invoice_project]
+
+      render :json => { status: :error, message: "Please Select Project" } and return if @project_id.blank?
+
+      @rm_url_initialize = RmService.new
+      @url = @rm_url_initialize.get_invoices_status(@project_id, @month.to_i, @year.to_i)
+      doc = Nokogiri::XML(open(@url))
+      @status = doc.css("Status IsChanged")
+      if @status.text == "false"
+        render :json => { status: false }
+      else
+        render :json => { status: true, message: "Please resynchronise this project's data." }
+      end
+    rescue *OpenURI::HTTPError => error
+      logger.debug "------------#{error}------------------"
+      render :json => { status: :error, message: "There was a problem in RM Service. Please contact your developer" }
+    end
+  end
+
+  def generate_invoices
     @month = params[:month]
-    @year = params[:month_year]
+    @year = params[:year]
     @project_id = params[:invoice_project]
+    current_invoices = TotalInvoice.get_selected_project_invoices(@month, @year, @project_id)
 
-    @rm_url_initialize = RmService.new
-    @url = @rm_url_initialize.get_invoices_status(@project_id, @month.to_i, @year.to_i)
-    doc = Nokogiri::XML(open(@url))
-    @status = doc.css("Status IsChanged")
+    @timestamps = I18n.l DateTime.now, format: :invoices_datetime
 
-    if @status.text == "false"
-      render :json => { status: false }
-    else
-      render :json => { status: true, message: "Please resynchronise this project's data." }
+    if TotalInvoice.get_invoices_for(@month, @year, @project_id).present?
+      ActiveRecord::Base.connection.execute("UPDATE total_invoices 
+        SET IsSent = 0 
+        WHERE project_id = #{@project_id} AND month = #{@month} AND year = #{@year}"
+      )
+    end
+    
+    for current_invoice in current_invoices do
+      TotalInvoice.transaction do
+        begin
+          is_adjustment = current_invoice.IsAdjustment == nil ? 0 : 1
+          hours = current_invoice.ishourly == true ? current_invoice.hours : ""
+
+          add_less = 1
+          add_less = current_invoice.add_less unless current_invoice.blank?
+
+          attriubutes = {
+            :project_id => @project_id,
+            :employee_id => current_invoice.employee_id,
+            :ishourly => current_invoice.ishourly,
+            :month => @month,
+            :year => @year,
+            :hours => hours,
+            :percentage_alloc => current_invoice.percentage_alloc,
+            :rates => current_invoice.rates || 0,
+            :unpaid_leaves => current_invoice.unpaid_leaves,
+            :amount => current_invoice.amount || 0,
+            :description => current_invoice.description || 0,
+            :percent_billing => current_invoice.percent_billing,
+            :createdon => @timestamps,
+            :IsAdjustment => is_adjustment,
+            :add_less => add_less,
+            :no_of_days => current_invoice.no_of_days,
+            :start_date => current_invoice.start_date,
+            :end_date => current_invoice.end_date
+          }
+
+          
+          generate_invoice = TotalInvoice.build_(attriubutes)
+          generate_invoice.save
+
+        rescue *[ActiveRecord::StatementInvalid, ActiveRecord::Rollback] => e
+          break
+          logger.debug "----ERROR: #{e.message}-----"
+          raise ActiveRecord::Rollback, "Problem occur while generating invoices"
+          render :json => { status: :error, message: "Problem occur while generating invoices" }
+        end
+      end 
+    end
+
+    session[:invoice_created_date] = @timestamps
+
+    project_name = RmProject.get_project_name(@project_id)
+    respond_to do |format|
+      format.json { render :json => { status: :ok, message: "Invoices has been generated for #{project_name}" } }
     end
   end
 

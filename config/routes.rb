@@ -7,6 +7,8 @@ Rails.application.routes.draw do
       post "custom_invoice" => "invoices#custom_invoice"
       get "new_employee" => "invoices#unregistered_employee"
       get "resync_status" => "invoices#resync_status"
+      post "generate_invoices" => "invoices#generate_invoices", :as => :generate
+      post "/:invoice_sent_date" => "invoices#show", :as => :invoice_pdf
     end
   end
 

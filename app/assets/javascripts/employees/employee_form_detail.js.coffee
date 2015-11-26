@@ -142,7 +142,9 @@ class window.EmployeeFormDetail
         conveyance:
           validators: notEmpty: message: '* required'
         gross_salary:
-          validators: notEmpty: message: '* required'
+          validators: 
+            notEmpty: message: '* required'
+            integer: message: '* only numbers allowed'
         children:
           validators: notEmpty: message: '* required'
     }).on 'success.form.bv', (e) ->

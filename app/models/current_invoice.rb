@@ -27,8 +27,8 @@
 #  unpaid_leaves    :float(53)        default(0.0)
 #  accrued_leaves   :float(53)        default(0.0)
 #  balance_leaves   :float(53)        default(0.0)
-#  task_notes       :string(500)
-#  reminder         :binary(500)
+#  task_notes       :text(4294967295)
+#  reminder         :string(10000)
 #
 
 class CurrentInvoice < ActiveRecord::Base
@@ -120,7 +120,7 @@ class CurrentInvoice < ActiveRecord::Base
 
 		def calculate_total_amount(temp_amount, temp_rate, unpaid_leaves, options = {})
 			amount = temp_amount - (temp_rate * options[:percent_billing].to_f / 100 / options[:total_days].to_f * unpaid_leaves.to_f)
-	    amount = amount * 100.round / 100.0
+	    amount = (amount * 100.round) / 100.0
 
 	    amount
 		end

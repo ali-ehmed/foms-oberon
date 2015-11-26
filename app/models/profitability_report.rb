@@ -67,7 +67,7 @@ class ProfitabilityReport < ActiveRecord::Base
 
 						rm_project = RmProject.find_by_project_id(invoice.project_id)
 
-						emp_profitability_report = EmployeeProfitibilityReport.find_by_employee_id_and_month_and_year("#{employee.EmployeeID}", @month, @year)
+						emp_profitability_report = Employee::EmployeeProfitibilityReport.find_by_employee_id_and_month_and_year("#{employee.EmployeeID}", @month, @year)
 
 	          operational_expense_variable = Variable.find_by_VariableName("OperationalExpense").Value.to_f
 	          division = Division.find_by_div_owner("#{rm_project.director_name}")

@@ -30,28 +30,35 @@
 	<% end %>
 	<div class="row">
 		<div class="col-md-10">
-			<div class="row">
-				<div class="col-md-3">
-					<label>Currency</label>
-					<%= select_tag :pkr_and_dollar, options_for_select(InvoicesHelper::Currency.map{|m| m}), class: "form-control" %>
+			<%= form_tag invoice_pdf_invoices_path(:invoice_sent_date => I18n.l(Date.today, format: :general_date)), method: :post, target: "_blank", id: "invoices_pdf_generate_form" do %>
+				<div class="row">
+					<div class="col-md-3">
+						<label>Currency</label>
+						<%= select_tag :pkr_and_dollar, options_for_select(InvoicesHelper::Currency.map{|m| m}), class: "form-control" %>
+					</div>
+					<div class="col-md-3">
+						<label>Payment Terms</label>
+						<%= select_tag :payment_terms, options_for_select(InvoicesHelper::PaymentTerms.map{|m| m}), class: "form-control" %>
+					</div>
+					<div class="col-md-3">
+						<div class="form-group">
+							<label>Invoice Date</label>
+							<%= text_field :invoice_date, params[:invoice_date], class: "form-control", value: (l Date.today, format: :short_date), id: "invoice_date" %>
+							<span class="invoice_error" style="display:none;"></span>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="form-group">
+							<label>Invoice Number</label>
+							<%= text_field :invoice_no, params[:invoice_no], class: "form-control", id: "invoice_no", placeholder: "Invoice Number" %>
+							<span class="invoice_error" style="display:none;"></span>
+						</div>
+					</div>
 				</div>
-				<div class="col-md-3">
-					<label>Payment Terms</label>
-					<%= select_tag :payment_terms, options_for_select(InvoicesHelper::PaymentTerms.map{|m| m}), class: "form-control" %>
-				</div>
-				<div class="col-md-3">
-					<label>Invoice Date</label>
-					<%= text_field :invoice_date, params[:invoice_date], class: "form-control", value: (l Date.today, format: :short_date), id: "invoice_date" %>
-
-				</div>
-				<div class="col-md-3">
-					<label>Invoice Number</label>
-					<%= text_field :invoice_no, params[:invoice_no], class: "form-control", id: "invoice_no", placeholder: "Invoice Number" %>
-				</div>
-			</div>
+			<% end %>
 		</div>
 		<div class="col-md-2">
-			<%= button_tag "Generate Invoice", class: "btn btn-info", style: "margin-top: 23px;" %>
+			<%= link_to "Generate Invoice", "javascript:void(0);", target: "_blank", class: "btn btn-info", style: "margin-top: 23px;", id: "generate_invoices", data: { action: generate_invoices_path(format: :json), :method => :post } %>
 		</div>
 	</div>
 	<br />

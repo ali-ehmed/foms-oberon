@@ -1,0 +1,74 @@
+<%= content_for :title, "Invoice" %>
+<%= content_for :header, "false" %>
+<%= content_for :footer, "false" %>
+<style type="text/css">
+	body { padding: 15px 0px; !important; }
+</style>
+<div class="container">
+	<div class="header">
+		<%= image_tag "folio3-logo.png" %>
+		<div class="bottom"></div>
+	</div>
+	<div class="content">
+		<div class="row">
+			<div class="col-md-6">
+				<blockquote>
+					<p>Folio3 Software Inc., c/o Kathy Chao, C. G. Uhlenberg LLP, 333 Twin Dolphin Drive, Suite 230, Redwood CIty, CA 94065</p>
+				</blockquote>
+			</div>
+			<div class="col-md-6">
+				<blockquote class="blockquote-reverse">
+					<%= link_to invoice_pdf_invoices_path(invoice_no: @invoice_no.split(" "), invoice_sent_date: @invoice_date, payment_terms: @payment_terms, currency: @currency, format: :pdf), method: :post, class: "btn btn-success" do %>
+						Download PDF <i class="fa fa-file-pdf-o"></i>
+					<% end %>
+				</blockquote>
+			</div>
+		</div>
+		<div class="invoice_info">
+			<div class="row">
+				<div class="col-md-6">
+					<blockquote class="project_name">
+						<%= @project.name %>
+					</blockquote>
+				</div>
+				<div class="col-md-6 pull-right">
+					<div class="alert alert-info">
+						<span class="heading">Customer Info:</span>
+						<ul class="list-names">
+							<li><strong>Customer Name:</strong> <%= @customer_name %></li>
+							<li><strong>Customer Address:</strong> <%= @customer_address %></li>
+							<li><strong>Customer Email:</strong> <%= @customer_email %></li>
+						</ul>
+						<span class="heading">Invoice Info:</span>
+						<ul class="list-names">
+							<li><strong>Invoice No:</strong> <%= @invoice_no %></li>
+							<li><strong>Invoice Date:</strong> <%= l @invoice_date, format: :short_date %></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="total_invoices_for_customer">
+			<%= render "invoices/shared/pdf_invoices" %>
+		</div>
+	</div>
+	<div class="footer">
+		<div class="row">
+			<div class="col-md-6">
+				<p><strong>Payment Terms</strong></p>
+				<p><%= @payment_terms %></p>
+				<p><strong>Wire Transfer Instructions:</strong></p>
+				<p>Remit US Dollars to Folio3 Software Inc account number 16629-66005 at Bank of America, routing number 121000358.</p>
+				<p><strong>Check Payment:</strong></p>
+				<p>Alternatively, send a check to our US Address: 
+					<strong>Folio3, c/o Kathy Chao, C. G. Uhlenberg LLP, 333 Twin Dolphin Drive, Suite 230, Redwood City, CA 94065.</strong></p>
+			</div>
+		</div>
+		<div class="bottom"></div>
+		<div class="row">
+			<div class="col-md-12">
+				<div style="text-align:center;font-weight:bold;">Invoice Generated On <%= @invoice_created_date %></div>
+			</div>
+		</div>
+	</div>
+</div>
