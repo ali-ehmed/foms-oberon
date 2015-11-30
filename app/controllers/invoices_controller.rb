@@ -11,7 +11,17 @@ class InvoicesController < ApplicationController
   end
 
   def show
-    @invoice_created_date = session[:invoice_created_date]
+    generated_invoice_params = {
+      created_date: params[:invoice_created_date],
+      no: params[:invoice_no],
+      sent_date: params[:invoice_sent_date],
+      payment_terms: params[:payment_terms],
+      currency: params[:pkr_and_dollar]
+    }
+
+    @invoice_created_date = generated_invoice_params[:created_date].split("_").join(" ")
+    
+    @timestamp = @invoice_created_date
     @total_invoices = TotalInvoice.get_all_by_created_date(@invoice_created_date)
 
     @project = @total_invoices.first.project
@@ -20,18 +30,277 @@ class InvoicesController < ApplicationController
     @customer_address = @project.customer_name.nil? ? "XYZ Road, ABC Town" : @project.customer_address
     @customer_email = @project.customer_personal_email.nil? ? "abc@example.com" : @project.customer_personal_email
 
-    @invoice_no = params[:invoice_no].join
-    @invoice_date = params[:invoice_sent_date].to_date
-    @payment_terms = params[:payment_terms]
-    @currency = params[:pkr_and_dollar]
+    @invoice_no = generated_invoice_params[:no].join
+    @invoice_date = generated_invoice_params[:sent_date].join.to_date
+    @payment_terms = generated_invoice_params[:payment_terms]
+    @currency = generated_invoice_params[:currency]
 
     @total_hours = 0
     @total_amount = 0
 
+    # Getting Total Amount
     @total_invoices.each do |generated_invoice|
-      @total_hours += generated_invoice.hours if generated_invoice.ishourly == "true"
+      @total_hours += generated_invoice.hours if generated_invoice.ishourly == true
       @total_amount += generated_invoice.amount
     end
+
+    # TASK: Fetch those records in which percentage billing is same for same employee and those which are hourly
+
+    @puts_records_in_array = Array.new()
+    @duplicated_records = []
+    @non_duplicated_records = []
+
+    @merged_invoices = Array.new()
+
+    @total_invoices.each do |invoice|
+      @puts_records_in_array << { :month => invoice.month, :year => invoice.year, :employee_id => invoice.employee_id, :project_id => invoice.project_id }
+    end
+
+    temp_hash = {}
+
+    # For taking uniq values
+    @puts_records_in_array.each do |a|
+      if temp_hash[a]
+        temp_hash[a] += 1
+      else
+        temp_hash[a] = 1
+      end
+    end
+
+    temp_hash.keys.each do |uniq_id|
+      if temp_hash[uniq_id] > 1
+        @duplicated_records.push(uniq_id) #getting uniq values
+      else
+        @non_duplicated_records.push(uniq_id) #getting non uniq values
+      end
+    end
+
+    if !@duplicated_records.blank?
+      @duplicated_records.each do |duplicate_record|
+        @matched_employees = TotalInvoice.matched_employees(
+                              duplicate_record[:month], 
+                              duplicate_record[:year], 
+                              duplicate_record[:project_id], 
+                              duplicate_record[:employee_id], @timestamp
+                              )
+
+        for matched_employee in @matched_employees do 
+          logger.debug "======Project ID - #{matched_employee.project_id} 'PROJECT NAME' - #{matched_employee.project.try(:name)} 'EMPLOYEE NAME' - #{matched_employee.employee.try(:full_name)}======"
+
+          @new_matched_employees = TotalInvoice.new_matched_employees(
+                                    duplicate_record[:month], 
+                                    duplicate_record[:year],
+                                    matched_employee.project_id,
+                                    matched_employee.employee_id,
+                                    @timestamp
+                                  )
+
+          emp_percent_billing = @new_matched_employees.map(&:percent_billing)
+
+          emp_hourly = @new_matched_employees.map(&:ishourly)
+
+          @repeated_percents = emp_percent_billing.select{ |e| emp_percent_billing.count(e) > 1 }
+          # unless @repeated_percents.present?
+          #   @repeated_percents = emp_percent_billing.select{ |e| emp_percent_billing.count(e) > 0 }
+          # end
+          @repeated_hourly = emp_hourly.select{ |e| emp_hourly.count(e) > 1 }
+
+          @billing_employees = TotalInvoice.billing_employees(
+                                duplicate_record[:month],
+                                duplicate_record[:year],
+                                matched_employee.project_id,
+                                matched_employee.employee_id,
+                                @timestamp,
+                                @repeated_percents.first)
+
+
+          @hourly_employees = TotalInvoice.hourly_employees(
+                                duplicate_record[:month],
+                                duplicate_record[:year],
+                                matched_employee.project_id,
+                                matched_employee.employee_id,
+                                @timestamp)
+
+          # # Total Days For Same Billing Emp
+          total_no_of_days = @billing_employees.map(&:no_of_days).inject{|sum, x| sum + x }
+
+          # Total Hours and Amount For Hourly Emp more than ONE
+          @hourly_employees = @hourly_employees.select{ |e| @hourly_employees.count(e.employee_id) > 1 }
+          total_hours = @hourly_employees.map(&:hours).inject{|sum, x| sum + x }
+          total_amount = @hourly_employees.map(&:amount).inject{|sum, x| sum + x }
+
+          # Single Hourly Emps
+          @new_matched_employees.each do |hourly|
+            if hourly.ishourly == true
+              if !@repeated_hourly.include?(hourly.ishourly)
+                puts ": Hours #{hourly.hours} #{hourly.employee_id}"
+                fetched_attributes = {
+                  :project_id => hourly.project_id,
+                  :employee_id => hourly.employee_id,
+                  :month => hourly.month,
+                  :year => hourly.year,
+                  :rates => hourly.rates,
+                  :amount => hourly.amount,
+                  :createdon => @timestamp,
+                  :IsAdjustment => hourly.IsAdjustment,
+                  :add_less => hourly.add_less,
+                  :ishourly => hourly.ishourly,
+                  :hours => hourly.hours,
+                  :no_of_days => hourly.no_of_days,
+                  :percent_billing => hourly.percent_billing,
+                  :description => {
+                    :task_notes => hourly.task_notes,
+                    :designation => hourly.get_emp_designation,
+                    :full_name => hourly.invoice_employee_full_name,
+                    :duration => hourly.total_duration
+                  },
+                  :full_description => hourly.description
+                }
+              end
+            end
+            @merged_invoices << fetched_attributes
+          end
+
+          # Different Percent Billing Employees
+          @new_matched_employees.each do |billing_emp|
+            if billing_emp.ishourly == false
+              if !@repeated_percents.include?(billing_emp.percent_billing)
+                puts ": Same #{billing_emp.percent_billing} #{billing_emp.employee_id}"
+                fetched_attributes = {
+                  :project_id => billing_emp.project_id,
+                  :employee_id => billing_emp.employee_id,
+                  :month => billing_emp.month,
+                  :year => billing_emp.year,
+                  :rates => billing_emp.rates,
+                  :amount => billing_emp.amount,
+                  :createdon => @timestamp,
+                  :IsAdjustment => billing_emp.IsAdjustment,
+                  :add_less => billing_emp.add_less,
+                  :ishourly => billing_emp.ishourly,
+                  :hours => billing_emp.hours,
+                  :no_of_days => billing_emp.no_of_days,
+                  :percent_billing => billing_emp.percent_billing,
+                  :description => {
+                    :task_notes => billing_emp.task_notes,
+                    :designation => billing_emp.get_emp_designation,
+                    :full_name => billing_emp.invoice_employee_full_name,
+                    :duration => billing_emp.total_duration
+                  },
+                  :full_description => billing_emp.description
+                }
+              end
+            end
+            @merged_invoices << fetched_attributes
+          end
+
+
+          # Same Billing Employees who are more than ONE
+          unless @billing_employees.blank?
+            billing_emp_desc = TotalInvoice.get_description(@billing_employees)
+            fetched_attributes = {
+            :project_id => @billing_employees.first.project_id,
+            :employee_id => @billing_employees.first.employee_id,
+            :month => @billing_employees.first.month,
+            :year => @billing_employees.first.year,
+            :rates => @billing_employees.first.rates,
+            :amount => @billing_employees.first.amount,
+            :createdon => @timestamp,
+            :IsAdjustment => @billing_employees.first.IsAdjustment,
+            :add_less => @billing_employees.first.add_less,
+            :ishourly => @billing_employees.first.ishourly,
+            :hours => @billing_employees.first.hours,
+            :no_of_days => total_no_of_days,
+            :percent_billing => @billing_employees.first.percent_billing,
+            :description => {
+              :task_notes => billing_emp_desc[:emp_task_notes],
+              :designation => billing_emp_desc[:designation],
+              :full_name => billing_emp_desc[:full_name],
+              :duration => billing_emp_desc[:date]
+            },
+            :full_description => @billing_employees.first.description
+          }
+          end
+
+          # Same Hourly Employees who are more than ONE
+          unless @hourly_employees.blank?
+            hourly_emp_desc = TotalInvoice.get_description(@hourly_employees)
+            fetched_attributes = {
+            :project_id => @hourly_employees.first.project_id,
+            :employee_id => @hourly_employees.first.employee_id,
+            :month => @hourly_employees.first.month,
+            :year => @hourly_employees.first.year,
+            :rates => @hourly_employees.first.rates,
+            :amount => total_amount,
+            :createdon => @timestamp,
+            :IsAdjustment => @hourly_employees.first.IsAdjustment,
+            :add_less => @hourly_employees.first.add_less,
+            :ishourly => @hourly_employees.first.ishourly,
+            :hours => total_hours,
+            # :no_of_days => @hourly_employees.first.no_of_days,
+            :percent_billing => @hourly_employees.first.percent_billing,
+            :description => {
+              :task_notes => hourly_emp_desc[:emp_task_notes],
+              :designation => hourly_emp_desc[:designation],
+              :full_name => hourly_emp_desc[:full_name],
+              :duration => hourly_emp_desc[:date]
+            },
+            :full_description => @hourly_employees.first.description
+          }
+          end
+
+
+          @merged_invoices << fetched_attributes
+
+        end
+      end
+    end
+
+    # Other records which are not Same
+    @other_employees = []
+    logger.debug "---------------------#{@non_duplicated_records}"
+    if !@non_duplicated_records.blank?
+      @non_duplicated_records.each do |non_duplicated_emp|
+        @employee = TotalInvoice.non_duplicate_records(
+                                  non_duplicated_emp[:month],
+                                  non_duplicated_emp[:year],
+                                  non_duplicated_emp[:project_id],
+                                  non_duplicated_emp[:employee_id],
+                                  @timestamp
+                                ).first
+        @other_employees.push(@employee)
+      end
+
+      @other_employees.each do |employee|
+        fetched_attributes = {
+          :project_id => employee.project_id,
+          :employee_id => employee.employee_id,
+          :month => employee.month,
+          :year => employee.year,
+          :rates => employee.rates,
+          :amount => employee.amount,
+          :createdon => @timestamp,
+          :IsAdjustment => employee.IsAdjustment,
+          :add_less => employee.add_less,
+          :ishourly => employee.ishourly,
+          :hours => employee.hours,
+          :no_of_days => employee.no_of_days,
+          :percent_billing => employee.percent_billing,
+          :description => {
+            :task_notes => employee.task_notes,
+            :designation => employee.get_emp_designation,
+            :full_name => employee.invoice_employee_full_name,
+            :duration => employee.total_duration
+          },
+          :full_description => employee.description
+        }
+        @merged_invoices << fetched_attributes
+      end
+    end
+
+    @processed_invoices = @merged_invoices.compact.reverse!
+
+
+    # Merge Invoice End
 
     respond_to do |format|
       format.html
@@ -74,14 +343,14 @@ class InvoicesController < ApplicationController
         @xml_allocation = project.css("Allocation")
 
         @allocation_attributes = Array.new
-
+        @error_msgs = Array.new
         # XML Start
         @xml_allocation.each do |allocation|
           employee_record = Employee::Employeepersonaldetail.find_by_OfficeEmail(allocation.css("Email").text)
           alloc_emp_id = allocation.css("FormsId").text.to_i
 
           
-          if employee_record.isInactive and !employee_record.isConsultant
+          if employee_record.blank?
             employee_id = alloc_emp_id * -1
           else
             employee_id = employee_record.EmployeeID
@@ -191,6 +460,9 @@ class InvoicesController < ApplicationController
           logger.debug "Creating Description"
           description, amount, rate = CurrentInvoice.build_description(current_invoice, employee, description_params) 
 
+          if description == "rate_nil".to_sym
+            @error_msgs.push("#{employee.full_name}") and next
+          end
           temp_days = if @total_days.blank? then Time.days_in_month(@month.to_i, @year.to_i).to_i else @total_days.to_f end
 
           @balanced_invoice = CurrentInvoice.get_isShadow_and_hourly(@project_id, alloc_attribute[:emp_id]).first
@@ -249,7 +521,11 @@ class InvoicesController < ApplicationController
         @msg = "Invoice successfully synchronised for project <strong>#{proj_name}</strong>"
       end
 
-      render :json => { status: :synced_all, message: @msg }
+      if @error_msgs.present?
+        render :json => { status: :synced_skiped, message: @error_msgs.map { |msg| content_tag(:li, msg) }.join }
+      else
+        render :json => { status: :synced_all, message: @msg }
+      end
 
     rescue *EXCEPTIONS => error
       logger.debug "------------#{error}------------------"
@@ -405,7 +681,8 @@ class InvoicesController < ApplicationController
             :add_less => add_less,
             :no_of_days => current_invoice.no_of_days,
             :start_date => current_invoice.start_date,
-            :end_date => current_invoice.end_date
+            :end_date => current_invoice.end_date,
+            :is_shadow => current_invoice.IsShadow
           }
 
           
@@ -421,11 +698,9 @@ class InvoicesController < ApplicationController
       end 
     end
 
-    session[:invoice_created_date] = @timestamps
-
     project_name = RmProject.get_project_name(@project_id)
     respond_to do |format|
-      format.json { render :json => { status: :ok, message: "Invoices has been generated for #{project_name}" } }
+      format.json { render :json => { status: :ok, invoice_created_date: @timestamps.split(" ").join("_"), message: "Invoices has been generated for #{project_name}" } }
     end
   end
 

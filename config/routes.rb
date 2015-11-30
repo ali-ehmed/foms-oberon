@@ -8,7 +8,7 @@ Rails.application.routes.draw do
       get "new_employee" => "invoices#unregistered_employee"
       get "resync_status" => "invoices#resync_status"
       post "generate_invoices" => "invoices#generate_invoices", :as => :generate
-      post "/:invoice_sent_date" => "invoices#show", :as => :invoice_pdf
+      get "/:invoice_created_date" => "invoices#show", :as => :invoice_pdf
     end
   end
 
@@ -53,7 +53,7 @@ Rails.application.routes.draw do
   get 'home/welcome'
 
   authenticated :user do
-    root 'home#welcome', as: :authenticated_root
+    root 'invoices#index', as: :authenticated_root
   end
 
   unauthenticated :user do

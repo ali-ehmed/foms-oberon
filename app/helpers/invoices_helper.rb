@@ -7,21 +7,21 @@ module InvoicesHelper
 	end
 
 	def hourly_or_non_hourly(generated_invoice)
-		if generated_invoice.ishourly == "true"
-			generated_invoice.hours
+		if generated_invoice[:ishourly] == true
+			pluralize(generated_invoice[:hours], 'hr')
 		else
-			generated_invoice.percent_billing
+			"#{generated_invoice[:percent_billing]} %"
 		end
 	end
 
 	def generated_invoice_rates(generated_invoice)
-		if generated_invoice.ishourly == "true"
+		if generated_invoice[:ishourly] == true
 			rate_type = "hour"
 		else
 			rate_type = "month"
 		end
 		
-		"#{generated_invoice.rates} / #{rate_type}"
+		"#{generated_invoice[:rates]} / #{rate_type}"
 	end
 
 	def editable_for(field_name, invoice)
@@ -30,6 +30,13 @@ module InvoicesHelper
 			@title = "This Record is not editable"
 		else
 			@title = "Click To Edit"
+			if field_name == "hours".to_sym
+				if invoice.ishourly == true
+					@title = "Click To Edit"
+				else
+					@title = "This is a non hourly employee"
+				end
+			end
 		end
 
 		link_to "javascript:void(0);", onclick: "isShadowCompatibility(this, #{invoice.attributes.to_json});", style: "text-decoration: none;", data: { toggle: "tooltip", placement: "top" }, title: @title do

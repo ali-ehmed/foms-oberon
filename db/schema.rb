@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151116143247) do
+ActiveRecord::Schema.define(version: 20151127130311) do
 
   create_table "accrualbonusdetails", primary_key: "Tenure", force: :cascade do |t|
     t.float "Percentage", limit: 53, null: false
@@ -83,8 +83,8 @@ ActiveRecord::Schema.define(version: 20151116143247) do
   add_index "current_invoice_initiations", ["id"], name: "id", using: :btree
 
   create_table "current_invoices", force: :cascade do |t|
-    t.integer "project_id",       limit: 4,                    null: false
-    t.string  "employee_id",      limit: 255,  default: ""
+    t.integer "project_id",       limit: 4,                          null: false
+    t.string  "employee_id",      limit: 255,        default: ""
     t.boolean "ishourly"
     t.float   "hours",            limit: 24
     t.float   "rates",            limit: 53
@@ -96,19 +96,19 @@ ActiveRecord::Schema.define(version: 20151116143247) do
     t.string  "project_name",     limit: 255
     t.string  "employee_name",    limit: 255
     t.string  "email",            limit: 100
-    t.boolean "IsShadow",                      default: false
+    t.boolean "IsShadow",                            default: false
     t.date    "start_date"
     t.date    "end_date"
-    t.integer "no_of_days",       limit: 4,    default: 0
+    t.integer "no_of_days",       limit: 4,          default: 0
     t.float   "percentage_alloc", limit: 24
-    t.boolean "IsAdjustment",                  default: false
-    t.boolean "add_less",                      default: true
-    t.float   "leaves",           limit: 53,   default: 0.0
-    t.float   "unpaid_leaves",    limit: 53,   default: 0.0
-    t.float   "accrued_leaves",   limit: 53,   default: 0.0
-    t.float   "balance_leaves",   limit: 53,   default: 0.0
-    t.string  "task_notes",       limit: 500
-    t.binary  "reminder",         limit: 500
+    t.boolean "IsAdjustment",                        default: false
+    t.boolean "add_less",                            default: true
+    t.float   "leaves",           limit: 53,         default: 0.0
+    t.float   "unpaid_leaves",    limit: 53,         default: 0.0
+    t.float   "accrued_leaves",   limit: 53,         default: 0.0
+    t.float   "balance_leaves",   limit: 53,         default: 0.0
+    t.text    "task_notes",       limit: 4294967295
+    t.string  "reminder",         limit: 10000
   end
 
   create_table "designations", primary_key: "designation_id", force: :cascade do |t|
@@ -511,8 +511,8 @@ ActiveRecord::Schema.define(version: 20151116143247) do
   end
 
   create_table "rm_allocation_records", force: :cascade do |t|
-    t.integer "project_id",       limit: 4,                   null: false
-    t.string  "employee_id",      limit: 255, default: ""
+    t.integer "project_id",       limit: 4,                          null: false
+    t.string  "employee_id",      limit: 255,        default: ""
     t.boolean "ishourly"
     t.float   "hours",            limit: 24
     t.string  "month",            limit: 255
@@ -521,13 +521,13 @@ ActiveRecord::Schema.define(version: 20151116143247) do
     t.string  "project_name",     limit: 255
     t.string  "employee_name",    limit: 255
     t.string  "email",            limit: 100
-    t.boolean "IsShadow",                     default: false
+    t.boolean "IsShadow",                            default: false
     t.date    "start_date"
     t.date    "end_date"
-    t.integer "no_of_days",       limit: 4,   default: 0
+    t.integer "no_of_days",       limit: 4,          default: 0
     t.float   "percentage_alloc", limit: 24
-    t.float   "LEAVES",           limit: 53,  default: 0.0
-    t.string  "task_notes",       limit: 500
+    t.float   "LEAVES",           limit: 53,         default: 0.0
+    t.text    "task_notes",       limit: 4294967295
   end
 
   create_table "rm_project_allocations", force: :cascade do |t|
@@ -629,8 +629,8 @@ ActiveRecord::Schema.define(version: 20151116143247) do
   end
 
   create_table "total_invoices", force: :cascade do |t|
-    t.integer  "project_id",       limit: 4,                    null: false
-    t.string   "employee_id",      limit: 255,  default: "",    null: false
+    t.integer  "project_id",       limit: 4,                          null: false
+    t.string   "employee_id",      limit: 255,        default: "",    null: false
     t.boolean  "ishourly"
     t.float    "hours",            limit: 24
     t.float    "rates",            limit: 24
@@ -641,15 +641,16 @@ ActiveRecord::Schema.define(version: 20151116143247) do
     t.string   "description",      limit: 1000
     t.float    "percent_billing",  limit: 24
     t.float    "percentage_alloc", limit: 24
-    t.boolean  "IsAdjustment",                  default: false
-    t.boolean  "add_less",                      default: true
-    t.boolean  "IsSent",                        default: true
-    t.float    "unpaid_leaves",    limit: 53,   default: 0.0
-    t.integer  "no_of_days",       limit: 4,    default: 0
-    t.string   "task_notes",       limit: 500
+    t.boolean  "IsAdjustment",                        default: false
+    t.boolean  "add_less",                            default: true
+    t.boolean  "IsSent",                              default: true
+    t.float    "unpaid_leaves",    limit: 53,         default: 0.0
+    t.integer  "no_of_days",       limit: 4,          default: 0
+    t.text     "task_notes",       limit: 4294967295
     t.binary   "reminder",         limit: 500
     t.date     "start_date"
     t.date     "end_date"
+    t.boolean  "is_shadow",                           default: false
   end
 
   create_table "users", force: :cascade do |t|

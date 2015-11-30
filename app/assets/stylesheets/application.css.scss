@@ -69,29 +69,52 @@ body { padding-top: 60px; }
 .purrAlert {
 	position: fixed;  
   top: 70px;  
-  right: 150px; 
-  padding: 15px;
+  right: 150px;
   border-radius: 4px;
   color: #fff;
   z-index: 10000;
+  width: 30%;
+  @media(max-width: 760px) {
+    right: 0;
+    left:0;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  .divider-purr {
+    border-right: 2px solid;
+  }
+  span { font-size: 29px; }
+  .purr-icon {
+    @media(max-width: 760px) {
+      width: 100%;
+    }
+    text-align: center;
+    padding: 8px 0px 7px 0px;
+  }
+  .purr-msg {
+    padding: 8px 0px 7px 0px;
+  }
 }
 
 .purr_danger {
-  border: solid 2px #791111;
-  background-color: rgba(217, 83, 79, 0.79);
-  // &:first-letter { text-transform: uppercase }; 
+  border: solid 1px #CA3B3B;
+  background-color: #F2DEDE;
+  color: #962A2A;
 }
 .purr_success {
-  border: solid 2px #177911;
-  background-color: rgba(79, 217, 109, 0.79);
+  border: solid 1px #177911;
+  background-color: #DFF0D8;
+  color: #2F7B0F;
 }
 .purr_warning { 
-  border: solid 2px #797611;
-  background-color: rgba(209, 212, 58, 0.79);
+  border: solid 1px #AB920F;
+  background-color: #FCF8E3;
+  color: #796912;
 }
 .purr_info {  
-  border: solid 2px #117957;
-  background-color: rgba(58, 212, 155, 0.79);
+  border: solid 1px #1B77A5;
+  background-color: #D9EDF7;
+  color: #155C80;
 }
 
 

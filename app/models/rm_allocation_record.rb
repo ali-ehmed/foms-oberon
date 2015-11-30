@@ -19,7 +19,7 @@
 #  no_of_days       :integer          default(0)
 #  percentage_alloc :float(24)
 #  LEAVES           :float(53)        default(0.0)
-#  task_notes       :string(500)
+#  task_notes       :text(4294967295)
 #
 
 class RmAllocationRecord < ActiveRecord::Base

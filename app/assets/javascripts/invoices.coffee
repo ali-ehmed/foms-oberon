@@ -135,6 +135,12 @@ $invoices =
           switch response.status
             when 'http_error_404' then swal 'Synchronization Stopped', '' + response.message, 'error'
             when 'error' then swal 'Synchronization Stopped', '' + response.message, 'error'
+            when 'synced_skiped'
+              swal
+                title: "Rates are missing for following employee(s):"
+                text: response.message
+                html: true
+                type: "warning"
             else
               swal
               	title: 'Synchronization Completed'
@@ -320,7 +326,7 @@ $invoices =
                 swal "#{response.message}", "Please contact your developer", "success"
               else
                 swal "Successfully", "#{response.message}", "success"
-                $invoices.submitInvoicePdfGenerateForm()
+                $invoices.submitInvoicePdfGenerateForm("#{response.invoice_created_date}")
             error: (response) ->
               swal 'Oops', 'Something went wrong'
   
@@ -347,11 +353,16 @@ $invoices =
         $invoice_no.next().empty().hide()
         false
 
-  submitInvoicePdfGenerateForm: ->
-    $("#invoices_pdf_generate_form").submit()
-    # $(document).on "submit", "#invoices_pdf_generate_form", (e) ->
-    #   e.preventDefault()
+  submitInvoicePdfGenerateForm: (invoice_created_date) ->
+    $form = $("#invoices_pdf_generate_form")
+    action = $form.attr("action")
+    action = "invoices/#{invoice_created_date}"
+    $form.attr "action", "#{action}"
+    $form.submit()
 
+window.isDate =  (val) ->
+    date = new Date(val);
+    return !isNaN date.valueOf() 
 
 window.syncInvoices = (elem, text = "") ->
 	$invoices.synchronizeInvoicesFromRm(elem, text)

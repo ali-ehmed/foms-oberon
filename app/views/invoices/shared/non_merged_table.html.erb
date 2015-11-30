@@ -16,11 +16,10 @@
 			<% index += 1 %>
 			<tr class="<%= index.odd? ? 'odd' : 'even' %>">
 				<td align="middle"><%= hourly_or_non_hourly(generated_invoice) %></td>
-				<td>
+				<td align="middle">
 					<strong><%= generated_invoice[:description][:full_name] %> - <%= generated_invoice[:description][:designation] %></strong>
 					<br />
 					Task Notes: <%= generated_invoice[:description][:task_notes] %>
-					<br />
 					Duration: <%= generated_invoice[:description][:duration] %>
 				</td>
 				<td align="middle"><%= generated_invoice_rates(generated_invoice) %></td>

@@ -30,7 +30,7 @@
 	<% end %>
 	<div class="row">
 		<div class="col-md-10">
-			<%= form_tag invoice_pdf_invoices_path(:invoice_sent_date => I18n.l(Date.today, format: :general_date)), method: :post, target: "_blank", id: "invoices_pdf_generate_form" do %>
+			<%= form_tag invoice_pdf_invoices_path(:invoice_created_date => ""), method: :get, target: "_blank", id: "invoices_pdf_generate_form" do %>
 				<div class="row">
 					<div class="col-md-3">
 						<label>Currency</label>
@@ -43,7 +43,7 @@
 					<div class="col-md-3">
 						<div class="form-group">
 							<label>Invoice Date</label>
-							<%= text_field :invoice_date, params[:invoice_date], class: "form-control", value: (l Date.today, format: :short_date), id: "invoice_date" %>
+							<%= text_field :invoice_sent_date, params[:invoice_sent_date], class: "form-control", value: (l Date.today, format: :short_date), id: "invoice_date" %>
 							<span class="invoice_error" style="display:none;"></span>
 						</div>
 					</div>

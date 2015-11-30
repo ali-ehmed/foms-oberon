@@ -176,10 +176,13 @@ class CurrentInvoice < ActiveRecord::Base
 
 	  def build_description(invoice, employee, options = {})
 	  	if invoice.blank?
+	  		# When Invoice blank
         if employee.blank?
           rate = Rate.get_max_rate(32).first
           temp_task = options[:ishourly] == "true" ? " : #{options[:task_notes]}" : ""
-          description = "#{options[:emp_name]} #{options[:temp_task]}"
+
+          # When Employee blank
+          description = "(#{options[:emp_name]}) #{options[:temp_task]}"
         else
           rate = Rate.get_max_rate(employee.Designation).first
           temp_desc = employee.designation.designation_name unless employee.designation.blank?
@@ -188,9 +191,14 @@ class CurrentInvoice < ActiveRecord::Base
 
           description = "#{temp_desc} (#{employee.full_name}) #{temp_task}" 
         end
-        amount, temp_rate = CurrentInvoice.get_amount_hourly(options[:ishourly], rate, options[:hours], options[:percent_billing], options[:no_of_days], options[:total_days])
 
+        unless rate.blank?
+        	amount, temp_rate = CurrentInvoice.get_amount_hourly(options[:ishourly], rate, options[:hours], options[:percent_billing], options[:no_of_days], options[:total_days])
+        else
+        	return :rate_nil
+        end
       else
+      	# When Invoice Present
         temp_rate = invoice.rates
 
         amount = CurrentInvoice.get_amount_non_hourly(options[:ishourly], invoice, options[:hours], options[:percent_billing], options[:no_of_days], options[:total_days])
@@ -199,7 +207,7 @@ class CurrentInvoice < ActiveRecord::Base
 
         temp_task = options[:ishourly] == "true" ? " : #{options[:task_notes]}" : ""
 
-        employee_name = employee.blank? ? options[:employee_name] : employee.full_name
+        employee_name = employee.blank? ? options[:emp_name] : employee.full_name
         description =  "#{description} (#{employee_name}) #{temp_task}"
       end
 

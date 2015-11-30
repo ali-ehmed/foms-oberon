@@ -39,6 +39,8 @@
 
 //= require underscore.min
 
+//= require bootstrap-notify
+
 //= require turbolinks
 //= require_tree .
 
@@ -47,7 +49,7 @@
   $.extend({
     purrAlert: function(text_value, options) {
       var settings;
-      var $purrAlert = $("#purrAlert");
+      var $purrAlert = $(".purrAlert");
 
       if (text_value == null) {
         text_value = '';
@@ -57,8 +59,8 @@
         $purrAlert.remove();
       }
 
-      $("body").prepend("<div id='purrAlert' class='purrAlert' style='display: none;'></div>");
-      var $new_purr = $("#purrAlert");
+      $("body").prepend('<div class="purrAlert" style="display:none;"><div class="row"><div class="col-md-2 col-xs-3 col-sm-2"><div class="purr-icon"><span><i class="glyphicon glyphicon-ok-sign"></i></span>  </div></div><div class="col-md-9 col-xs-9 col-sm-10"><div class="purr-msg"></div></div></div></div>');
+      var $new_purr = $(".purrAlert");
 
       settings = $.extend({
         html: false,
@@ -68,9 +70,9 @@
       }, options);
 
       if (settings.html === true) {
-        $new_purr.html(settings.text);
+        $new_purr.find(".purr-msg").html(settings.text);
       } else {
-        $new_purr.text(settings.text);
+        $new_purr.find(".purr-msg").text(settings.text);
       }
       
       if (settings.text_bold === true) {
@@ -82,19 +84,19 @@
       switch(settings.purr_type) {
         case "error":
           $new_purr.addClass("purr_danger");
-          $new_purr.prepend("<i class='fa fa-exclamation-triangle'></i> ");
+          $new_purr.find(".purr-icon span").html("<i class='fa fa-exclamation-triangle'></i> ");
           break;
         case "success":
           $new_purr.addClass("purr_success");
-          $new_purr.prepend("<i class='glyphicon glyphicon-ok-sign'></i> ");
+          $new_purr.find(".purr-icon span").html("<i class='glyphicon glyphicon-ok-sign'></i> ");
           break;
         case "warning":
           $new_purr.addClass("purr_warning");
-          $new_purr.prepend("<i class='fa fa-ban'></i> ");
+          $new_purr.find(".purr-icon span").html("<i class='fa fa-ban'></i> ");
           break;
         case "info":
           $new_purr.addClass("purr_info");
-          $new_purr.prepend("<i class='glyphicon glyphicon-info-sign'></i> ");
+          $new_purr.find(".purr-icon span").html("<i class='glyphicon glyphicon-info-sign'></i> ");
           break;
       }
 

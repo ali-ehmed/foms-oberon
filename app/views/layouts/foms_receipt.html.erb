@@ -8,13 +8,7 @@
   <body onload='number_pages'>
     <div class="header">
       <%= wicked_pdf_image_tag 'folio3-logo.png' %>
-      <div class="header-bottom"></div>
     </div>
-    <div id="content">
-      <p>
-        Folio3 Software Inc., c/o Kathy Chao, C. G. Uhlenberg LLP, 333 Twin Dolphin Drive, Suite 230, Redwood CIty, CA  94065
-      </p>
-      <%= yield %>
-    </div>
+    <%= yield %>
   </body>
 </html>
