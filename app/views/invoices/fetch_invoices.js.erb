@@ -12,6 +12,33 @@ $("#invoice_date").datepicker({
   return $(this).datepicker('hide');
 });
 
+
+$table = $("#invoices_table tbody");
+$rows = $table.find("tr")
+
+$.each($rows, function() {
+	$(this).find("td").each(function(){
+		if($(this).find("a").length) {
+			$(this).find("a").addClass("editable");
+		} else {
+			$(this).addClass("editable");
+		}
+	});
+});
+
+var tab_count = 0;
+$.each($rows, function(){
+	var elem;
+	elem = $(this).find(".editable")
+	elem.each(function(){
+		$(this).attr("tabindex", tab_count += 1)
+	});
+});
+
+
+
+
+
 // $.fn.editable.defaults.mode = 'popup';
 // $.fn.editable.defaults.ajaxOptions = {type: "PUT"};
 // $('#percent_allocation').editable();

@@ -122,7 +122,7 @@
 						<%= hidden_field_tag :is_hourly, invoice.ishourly, class: "is_hourly_params_#{count}" %>
 						<td></td>
 						<td class="<%= invoice_hours(invoice) %> hours_params_<%= count %>">
-							<%= editable_for(:hours, invoice) %>
+							<%= editable_for(:hours, invoice, count) %>
 						</td>
 						<td>
 							<%= invoice.percentage_alloc %>

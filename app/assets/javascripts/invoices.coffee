@@ -433,6 +433,12 @@ $invoices =
 
     window.old_no_of_days = total_no_of_days
 
+window.activateOnEnterKey = (event) ->
+  key = event.which || event.keyCode
+  if key == 13
+    $(event.target).find("span").trigger("click")
+    event.preventDefault();
+
 window.isDate =  (val) ->
     date = new Date(val);
     return !isNaN date.valueOf() 
@@ -538,7 +544,7 @@ window.updateAmount = (elem, field_name, count) ->
   else
     #Calculating Nonhourly Amount
     recalculateAmount = calculate.nonHourlyAmount($rates, $fields["percent_billing"].html(), $worked_days, $total_no_of_days.val(), $unpaid_leaves)
-    
+
     console.log "---updateAmount---"
     console.log $rates
     console.log $fields["percent_billing"].html()

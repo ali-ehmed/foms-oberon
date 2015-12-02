@@ -61,7 +61,7 @@ module InvoicesHelper
 			end
 		end
 
-		link_to "javascript:void(0);", onclick: "isShadowCompatibility(this, #{invoice.attributes.to_json});", style: "text-decoration: none;", data: { toggle: "tooltip", placement: "top" }, title: @title do
+		link_to "javascript:void(0);", onkeydown: "activateOnEnterKey(event);", onclick: "isShadowCompatibility(this, #{invoice.attributes.to_json});", style: "text-decoration: none;", data: { toggle: "tooltip", placement: "top" }, title: @title do
 
 			case field_name
 			when "rates".to_sym
@@ -124,12 +124,13 @@ module InvoicesHelper
 					ok_button = "<i class=\"fa fa-check\"></i>".html_safe
 					best_in_place invoice, :description, :as => :textarea, :path => invoice_path(invoice.id), 
 																	html_attrs: {:placeholder => "Description"}, 
-																	:inner_class => "form-control", 
-																	ok_button: "Save", 
-																	:ok_button_class => "btn btn-success btn-sm d_btn", 
-																	:cancel_button => "Cancel", 
-																	:cancel_button_class => "btn btn-sm btn-danger d_btn",
+																	:inner_class => "form-control",
 																	placeholder: "---"
+
+																	# ok_button: "Save", 
+																	# :ok_button_class => "btn btn-success btn-sm d_btn", 
+																	# :cancel_button => "Cancel", 
+																	# :cancel_button_class => "btn btn-sm btn-danger d_btn",
 				end
 			end
 		end
