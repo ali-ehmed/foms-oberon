@@ -40,6 +40,8 @@ class TotalInvoice < ActiveRecord::Base
   scope :get_invoices_for, -> (month, year, project_id) { where("month = ? and year = ? and project_id = ?", month, year, project_id) }
   scope :get_all_by_created_date, -> (created_on) { where("createdon = ? and is_shadow = false", "#{created_on}") }
 
+  scope :get_generated_dates, -> (month, year, pro_id) { where("month = ? and year = ? and project_id = ?", month, year, pro_id).group("createdon") }
+
   class << self
   	def get_selected_project_invoices(month, year, project_id)
   		@current_invoices = CurrentInvoice.get_invoices_for(month, year, project_id).order("ishourly desc")
@@ -47,7 +49,7 @@ class TotalInvoice < ActiveRecord::Base
   		@current_invoices
   	end
 
-  	def build_(params = {})
+  	def build_invoice(params = {})
   		new params
   	end
 
@@ -151,6 +153,10 @@ class TotalInvoice < ActiveRecord::Base
 
       desc
     end
+
+    def get_custom_invoices(month, year, project_id, created_on)
+      where("month = ? and year = ? and project_id = ? and createdon = ? and employee_id = ?", month, year, project_id, "#{created_on}", "N/A")
+    end
   end
 
   def get_emp_designation
@@ -169,7 +175,17 @@ class TotalInvoice < ActiveRecord::Base
     end
   end
 
+  def task_notes
+    if read_attribute(:employee_id) == "N/A"
+      read_attribute(:description)
+    else
+      read_attribute(:task_notes)
+    end
+  end
+
   def total_duration
-    "#{I18n.l(self.start_date, format: :short_date)} to #{I18n.l(self.end_date, format: :short_date)}"
+    if start_date and end_date
+      "#{I18n.l(self.start_date, format: :short_date)} to #{I18n.l(self.end_date, format: :short_date)}"
+    end
   end
 end

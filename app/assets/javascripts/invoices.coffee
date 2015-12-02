@@ -11,11 +11,13 @@ $invoices =
 
     return
 
-  getInvoiceNumber: ->
+  getInvoiceNumber: (params = "")->
     $input = $('input[name=\'no_of_days\']')
     url = $input.data('invoice-no-url')
-    $.get url, (response) ->
+    $.get url, params, (response) ->
       $input.val response.invoice_number
+      window.old_no_of_days = "#{response.invoice_number}" # Setting No of days for dynamic change of values
+      window.old_no_of_days_before_fetch = "#{response.invoice_number}" #Helper variable to prevent fetching of Invoice Number after every fetch btn trigger
       return
 
   getInvoiceParams: ->
@@ -69,14 +71,18 @@ $invoices =
               type: 'error'
               html: true
           else
-            console.log "Status OK"
+            console.log "Invoices Fetched"
+            ## Checking Resyncing Data ##
+            $invoices.get_resync_status($_params)
+
+            ## Getting Invoice Number ##
+            $invoices.getInvoiceNumber($_params) if $("#no_of_days").val() == window.old_no_of_days_before_fetch
           $elem.html($btn_html)
-        complete: ->
-          ## Checking Resyncing Data ##
-          $invoices.get_resync_status($_params)
         error: (response) ->
           swal 'oops', 'Something went wrong'
           $elem.html($btn_html)
+        complete: ->
+          window.old_no_of_days_before_fetch = window.old_no_of_days
 
   get_resync_status: (_params_) ->
     $.ajax
@@ -137,7 +143,7 @@ $invoices =
             when 'error' then swal 'Synchronization Stopped', '' + response.message, 'error'
             when 'synced_skiped'
               swal
-                title: "Rates are missing for following employee(s):"
+                title: "Rates are missing:"
                 text: response.message
                 html: true
                 type: "warning"
@@ -237,6 +243,7 @@ $invoices =
       if $this.closest("#inline_invoice_form").length
         row = $this.closest("#inline_invoice_form")
         row.remove()
+        $("#add_inline_invoice_btn").removeClass("btn btn-link disabled") #Enabling disabled link
 
   addCustomInvoiceForm: ->
     $(document).on "click", "#add_inline_invoice_btn", (e) ->
@@ -248,6 +255,7 @@ $invoices =
       $this = $(this)
       unless $("#inline_invoice_form").length
         $this.closest("#add_new_invoice").before("#{$invoices.getHtmlForNewInvoice}")
+        $this.addClass("btn btn-link disabled") #Disabling Link to avoid repetition
 
   savingCustomInvoice: ->
     $(document).on "click", "#save_added_invoice", (e) ->
@@ -274,6 +282,7 @@ $invoices =
         data: params
         cache: false
         beforeSend: ->
+          $this.addClass("btn btn-link disabled")
           swal
             title: '<i class=\"fa fa-spinner fa-pulse fa-3x\"></i>'
             text: "Saving Invoice"
@@ -285,6 +294,8 @@ $invoices =
           $invoices.submitFetching() #Submit Button
         error: (response) ->
           swal 'Oops', 'Something went wrong'
+        complete: ->
+          $this.removeClass("btn btn-link disabled")
 
   generatingTotalInvoices: ->
     $(document).on "click", "#generate_invoices", (e) ->
@@ -314,6 +325,7 @@ $invoices =
             url: $this.data("action")
             data: params
             cache: false
+            dataType: "json"
             beforeSend: ->
               swal
                 title: '<i class=\"fa fa-spinner fa-pulse fa-3x\"></i>'
@@ -323,12 +335,15 @@ $invoices =
                 showConfirmButton: false
             success: (response, data) ->
               if response.status == "error"
-                swal "#{response.message}", "Please contact your developer", "success"
+                swal "#{response.message}", "Please contact your developer", "error"
               else
                 swal "Successfully", "#{response.message}", "success"
                 $invoices.submitInvoicePdfGenerateForm("#{response.invoice_created_date}")
             error: (response) ->
               swal 'Oops', 'Something went wrong'
+            complete: ->
+              $("#fetch_invoices_btn").trigger("click")
+
   
   validateInvoiceNumber: ->
     $invoice_no = $("#invoice_no")
@@ -360,6 +375,64 @@ $invoices =
     $form.attr "action", "#{action}"
     $form.submit()
 
+  validateTotalNoOfDays: (input) ->
+    if input.val() == ""
+      $.purrAlert '',
+        html: true
+        text: "Total No Of Days Cannot be null"
+        text_bold: true
+
+      input.val(window.old_no_of_days)
+      return false
+
+    if input.val() > 31 or input.val() < 1
+      $.purrAlert '',
+        html: true
+        text: "Invalid No of Days"
+        text_bold: true
+      return false
+
+  getRecalculateFields: (count) ->
+    _fields_ = {
+      id: $(".id_params_#{count}").data("invoice-id")
+      description: $(".description_params_#{count} a span")
+      is_hourly: $(".is_hourly_params_#{count}")
+      rates: $(".rates_params_#{count} a span")
+      hours: $(".hours_params_#{count} a span")
+      percent_billing: $(".percent_billing_params_#{count} a span")
+      worked_days: $(".worked_days_#{count} a span")
+      unpaid_leaves: $(".unpaid_leaves_#{count} a span")
+      amount: $(".amount_params_#{count} a span")
+    }
+    _fields_
+
+  recalculate: (params, total_no_of_days, alert = false) ->
+    $table = $("#invoices_table")
+    if $table.length
+      $.ajax
+        type: "Put"
+        url: "/invoices/recalculate"
+        data: { invoice_params: params}
+        cache: false
+        dataType: "json"
+        success: (response, data) ->
+          console.log
+          setTimeout(->
+            $("#fetch_invoices_btn").trigger("click")
+            unless alert == false
+              $.purrAlert '',
+                html: true
+                text: "No of days changed all amounts are Recalculated"
+                text_bold: true
+                purr_type: "warning"
+          , 50)
+        error: (response) ->
+          swal 'Oops', 'Something went wrong'
+    else
+      $("#fetch_invoices_btn").trigger("click")
+
+    window.old_no_of_days = total_no_of_days
+
 window.isDate =  (val) ->
     date = new Date(val);
     return !isNaN date.valueOf() 
@@ -381,6 +454,157 @@ window.isShadowCompatibility = (elem, object) ->
         type: "error"
       return false
 
+window.recalculateAmount = (elem) ->
+  $this = $(elem)
+  $total_no_of_days = $this
+  calculate = new Calculations
+
+  unless $this.val() == window.old_no_of_days
+    count = 1
+    params = {}
+    current_invoices = []
+    while count <= $("#count_index_invoice").data("count-index")
+      $id = $(".id_params_#{count}").data("invoice-id")
+      $is_hourly = $(".is_hourly_params_#{count}")
+      $rates = $(".rates_params_#{count} a span")
+      $percent_billing = $(".percent_billing_params_#{count} a span")
+      $worked_days = $(".worked_days_#{count} a span")
+      $unpaid_leaves = $(".unpaid_leaves_#{count} a span")
+
+      $amount = $(".amount_params_#{count} a span")
+
+      if $amount.length
+        if $is_hourly.val() == "false"
+          if $rates.length
+            recalculateAmount = calculate.nonHourlyAmount($rates.html(), $percent_billing.html(), $worked_days.html(), $total_no_of_days.val(), $unpaid_leaves.html())
+            # recalculateAmount = ((parseFloat($rates.html()) * parseFloat($percent_billing.html())) / 100) * ((parseInt($worked_days.html()) / $total_no_of_days.val())) - (((parseFloat($unpaid_leaves.html()) * parseFloat($rates.html()) * parseFloat($percent_billing.html())) / 100) / $total_no_of_days.val())
+            $amount.html(recalculateAmount)
+
+        $roundAmount = Math.round(parseFloat($amount.html()) * 100) / 100
+        $amount.html($roundAmount)
+
+      params = {}
+      params["id"] = $id
+      params["amount"] = $roundAmount
+      current_invoices.push(params)
+
+      count++
+
+    $invoices.recalculate(current_invoices, $this.val(), true) #Updating
+
+window.updateAmount = (elem, field_name, count) ->
+  $total_no_of_days = $("#no_of_days")
+  calculate = new Calculations
+  
+  $invoices.validateTotalNoOfDays($total_no_of_days) #Validating No of Days Input
+
+  params = {}
+  current_invoices = []
+  
+  $fields = $invoices.getRecalculateFields(count)
+  $this = $(elem)
+
+  switch field_name
+    when 'rates'
+      console.log "For Rates"
+      $rates = $this.val()
+      $worked_days = $fields["worked_days"].html()
+      $unpaid_leaves = $fields["unpaid_leaves"].html()
+      $hours = $fields["hours"].html()
+    when "no_of_days"
+      console.log "For Days"
+      $rates = $fields["rates"].html()
+      $worked_days = $this.val()
+      $unpaid_leaves = $fields["unpaid_leaves"].html()
+      $hours = $fields["hours"].html()
+    when "unpaid_leaves"
+      console.log "For Leaves"
+      $rates = $fields["rates"].html()
+      $worked_days = $fields["worked_days"].html()
+      $unpaid_leaves = $this.val()
+      $hours = $fields["hours"].html()
+    when "hours"
+      console.log "For Hours"
+      $hours = $this.val()
+      $unpaid_leaves = $fields["unpaid_leaves"].html()
+      $worked_days = $fields["worked_days"].html()
+      $rates = $fields["rates"].html()
+
+  defaultRatesValue = parseFloat($rates)
+
+  if $fields["is_hourly"].val() == "true"
+    recalculateAmount = calculate.hourlyAmount($rates, $hours) #Calculating Hourly Amount
+    $fields["amount"].html(recalculateAmount)
+  else
+    #Calculating Nonhourly Amount
+    recalculateAmount = calculate.nonHourlyAmount($rates, $fields["percent_billing"].html(), $worked_days, $total_no_of_days.val(), $unpaid_leaves)
+    
+    console.log "---updateAmount---"
+    console.log $rates
+    console.log $fields["percent_billing"].html()
+    console.log $worked_days
+    console.log $unpaid_leaves
+
+    $fields["amount"].html(recalculateAmount)
+
+  $roundAmount = Math.round(parseFloat($fields["amount"].html()) * 100) / 100
+  $fields["amount"].html($roundAmount)
+
+  if $fields["description"].length
+    temp_description = $fields["description"].html().replace(String(defaultRatesValue), $fields["rates"].html())
+    $fields["description"].html(temp_description)
+
+  params = {}
+  params["id"] = $fields["id"]
+  params["description"] = temp_description
+  params["amount"] = $roundAmount
+  current_invoices.push(params)
+
+  $invoices.recalculate(current_invoices, $total_no_of_days.val(), false) #Updating
+
+window.updateRates = (elem, count) ->
+  $total_no_of_days = $("#no_of_days")
+  $amount = $(elem)
+  calculate = new Calculations
+
+  $invoices.validateTotalNoOfDays($total_no_of_days) #Validating No of Days Input
+
+  params = {}
+  current_invoices = []
+
+  $fields = $invoices.getRecalculateFields(count)
+
+  defaultRatesValue = parseFloat($fields["rates"].html())
+
+  if $fields["is_hourly"].val() == "true"
+    calculatedRates = calculate.hourlyRates($amount.val(), $fields["hours"].html()) #Calculating Hourly Rates
+    $fields["rates"].html(calculatedRates)
+  else
+    #Calculating Nonhourly Rates
+    calculatedRates = calculate.nonHourlyRates($amount.val(), $total_no_of_days.val(), $fields["worked_days"].html(), $fields["percent_billing"].html())
+    $fields["rates"].html(calculatedRates)
+    console.log "---updateRates---"
+    console.log calculatedRates
+  $roundedRates = Math.round(parseFloat($fields["rates"].html()) * 100) / 100
+  $fields["rates"].html($roundedRates)
+
+  if $fields["description"].length
+    temp_description = $fields["description"].html().replace(String(defaultRatesValue), $fields["rates"].html())
+    $fields["description"].html(temp_description)
+
+  params = {}
+  params["id"] = $fields["id"]
+  params["description"] = temp_description
+  params["rates"] = $roundedRates
+  current_invoices.push(params)
+
+  $invoices.recalculate(current_invoices, $total_no_of_days.val(), false) #Updating
+
+window.getCurrencyLabel = (elem) ->
+  $this = $(elem)
+  $("span.currency_label").html($this.val())
+
+
 $(document).on "page:change", ->
   ### Initializing Invoices Coffee Script ###
   $invoices.init() 
@@ -398,6 +622,9 @@ $(document).on "page:change", ->
     max: 31
     min: 0
     booster: true
+
+  $(".bootstrap-touchspin-down").attr("onclick", "recalculateAmount($('#no_of_days'));")
+  $(".bootstrap-touchspin-up").attr("onclick", "recalculateAmount($('#no_of_days'));")
   
   $('#invoice_month_year').datepicker(
       format: 'm - yyyy'

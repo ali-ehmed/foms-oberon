@@ -13,9 +13,6 @@
 		  	</h3>
   		</div>
   		<div class="col-md-6 col-xs-4">
-  			<%= link_to invoices_path, :class => 'pull-right', "data-toggle" => "tooltip", "data-placement" => "top", title: "Refresh" do %>
-					<i class="fa fa-refresh"></i>
-				<% end %>
   		</div>
   	</div>
   </div>
@@ -31,7 +28,7 @@
 				<blockquote>
 				  <label class="invoice_label">Total No Of Days:</label>
 				  <div class="invoice_input">
-				  	<%= text_field_tag :no_of_days, params[:no_of_days], class: "form-control", data: { invoice_no_url: invoice_number_invoices_path(format: :json) } %>
+				  	<%= text_field_tag :no_of_days, params[:no_of_days], class: "form-control", data: { invoice_no_url: invoice_number_invoices_path(format: :json) }, onblur: "recalculateAmount(this);" %>
 			  	</div>
 				  <div class="alert alert-danger" id="total_no_days_alert" style="display:none;">
 				  	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>

@@ -26,6 +26,7 @@ en:
     formats:
       short_time: "%H:%M"
       invoices_datetime: "%Y-%m-%d %H:%M:%S"
+      invoices_generated: "%b %d, %Y - %H:%M"
   date:
     formats:
       short_date: "%b %d, %Y"

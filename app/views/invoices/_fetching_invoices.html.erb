@@ -1,8 +1,40 @@
 <% if @current_invoices.present? %>
 	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-6">
 			<blockquote>
 				<h3><strong><%= @project_name %></strong></h3>
+			</blockquote>
+		</div>
+		<div class="col-md-6">
+			<blockquote class="blockquote-reverse">
+				<h3>
+					<div class="btn-group">
+					  <a href="#" class="btn btn-default">History of Generated Invoices</a>
+					  <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+					  <ul class="dropdown-menu">
+					  	<% if @invoices_generated_dates.present? %>
+						  	<% @invoices_generated_dates.each_with_index do |date, index| %>
+						    	<li>
+						    		<% index += 1 %>
+						    		<% created_date = I18n.l date.createdon, format: :invoices_datetime %>
+					    			<%= link_to invoice_pdf_invoices_path(created_date.to_s.split(" ").join("_")), target: "_blank" do %>
+					    				<%= I18n.l(date.createdon, format: :invoices_generated) %>
+					    				&nbsp;
+					    				<% if date.IsSent == true %>
+							    			<label class="label label-success">Sent to Customer</label>
+						    			<% end %>
+					    			<% end %>
+					    		</li>
+					    		<% unless index == @invoices_generated_dates.length %>
+					    			<li class="divider"></li>
+				    			<% end %>
+					    	<% end %>
+				    	<% else %>
+				    		<li><a href="#">There are invoice generated</a></li>
+				    	<% end %>
+					  </ul>
+					</div>
+				</h3>
 			</blockquote>
 		</div>
 	</div>
@@ -34,7 +66,7 @@
 				<div class="row">
 					<div class="col-md-3">
 						<label>Currency</label>
-						<%= select_tag :pkr_and_dollar, options_for_select(InvoicesHelper::Currency.map{|m| m}), class: "form-control" %>
+						<%= select_tag :pkr_and_dollar, options_for_select(InvoicesHelper::Currency.map{|m| m}), class: "form-control", onchange: "getCurrencyLabel(this);" %>
 					</div>
 					<div class="col-md-3">
 						<label>Payment Terms</label>
@@ -63,6 +95,7 @@
 	</div>
 	<br />
 	<div class="table-responsive">
+		<span id="count_index_invoice" data-count-index="<%= @current_invoices.length %>"></span>
 		<table class="table table-striped table-hover" id="invoices_table">
 			<thead>
 				<tr>
@@ -72,25 +105,49 @@
 					<th>$ Billing</th>
 					<th>No of Days Worked</th>
 					<th>Description</th>
-					<th>Rates (US$)</th>
+					<th>
+						Rates <span class="currency_label"><%= currency_label(@currency) %></span>
+					</th>
 					<th>Unpaid Leaves</th>
-					<th>Amount (US$)</th>
+					<th>
+						Amount <span class="currency_label"><%= currency_label(@currency) %></span>
+					</th>
 					<th>Reminder</th>
 				</tr>
 			</thead>
 			<tbody>
-				<% @current_invoices.each do |invoice| %>
-					<tr>
+				<% @current_invoices.each_with_index do |invoice, count| %>
+					<% count += 1 %>
+					<tr class="id_params_<%= count %>" data-invoice-id="<%= invoice.id %>">
+						<%= hidden_field_tag :is_hourly, invoice.ishourly, class: "is_hourly_params_#{count}" %>
 						<td></td>
-						<td class="<%= invoice_hours(invoice) %>"><%= editable_for(:hours, invoice) %></td>
-						<td><%= invoice.percentage_alloc %></td>
-						<td><%= editable_for(:billing, invoice) %></td>
-						<td><%= editable_for(:worked_days, invoice) %></td>
-						<td><%= editable_for(:description, invoice) %></td>
-						<td><%= editable_for(:rates, invoice) %></td>
-						<td><%= editable_for(:unpaid_leaves, invoice) %></td>
-						<td class="invoice_amount"><%= editable_for(:amount, invoice) %></td>
-						<td><%= editable_for(:reminder, invoice) %></td>
+						<td class="<%= invoice_hours(invoice) %> hours_params_<%= count %>">
+							<%= editable_for(:hours, invoice) %>
+						</td>
+						<td>
+							<%= invoice.percentage_alloc %>
+						</td>
+						<td class="percent_billing_params_<%= count %>">
+							<%= editable_for(:billing, invoice) %>
+						</td>
+						<td class="worked_days_<%= count %>">
+							<%= editable_for(:worked_days, invoice, count) %>
+						</td>
+						<td class="description_params_<%= count %>">
+							<%= editable_for(:description, invoice) %>
+						</td>
+						<td class="rates_params_<%= count %>">
+							<%= editable_for(:rates, invoice, count) %>
+						</td>
+						<td class="unpaid_leaves_<%= count %>">
+							<%= editable_for(:unpaid_leaves, invoice, count) %>
+						</td>
+						<td class="invoice_amount amount_params_<%= count %>">
+							<%= editable_for(:amount, invoice, count) %>
+						</td>
+						<td>
+							<%= editable_for(:reminder, invoice) %>
+						</td>
 					</tr>
 				<% end %>
 				<tr id="add_new_invoice">

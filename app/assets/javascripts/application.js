@@ -59,7 +59,7 @@
         $purrAlert.remove();
       }
 
-      $("body").prepend('<div class="purrAlert" style="display:none;"><div class="row"><div class="col-md-2 col-xs-3 col-sm-2"><div class="purr-icon"><span><i class="glyphicon glyphicon-ok-sign"></i></span>  </div></div><div class="col-md-9 col-xs-9 col-sm-10"><div class="purr-msg"></div></div></div></div>');
+      $("body").prepend('<div class="purrAlert" style="display:none;"><div class="row"><div class="col-md-2 col-xs-3 col-sm-2 purr-left"><div class="purr-icon"><span><i class="glyphicon glyphicon-ok-sign"></i></span>  </div></div><div class="col-md-9 col-xs-9 col-sm-10"><div class="purr-msg"></div></div></div></div>');
       var $new_purr = $(".purrAlert");
 
       settings = $.extend({

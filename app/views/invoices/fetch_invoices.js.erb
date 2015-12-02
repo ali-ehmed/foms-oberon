@@ -3,9 +3,15 @@ $("#fetched_invoices").hide().html("<%= escape_javascript(render 'fetching_invoi
 $(".best_in_place").best_in_place()
 $('[data-toggle="tooltip"]').tooltip()
 
+
+
 $("#invoice_date").datepicker({
   format: 'M d, yyyy',
   orientation: 'bottom left'
 }).on('changeDate', function(e) {
   return $(this).datepicker('hide');
 });
+
+// $.fn.editable.defaults.mode = 'popup';
+// $.fn.editable.defaults.ajaxOptions = {type: "PUT"};
+// $('#percent_allocation').editable();

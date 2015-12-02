@@ -7,6 +7,8 @@ module InvoicesHelper
 	end
 
 	def hourly_or_non_hourly(generated_invoice)
+		return "---" if generated_invoice[:hours].blank? or generated_invoice[:percent_billing].blank?
+
 		if generated_invoice[:ishourly] == true
 			pluralize(generated_invoice[:hours], 'hr')
 		else
@@ -15,6 +17,8 @@ module InvoicesHelper
 	end
 
 	def generated_invoice_rates(generated_invoice)
+		return "---" if generated_invoice[:hours].blank? or generated_invoice[:percent_billing].blank?
+
 		if generated_invoice[:ishourly] == true
 			rate_type = "hour"
 		else
@@ -24,7 +28,25 @@ module InvoicesHelper
 		"#{generated_invoice[:rates]} / #{rate_type}"
 	end
 
-	def editable_for(field_name, invoice)
+	def invoice_description(generated_invoice)
+		html = ""
+		html += "<strong>#{generated_invoice[:description][:full_name]} - #{generated_invoice[:description][:designation]}</strong>"
+		html += " - #{generated_invoice[:description][:task_notes]}" if generated_invoice[:description][:task_notes].present?
+		html += "<br />"
+		html += "#{generated_invoice[:description][:duration].blank? ? "---" : generated_invoice[:description][:duration]}"
+
+		html.html_safe
+	end
+
+	def currency_label(currency)
+		if currency == false
+			"PKR"
+		else
+			"US$"
+		end
+	end
+
+	def editable_for(field_name, invoice, count = "")
 
 		if invoice.IsAdjustment == false and invoice.IsShadow == true
 			@title = "This Record is not editable"
@@ -47,21 +69,21 @@ module InvoicesHelper
 					"#{invoice.rates}"
 				else
 					best_in_place invoice, :rates, :as => :input, :path => invoice_path(invoice.id), 
-																:inner_class => "form-control", placeholder: "---"
+																:inner_class => "form-control", placeholder: "---", html_attrs: { onchange: "updateAmount(this, 'rates', #{count});" }
 				end
 			when "unpaid_leaves".to_sym
 				if invoice.IsAdjustment == false and invoice.IsShadow == true
 					"#{invoice.unpaid_leaves}"
 				else
 					best_in_place invoice, :unpaid_leaves, :as => :input, :path => invoice_path(invoice.id), 
-																:inner_class => "form-control", placeholder: "---"
+																:inner_class => "form-control", placeholder: "---", html_attrs: { onchange: "updateAmount(this, 'unpaid_leaves', #{count});" }
 				end
 			when "amount".to_sym
 				if invoice.IsAdjustment == false and invoice.IsShadow == true
 					"#{invoice.amount}"
 				else
 					best_in_place invoice, :amount, :as => :input, :path => invoice_path(invoice.id), 
-																:inner_class => "form-control", placeholder: "---", html_attrs: { onchange: "calculateTotalData(this, 'amount');" }
+																:inner_class => "form-control", placeholder: "---", html_attrs: { onchange: "calculateTotalData(this, 'amount'); updateRates(this, #{count});" }
         end
 			when "reminder".to_sym
 				if invoice.IsAdjustment == false and invoice.IsShadow == true
@@ -76,7 +98,7 @@ module InvoicesHelper
 				else
 					if invoice.ishourly
 						best_in_place invoice, :hours, :as => :input, :path => invoice_path(invoice.id), 
-																		:inner_class => "form-control", placeholder: "---", html_attrs: { onchange: "calculateTotalData(this, 'hours');" }
+																		:inner_class => "form-control", placeholder: "---", html_attrs: { onchange: "calculateTotalData(this, 'hours'); updateAmount(this, 'hours', #{count});" }
 					else
 						"---"
 					end
@@ -93,7 +115,7 @@ module InvoicesHelper
 					"#{invoice.no_of_days}"
 				else
 					best_in_place invoice, :no_of_days, :as => :input, :path => invoice_path(invoice.id), 
-																		:inner_class => "form-control", placeholder: "---"
+																		:inner_class => "form-control", placeholder: "---", html_attrs: { onchange: "updateAmount(this, 'no_of_days', #{count});" }
 				end
 			when "description".to_sym
 				if invoice.IsAdjustment == false and invoice.IsShadow == true

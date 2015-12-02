@@ -20,7 +20,7 @@ class InvoicesController < ApplicationController
     }
 
     @invoice_created_date = generated_invoice_params[:created_date].split("_").join(" ")
-    
+
     @timestamp = @invoice_created_date
     @total_invoices = TotalInvoice.get_all_by_created_date(@invoice_created_date)
 
@@ -30,8 +30,8 @@ class InvoicesController < ApplicationController
     @customer_address = @project.customer_name.nil? ? "XYZ Road, ABC Town" : @project.customer_address
     @customer_email = @project.customer_personal_email.nil? ? "abc@example.com" : @project.customer_personal_email
 
-    @invoice_no = generated_invoice_params[:no].join
-    @invoice_date = generated_invoice_params[:sent_date].join.to_date
+    @invoice_no = generated_invoice_params[:no].nil? ? "N/A" : generated_invoice_params[:no].join
+    @invoice_date = generated_invoice_params[:sent_date].nil? ? Date.today : generated_invoice_params[:sent_date].join.to_date
     @payment_terms = generated_invoice_params[:payment_terms]
     @currency = generated_invoice_params[:currency]
 
@@ -153,8 +153,7 @@ class InvoicesController < ApplicationController
                     :designation => hourly.get_emp_designation,
                     :full_name => hourly.invoice_employee_full_name,
                     :duration => hourly.total_duration
-                  },
-                  :full_description => hourly.description
+                  }
                 }
               end
             end
@@ -185,8 +184,7 @@ class InvoicesController < ApplicationController
                     :designation => billing_emp.get_emp_designation,
                     :full_name => billing_emp.invoice_employee_full_name,
                     :duration => billing_emp.total_duration
-                  },
-                  :full_description => billing_emp.description
+                  }
                 }
               end
             end
@@ -216,8 +214,7 @@ class InvoicesController < ApplicationController
               :designation => billing_emp_desc[:designation],
               :full_name => billing_emp_desc[:full_name],
               :duration => billing_emp_desc[:date]
-            },
-            :full_description => @billing_employees.first.description
+            }
           }
           end
 
@@ -243,8 +240,7 @@ class InvoicesController < ApplicationController
               :designation => hourly_emp_desc[:designation],
               :full_name => hourly_emp_desc[:full_name],
               :duration => hourly_emp_desc[:date]
-            },
-            :full_description => @hourly_employees.first.description
+            }
           }
           end
 
@@ -290,13 +286,29 @@ class InvoicesController < ApplicationController
             :designation => employee.get_emp_designation,
             :full_name => employee.invoice_employee_full_name,
             :duration => employee.total_duration
-          },
-          :full_description => employee.description
+          }
         }
         @merged_invoices << fetched_attributes
       end
     end
 
+    @custom_added_invoices = TotalInvoice.get_custom_invoices(@total_invoices.first.month, @total_invoices.first.year, @project.project_id, @timestamp)
+    if @custom_added_invoices.count > 1
+      @custom_added_invoices.each do |invoice|
+        fetched_attributes = {
+          :project_id => invoice.project_id,
+          :employee_id => invoice.employee_id,
+          :month => invoice.month,
+          :year => invoice.year,
+          :amount => invoice.amount,
+          :createdon => @timestamp,
+          :description => {
+            :task_notes => invoice.description
+          }
+        }
+        @merged_invoices << fetched_attributes
+      end
+    end
     @processed_invoices = @merged_invoices.compact.reverse!
 
 
@@ -317,15 +329,15 @@ class InvoicesController < ApplicationController
   end
 
   def get_invoice_number
-  	@month = params[:month_year].present? ? params[:month_year].delete(' ').split("-").first : Date.today.month
-		@year = params[:month_year].present? ? params[:month_year].delete(' ').split("-").last : Date.today.year
+  	@month = params[:month] || Date.today.month
+		@year = params[:year] || Date.today.month
 		@project_id = ''
 		@project_id ||= params[:project_id]
 
   	record = ProjectInvoiceNumber.find_by_project_id_and_month_and_year(@project_id, @month, @year)
 
   	if record.nil?
-      @invoice_number = Time.days_in_month(@month, @year)
+      @invoice_number = Time.days_in_month(@month.to_i, @year.to_i)
     else
       @invoice_number = "#{record.invoice_no.to_s}, #{record.no_of_days.to_s}"
     end
@@ -505,7 +517,6 @@ class InvoicesController < ApplicationController
             :unpaid_leaves => unpaid_leaves,
             :leaves => leaves
           }
-          logger.debug "----------------------------------------------------------#{alloc_attribute[:task_notes]}"
           logger.debug "Creating Invoices"  
           CurrentInvoice.create(current_invoice_params)
         end
@@ -522,7 +533,9 @@ class InvoicesController < ApplicationController
       end
 
       if @error_msgs.present?
-        render :json => { status: :synced_skiped, message: @error_msgs.map { |msg| content_tag(:li, msg) }.join }
+        render :json => { status: :synced_skiped, message: "#{@error_msgs.map { |msg| content_tag(:li, msg) }.join} 
+                                                            Please set the rates for the following employee(s) and <strong>resync</strong> 
+                                                            #{content_tag(:a, 'Rates & Designation', href: rates_path)}" }
       else
         render :json => { status: :synced_all, message: @msg }
       end
@@ -541,23 +554,24 @@ class InvoicesController < ApplicationController
   def fetch_invoices
     @month = params[:month]
     @year = params[:year]
-    @project_id = nil || params[:invoice_project]
-    @employee_id = nil || params[:invoice_employee]
+    @project_id = params[:invoice_project]
+    @employee_id = params[:invoice_employee]
 
-    render :json => { status: :error, message: "Please Select Project" } and return unless @project_id.present?
+    render :json => { status: :error, message: "Please Select Project and Month" } and return unless @project_id.present? and @month.present?
 
     @project_name = RmProject.get_project_name(@project_id)
     @project_name ||= "---"
 
     @current_invoices = CurrentInvoice.get_invoices_for(@month, @year, @project_id, @employee_id).order("ishourly desc")
 
-    @total_hours = 0
-    @total_amount = 0
-
     @is_unregistered_employee = false
     @unregistered_employees = CurrentInvoice.unregistered_employees(@month, @year, @project_id)
 
     @is_unregistered_employee = true if @unregistered_employees.present?
+
+    # Getting total
+    @total_hours = 0
+    @total_amount = 0
 
     @current_invoices.each do |invoice|
       @total_hours += invoice.hours if invoice.ishourly
@@ -565,7 +579,18 @@ class InvoicesController < ApplicationController
     end
 
     @total_hours = @total_hours == 0 ? "---" : @total_hours
+    # End
 
+    # Listing generated dates
+    @invoices_generated_dates = TotalInvoice.get_generated_dates(@month, @year, @project_id)
+
+    # Getting currency
+    invoice_number = ProjectInvoiceNumber.find_by_project_id_and_month_and_year(@project_id, @month, @year)
+    unless invoice_number.blank?
+      @currency = invoice_number.IsCurrencyDollar
+      @payment_term = invoice_number.net_payment_term
+    end
+    # End
     respond_to do |format|
       format.js
     end
@@ -580,7 +605,8 @@ class InvoicesController < ApplicationController
       description: params[:description],
       add_less: add_less,
       amount: params[:amount],
-      :IsAdjustment => params[:is_adjustment]
+      :IsAdjustment => params[:is_adjustment],
+      employee_id: "N/A"
     }
 
     @invoice = CurrentInvoice.new(invoice_params)
@@ -601,6 +627,17 @@ class InvoicesController < ApplicationController
     end
   end
 
+  def recalculate
+    @invoices = params[:invoice_params].values
+    @invoices.each do |invoice|
+      current_invoice = CurrentInvoice.find(invoice['id'].to_i)
+      current_invoice.description = invoice["description"] if invoice["description"].present?
+      current_invoice.amount = invoice["amount"].to_f if invoice["amount"].present?
+      current_invoice.rates = invoice["rates"].to_f if invoice["rates"].present?
+      current_invoice.save
+    end
+    render :json => { status: :ok }
+  end
 
   def unregistered_employee
     get_params = {
@@ -622,7 +659,7 @@ class InvoicesController < ApplicationController
       @year = params[:year]
       @project_id = params[:invoice_project]
 
-      render :json => { status: :error, message: "Please Select Project" } and return if @project_id.blank?
+      # render :json => { status: :error, message: "Please Select Project and Month" } and return if @project_id.blank? or @month.blank?
 
       @rm_url_initialize = RmService.new
       @url = @rm_url_initialize.get_invoices_status(@project_id, @month.to_i, @year.to_i)
@@ -653,54 +690,59 @@ class InvoicesController < ApplicationController
         WHERE project_id = #{@project_id} AND month = #{@month} AND year = #{@year}"
       )
     end
-    
+
+    @invoices = Array.new
+    is_valid = false
+
     for current_invoice in current_invoices do
-      TotalInvoice.transaction do
-        begin
-          is_adjustment = current_invoice.IsAdjustment == nil ? 0 : 1
-          hours = current_invoice.ishourly == true ? current_invoice.hours : ""
+      is_adjustment = current_invoice.IsAdjustment == nil ? 0 : 1
+      hours = current_invoice.ishourly == true ? current_invoice.hours : ""
 
-          add_less = 1
-          add_less = current_invoice.add_less unless current_invoice.blank?
+      add_less = 1
+      add_less = current_invoice.add_less unless current_invoice.blank?
 
-          attriubutes = {
-            :project_id => @project_id,
-            :employee_id => current_invoice.employee_id,
-            :ishourly => current_invoice.ishourly,
-            :month => @month,
-            :year => @year,
-            :hours => hours,
-            :percentage_alloc => current_invoice.percentage_alloc,
-            :rates => current_invoice.rates || 0,
-            :unpaid_leaves => current_invoice.unpaid_leaves,
-            :amount => current_invoice.amount || 0,
-            :description => current_invoice.description || 0,
-            :percent_billing => current_invoice.percent_billing,
-            :createdon => @timestamps,
-            :IsAdjustment => is_adjustment,
-            :add_less => add_less,
-            :no_of_days => current_invoice.no_of_days,
-            :start_date => current_invoice.start_date,
-            :end_date => current_invoice.end_date,
-            :is_shadow => current_invoice.IsShadow
-          }
+      attributes = {
+        :project_id => @project_id,
+        :employee_id => current_invoice.employee_id,
+        :ishourly => current_invoice.ishourly,
+        :month => @month,
+        :year => @year,
+        :hours => hours,
+        :percentage_alloc => current_invoice.percentage_alloc,
+        :rates => current_invoice.rates || 0,
+        :unpaid_leaves => current_invoice.unpaid_leaves,
+        :amount => current_invoice.amount || 0,
+        :description => current_invoice.description || 0,
+        :percent_billing => current_invoice.percent_billing,
+        :createdon => @timestamps,
+        :IsAdjustment => is_adjustment,
+        :add_less => add_less,
+        :no_of_days => current_invoice.no_of_days,
+        :start_date => current_invoice.start_date,
+        :end_date => current_invoice.end_date,
+        :is_shadow => current_invoice.IsShadow
+      }
 
-          
-          generate_invoice = TotalInvoice.build_(attriubutes)
-          generate_invoice.save
-
-        rescue *[ActiveRecord::StatementInvalid, ActiveRecord::Rollback] => e
-          break
-          logger.debug "----ERROR: #{e.message}-----"
-          raise ActiveRecord::Rollback, "Problem occur while generating invoices"
-          render :json => { status: :error, message: "Problem occur while generating invoices" }
-        end
-      end 
+      @invoices.push attributes
     end
+
+    TotalInvoice.transaction do
+      begin
+        TotalInvoice.create @invoices
+      rescue *[ActiveRecord::StatementInvalid, ActiveRecord::Rollback] => e
+        logger.debug "----ERROR: #{e.message}-----"
+        raise ActiveRecord::Rollback, "Problem occur while generating invoices"
+        is_valid = true
+      end
+    end 
 
     project_name = RmProject.get_project_name(@project_id)
     respond_to do |format|
-      format.json { render :json => { status: :ok, invoice_created_date: @timestamps.split(" ").join("_"), message: "Invoices has been generated for #{project_name}" } }
+      if is_valid == false
+        format.json { render :json => { status: :ok, invoice_created_date: @timestamps.split(" ").join("_"), message: "Invoices has been generated for #{project_name}" } }
+      else
+        format.json { render :json => { status: :error, message: "Problem occur while generating invoices" } }
+      end
     end
   end
 

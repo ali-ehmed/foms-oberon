@@ -12,20 +12,17 @@
 		</tr>
 	</thead>
 	<tbody class="table-content">
-		<% @processed_invoices.each_with_index do |generated_invoice, index| %>
+		<% @total_invoices.each_with_index do |generated_invoice, index| %>
 			<% index += 1 %>
 			<tr class="<%= index.odd? ? 'odd' : 'even' %>">
 				<td align="middle"><%= hourly_or_non_hourly(generated_invoice) %></td>
 				<td align="middle">
-					<strong><%= generated_invoice[:description][:full_name] %> - <%= generated_invoice[:description][:designation] %></strong>
-					<br />
-					Task Notes: <%= generated_invoice[:description][:task_notes] %>
-					Duration: <%= generated_invoice[:description][:duration] %>
+					<%= generated_invoice.description %>
 				</td>
 				<td align="middle"><%= generated_invoice_rates(generated_invoice) %></td>
 				<td>
 					<span><%= @currency == "US$" ? "$" : @currency %></span>
-					<span class="pull-right"><%= number_to_currency(generated_invoice[:amount], :unit => "", :separator => ".", :delimiter => ",") %></span>
+					<span class="pull-right"><%= number_to_currency(generated_invoice.amount, :unit => "", :separator => ".", :delimiter => ",") %></span>
 				</td>
 			</tr>
 		<% end %>
