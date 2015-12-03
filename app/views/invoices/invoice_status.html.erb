@@ -1,0 +1,39 @@
+<blockquote class="page-heading">
+	<p>Invoice Status</p>
+</blockquote>
+
+<% if @invoices.present? %>
+	<div class="table-scrollable">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th align="middle">S.No</th>
+		      <th align="middle">ID</th>
+		      <th align="middle">Fetched</th>
+		      <th align="middle">Processed</th>
+		      <th align="middle">Unprocessed</th>
+		      <th align="middle">Month</th>
+		      <th align="middle">Year</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% count = ((params[:page] || 1).to_i - 1) * 20 %>
+		    <% @invoices.each_with_index do |invoice, i| %>
+		      <tr>
+		        <td align="middle"><%= (i +  1) + count %></td>
+		        <td align="middle"><%= invoice.project_id %></td>
+		        <td align="middle"><%= invoice_result(invoice, :fetch) %></td>
+		        <td align="middle" class="<%= invoice.is_processed? == :processed ? 'success' : '' %>"><%= invoice_result(invoice, :processed) %></td>
+		        <td align="middle" class="<%= invoice.is_unprocessed? == :unprocessed ? 'danger' : '' %>"><%= invoice_result(invoice, :unprocessed) %></td>
+		        <td align="middle"><%= I18n.t("date.abbr_month_names")[invoice.month.to_i] %></td>
+		        <td align="middle"><%= invoice.year %></td>
+		      </tr>
+		    <% end %>
+			</tbody>
+		</table>
+	</div>
+<% else %>
+	<div class="alert alert-danger">
+		No Invoices are present for <strong><%= "#{I18n.t("date.abbr_month_names")[@month.to_i]}, #{@year}" %></strong>
+	</div>
+<% end %>

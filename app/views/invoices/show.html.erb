@@ -18,7 +18,7 @@
 			</div>
 			<div class="col-md-6">
 				<blockquote class="blockquote-reverse">
-					<%= link_to invoice_pdf_invoices_path(invoice_no: @invoice_no.split(" "), invoice_sent_date: @invoice_date.to_s.split(" "), payment_terms: @payment_terms, currency: @currency, format: :pdf), method: :get, class: "btn btn-success" do %>
+					<%= link_to invoice_pdf_path(invoice_no: @invoice_no.split(" "), invoice_sent_date: @invoice_date.to_s.split(" "), payment_terms: @payment_terms, currency: @currency, format: :pdf), method: :get, class: "btn btn-success" do %>
 						Download PDF <i class="fa fa-file-pdf-o"></i>
 					<% end %>
 				</blockquote>

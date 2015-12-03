@@ -20,3 +20,6 @@ class window.Calculations
 	hourlyRates: (amount, hours) ->
 		recalculateRates = amount * parseFloat(hours)
 		recalculateRates
+
+	roundValues: (value) ->
+		return Math.round(parseFloat(value) * 100) / 100

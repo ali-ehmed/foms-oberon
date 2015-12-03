@@ -1,12 +1,11 @@
-<div class="page-header">
-	<h1>
+<blockquote class="page-heading">
+	<p>
 		Projects
 		<%= link_to "#", class: "btn btn-info pull-right sync_link", id: "sync_all_projects", "data-url" => sync_projects_projects_path do %>
 			<i class="glyphicon glyphicon-link"></i> Sync Projects from RM Tool
 		<% end %>
-	</h1>
-</div>
-
+	</p>
+</blockquote>
 <div class="table-responsive">
 	<table class="table table-striped table-hover rm_projects_table display responsive" width="100%" data-source="<%= projects_path(format: :json) %>"> 
 	  <thead>

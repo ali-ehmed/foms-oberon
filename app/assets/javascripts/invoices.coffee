@@ -27,7 +27,7 @@ $invoices =
     project_param = $("#invoice_projects").val()
 
     curr_date = new Date
-    get_curr_month = curr_date.getMonth()
+    get_curr_month = curr_date.getMonth() + 1 #Current Month
     get_curr_year = curr_date.getFullYear()
 
     month_param ?= get_curr_month
@@ -73,7 +73,7 @@ $invoices =
           else
             console.log "Invoices Fetched"
             ## Checking Resyncing Data ##
-            $invoices.get_resync_status($_params)
+            $invoices.resync_status($_params)
 
             ## Getting Invoice Number ##
             $invoices.getInvoiceNumber($_params) if $("#no_of_days").val() == window.old_no_of_days_before_fetch
@@ -84,7 +84,7 @@ $invoices =
         complete: ->
           window.old_no_of_days_before_fetch = window.old_no_of_days
 
-  get_resync_status: (_params_) ->
+  resync_status: (_params_) ->
     $.ajax
       type: "get"
       url: "/invoices/resync_status"
@@ -100,6 +100,8 @@ $invoices =
             html: true
         else if response.status == "error"
           swal 'Error Occur!', "#{response.message}", "error"
+        else if response.status == "null_records"
+          swal 'Resync not required!', "#{response.message}", "error"
         else
           console.log "Status false, no resync required"
       error: (response) ->
@@ -342,7 +344,7 @@ $invoices =
             error: (response) ->
               swal 'Oops', 'Something went wrong'
             complete: ->
-              $("#fetch_invoices_btn").trigger("click")
+              $invoices.submitFetching()
 
   
   validateInvoiceNumber: ->
@@ -418,7 +420,7 @@ $invoices =
         success: (response, data) ->
           console.log
           setTimeout(->
-            $("#fetch_invoices_btn").trigger("click")
+            $invoices.submitFetching()
             unless alert == false
               $.purrAlert '',
                 html: true
@@ -429,9 +431,13 @@ $invoices =
         error: (response) ->
           swal 'Oops', 'Something went wrong'
     else
-      $("#fetch_invoices_btn").trigger("click")
+      $invoices.submitFetching()
 
     window.old_no_of_days = total_no_of_days
+
+  daysInMonth: (month, year) ->
+    return new Date(year, month, 0).getDate();
+
 
 window.activateOnEnterKey = (event) ->
   key = event.which || event.keyCode
@@ -460,6 +466,11 @@ window.isShadowCompatibility = (elem, object) ->
         type: "error"
       return false
 
+## Recalculations ##
+
+# Note: ->
+# When fields are changed, Fetch Btn is triggered in order to refresh the div
+# This approach is used because "Best in place" gem does not provide support to get the changed value in span to the editable text box
 window.recalculateAmount = (elem) ->
   $this = $(elem)
   $total_no_of_days = $this
@@ -483,16 +494,16 @@ window.recalculateAmount = (elem) ->
         if $is_hourly.val() == "false"
           if $rates.length
             recalculateAmount = calculate.nonHourlyAmount($rates.html(), $percent_billing.html(), $worked_days.html(), $total_no_of_days.val(), $unpaid_leaves.html())
-            # recalculateAmount = ((parseFloat($rates.html()) * parseFloat($percent_billing.html())) / 100) * ((parseInt($worked_days.html()) / $total_no_of_days.val())) - (((parseFloat($unpaid_leaves.html()) * parseFloat($rates.html()) * parseFloat($percent_billing.html())) / 100) / $total_no_of_days.val())
             $amount.html(recalculateAmount)
 
-        $roundAmount = Math.round(parseFloat($amount.html()) * 100) / 100
+        $roundAmount = calculate.roundValues($amount.html())
+
         $amount.html($roundAmount)
 
-      params = {}
-      params["id"] = $id
-      params["amount"] = $roundAmount
-      current_invoices.push(params)
+        params = {}
+        params["id"] = $id
+        params["amount"] = $roundAmount
+        current_invoices.push(params)
 
       count++
 
@@ -553,7 +564,8 @@ window.updateAmount = (elem, field_name, count) ->
 
     $fields["amount"].html(recalculateAmount)
 
-  $roundAmount = Math.round(parseFloat($fields["amount"].html()) * 100) / 100
+  $roundAmount = calculate.roundValues($fields["amount"].html())
+  # Math.round(parseFloat() * 100) / 100
   $fields["amount"].html($roundAmount)
 
   if $fields["description"].length
@@ -589,9 +601,12 @@ window.updateRates = (elem, count) ->
     #Calculating Nonhourly Rates
     calculatedRates = calculate.nonHourlyRates($amount.val(), $total_no_of_days.val(), $fields["worked_days"].html(), $fields["percent_billing"].html())
     $fields["rates"].html(calculatedRates)
+
     console.log "---updateRates---"
     console.log calculatedRates
-  $roundedRates = Math.round(parseFloat($fields["rates"].html()) * 100) / 100
+
+  # Math.round(parseFloat($fields["rates"].html()) * 100) / 100
+  $roundedRates = calculate.roundValues($fields["rates"].html())
   $fields["rates"].html($roundedRates)
 
   if $fields["description"].length
@@ -610,11 +625,71 @@ window.getCurrencyLabel = (elem) ->
   $this = $(elem)
   $("span.currency_label").html($this.val())
 
+window.synchroniseBeforeCheckingStatus = (event) ->
+  $this = $(event.target)
+  currDate = new Date
+  getLastMonth = currDate.getMonth()
+  getCurrYear = currDate.getFullYear()
+  no_of_days_of_month = $invoices.daysInMonth(getLastMonth, getCurrYear)
+
+  _params = {
+    month: getLastMonth
+    year: getCurrYear
+    no_of_days: no_of_days_of_month
+  }
+  console.log currDate.getMonth()
+  swal {
+    title: "You need to synchronise before continue"
+    type: 'warning'
+    showCancelButton: true
+    confirmButtonColor: 'rgb(221, 107, 85) !important;'
+    confirmButtonText: 'Sure!'
+    closeOnConfirm: false
+  }, ->
+    $.ajax
+      type: $this.data('method')
+      url: $this.data('action')
+      dataType: 'json'
+      data: _params
+      cache: false
+      beforeSend: ->
+        swal
+          title: '<span class="fa fa-spinner fa-spin fa-3x"></span>'
+          text: '<h2>Synchronization is in progress</h2>'
+          html: true
+          showConfirmButton: false
+      success: (response, data) ->
+        switch response.status
+          when 'http_error_404' then swal 'Synchronization Stopped', '' + response.message, 'error'
+          when 'error' then swal 'Synchronization Stopped', '' + response.message, 'error'
+          when 'synced_skiped'
+            swal
+              title: "Rates are missing:"
+              text: response.message
+              html: true
+              type: "warning"
+          else
+            swal
+              title: 'Synchronization Completed'
+              text: "#{response.message}"
+              type: 'success'
+              html: true
+        setTimeout(->
+          window.location.replace "#{$this.data("redirect-url")}"
+        , 2000)
+        return
+      error: (response) ->
+        swal 'Oops', 'Something went wrong'
+        false
+        return
+
+
+## End ##
 
 $(document).on "page:change", ->
   ### Initializing Invoices Coffee Script ###
   $invoices.init() 
-
+  
   $("#invoice_projects").select2
     placeholder: "--Select Project--",
     allowClear: true

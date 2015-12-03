@@ -665,14 +665,32 @@ class InvoicesController < ApplicationController
       @url = @rm_url_initialize.get_invoices_status(@project_id, @month.to_i, @year.to_i)
       doc = Nokogiri::XML(open(@url))
       @status = doc.css("Status IsChanged")
-      if @status.text == "false"
-        render :json => { status: false }
+      @error = doc.css("Errors Error")
+      
+      logger.debug "---------------- >>Status: #{@status}"
+      logger.debug "---------------- >>Error: #{@error}"
+
+      if @status.present?
+        if @status.text == "false"
+          render :json => { status: false }
+        else
+          render :json => { status: true, message: "Please resynchronise this project's data." }
+        end
       else
-        render :json => { status: true, message: "Please resynchronise this project's data." }
+        render :json => { status: :null_records, message: "#{@error.text} in RM" }
       end
     rescue *OpenURI::HTTPError => error
       logger.debug "------------#{error}------------------"
       render :json => { status: :error, message: "There was a problem in RM Service. Please contact your developer" }
+    end
+  end
+
+  def invoice_status
+    @month = (Time.now.month - 1).to_s
+    @year = Time.now.year.to_s
+    @invoices = CurrentInvoice.get_invoice_status(@month, @year).paginate(:page => params[:page], :per_page => 10)
+    respond_to do |format|
+      format.html
     end
   end
 

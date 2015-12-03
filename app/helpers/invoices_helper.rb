@@ -46,6 +46,46 @@ module InvoicesHelper
 		end
 	end
 
+
+	def invoice_result(invoice, status)
+		case status
+		when "fetch".to_sym
+			if invoice.is_fetched? == "fetched".to_sym 
+				invoice.project_name
+			else 
+				"---"
+			end
+		when "processed".to_sym
+			if invoice.is_processed? == "processed".to_sym 
+				invoice.project_name
+			else 
+				"---"
+			end
+		when "unprocessed".to_sym
+			if invoice.is_unprocessed? == "unprocessed".to_sym 
+				invoice.project_name
+			else 
+				"---"
+			end
+		end
+	end
+
+	def fetched_invoice(invoice)
+		if invoice.is_fetched? == "fetched".to_sym 
+			invoice.project_name
+		else 
+			"---"
+		end
+	end
+
+	def fetched_invoice(invoice)
+		if invoice.is_fetched? == "fetched".to_sym 
+			invoice.project_name
+		else 
+			"---"
+		end
+	end
+
 	def editable_for(field_name, invoice, count = "")
 
 		if invoice.IsAdjustment == false and invoice.IsShadow == true

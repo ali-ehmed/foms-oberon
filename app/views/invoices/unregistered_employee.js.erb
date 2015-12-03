@@ -5,6 +5,7 @@ $("#employee_form").find("#new_employee_with_<%= @index %>").modal({
 	show: true,
 	backdrop: 'static'
 });
+
 $('#new_employee_with_<%= @index %>').on('shown.bs.modal', function(){
 	$this = $(this)
 	$this.find(".modal-body").hide().html("<%= escape_javascript(render 'employees/shared/form_inputs') %>").fadeIn(350)

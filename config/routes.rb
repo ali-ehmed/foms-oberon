@@ -8,10 +8,12 @@ Rails.application.routes.draw do
       get "new_employee" => "invoices#unregistered_employee"
       get "resync_status" => "invoices#resync_status"
       post "generate_invoices" => "invoices#generate_invoices", :as => :generate
-      get "/:invoice_created_date" => "invoices#show", :as => :invoice_pdf
       put "/recalculate" => "invoices#recalculate"
+      get "/status", to: "invoices#invoice_status"
     end
   end
+
+  match "invoices/:invoice_created_date" => "invoices#show", via: [:get, :pdf], :as => :invoice_pdf
 
   resources :employees, :only => [:create] do 
     collection do 

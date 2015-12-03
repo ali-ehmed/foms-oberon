@@ -11,13 +11,13 @@
 					<div class="btn-group">
 					  <a href="#" class="btn btn-default">History of Generated Invoices</a>
 					  <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
-					  <ul class="dropdown-menu">
+					  <ul class="dropdown-menu scrollable-dropdown">
 					  	<% if @invoices_generated_dates.present? %>
 						  	<% @invoices_generated_dates.each_with_index do |date, index| %>
 						    	<li>
 						    		<% index += 1 %>
 						    		<% created_date = I18n.l date.createdon, format: :invoices_datetime %>
-					    			<%= link_to invoice_pdf_invoices_path(created_date.to_s.split(" ").join("_")), target: "_blank" do %>
+					    			<%= link_to invoice_pdf_path(created_date.to_s.split(" ").join("_")), target: "_blank" do %>
 					    				<%= I18n.l(date.createdon, format: :invoices_generated) %>
 					    				&nbsp;
 					    				<% if date.IsSent == true %>
@@ -62,7 +62,7 @@
 	<% end %>
 	<div class="row">
 		<div class="col-md-10">
-			<%= form_tag invoice_pdf_invoices_path(:invoice_created_date => ""), method: :get, target: "_blank", id: "invoices_pdf_generate_form" do %>
+			<%= form_tag invoice_pdf_path(:invoice_created_date => ""), method: :get, target: "_blank", id: "invoices_pdf_generate_form" do %>
 				<div class="row">
 					<div class="col-md-3">
 						<label>Currency</label>

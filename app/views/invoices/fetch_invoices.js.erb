@@ -13,27 +13,27 @@ $("#invoice_date").datepicker({
 });
 
 
-$table = $("#invoices_table tbody");
-$rows = $table.find("tr")
+// $table = $("#invoices_table tbody");
+// $rows = $table.find("tr")
 
-$.each($rows, function() {
-	$(this).find("td").each(function(){
-		if($(this).find("a").length) {
-			$(this).find("a").addClass("editable");
-		} else {
-			$(this).addClass("editable");
-		}
-	});
-});
+// $.each($rows, function() {
+// 	$(this).find("td").each(function(){
+// 		if($(this).find("a").length) {
+// 			$(this).find("a").addClass("editable");
+// 		} else {
+// 			$(this).addClass("editable");
+// 		}
+// 	});
+// });
 
-var tab_count = 0;
-$.each($rows, function(){
-	var elem;
-	elem = $(this).find(".editable")
-	elem.each(function(){
-		$(this).attr("tabindex", tab_count += 1)
-	});
-});
+// var tab_count = 0;
+// $.each($rows, function(){
+// 	var elem;
+// 	elem = $(this).find(".editable")
+// 	elem.each(function(){
+// 		$(this).attr("tabindex", tab_count += 1)
+// 	});
+// });
 
 
 

@@ -1,3 +1,18 @@
+@mixin scrollable-height($height) {
+  height: $height;
+}
+
+@media(max-width:760px) {
+  .table-scrollable {
+    float: left;
+    width: 100%;
+    position: relative;
+    overflow-X: scroll;
+    @include scrollable-height(200px);
+  }
+}
+
+
 // HOME CSS
 .navbar-brand {
   padding-top: 5px !important;
@@ -9,6 +24,14 @@
 // Sync Button
 .sync_link {
   font-size: 15px !important;
+}
+
+blockquote.page-heading { 
+  margin-top: 40px; 
+  p { 
+    font-size: 45px; 
+    small { font-size: 15px; }
+  } 
 }
 
 main { 

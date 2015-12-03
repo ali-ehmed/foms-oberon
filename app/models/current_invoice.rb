@@ -69,6 +69,35 @@ class CurrentInvoice < ActiveRecord::Base
 		ishourly == true
 	end
 
+	def is_fetched?
+		fetched_invoice = CurrentInvoice.select("distinct project_id, project_name, month, year").where("month = ? and year = ? and project_id = ?", self.month, self.year, self.project_id)
+
+		return :fetched if fetched_invoice.present?
+		return :null
+	end
+
+	def is_processed?
+		processed_invoice = CurrentInvoice.find_by_sql("SELECT DISTINCT project_id, project_name, month, year
+				                FROM current_invoices INNER JOIN total_invoices 
+				                USING(project_id)
+				                WHERE month = #{self.month} and year = #{self.year} and
+				                project_id = #{self.project_id}")
+
+		
+		return :processed if processed_invoice.present?
+		return :null
+	end
+
+	def is_unprocessed?
+		ids = TotalInvoice.select("project_id")
+		unprocessed_invoice = CurrentInvoice.select("distinct project_id, project_name, month, year")
+																				.where("month = ? and year = ? and project_id = ? and project_id not in (?)", self.month, self.year, self.project_id, ids.map(&:project_id))
+
+		
+		return :unprocessed if unprocessed_invoice.present?
+		return :null
+	end
+
 	class << self
 
 		def leaves_caluclation(balanced_record, accrued_leaves, leaves)
@@ -149,6 +178,11 @@ class CurrentInvoice < ActiveRecord::Base
 
 	    business_days
 	  end
+
+	  # Checks the project's status if fetchec, prcocessed or unprocessed
+	  def get_invoice_status(month, year)
+	  	select("distinct project_id, project_name, month, year").where("month = ? and year = ?", month, year).order("project_id")
+		end
 
 	  def get_amount_hourly(is_hourly, rates, hours, percent_billing, no_of_days, total_no_days)
 
