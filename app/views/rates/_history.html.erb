@@ -22,10 +22,12 @@
                 <tr>
                   <td><%= rate.revision_date.strftime("%d %B, %Y") %></td>
                   <td>
-                    <a href="javascript:void(0);" class="text-info" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :team_based_rates, :as => :input, :path => rate_path(rate.id) %></a>
+                    <a href="javascript:void(0);" class="text-info" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :team_based_rates, :as => :input, 
+                                :inner_class => "form-control", :path => rate_path(rate.id) %></a>
                   </td>
                   <td>
-                    <a href="javascript:void(0);" class="text-info" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :hour_based_rates, :as => :input, :path => rate_path(rate.id) %></a>
+                    <a href="javascript:void(0);" class="text-info" data-toggle="tooltip" data-placement="top" title="Click to edit"><%= best_in_place rate, :hour_based_rates, :as => :input, 
+                                :inner_class => "form-control", :path => rate_path(rate.id) %></a>
                   </td>
                   <td>
                     <a href="javascript:void(0);" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="<%= rate.iscurrent ? 'Click to Active' : 'Click to Inactive' %>" onclick="sendRateId(this);" data-id="<%= rate.id %>" id="rateStatus_<%= rate.id %>">

@@ -142,6 +142,7 @@ module Reports
         	profit_or_loss = revenue - cost
         	total_profit_or_loss += profit_or_loss
         end
+        
         attributes = {
 	          :project_id => project_id,
 	          :project_name => history_data.css("ProjectName").text,
