@@ -689,9 +689,6 @@ class InvoicesController < ApplicationController
     @month = (Time.now.month - 1).to_s
     @year = Time.now.year.to_s
     @invoices = CurrentInvoice.get_invoice_status(@month, @year).paginate(:page => params[:page], :per_page => 10)
-    respond_to do |format|
-      format.html
-    end
   end
 
   def generate_invoices

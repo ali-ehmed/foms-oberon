@@ -32,6 +32,7 @@
 			</tbody>
 		</table>
 	</div>
+	<%= will_paginate @invoices, renderer: BootstrapPagination::Rails %>
 <% else %>
 	<div class="alert alert-danger">
 		No Invoices are present for <strong><%= "#{I18n.t("date.abbr_month_names")[@month.to_i]}, #{@year}" %></strong>

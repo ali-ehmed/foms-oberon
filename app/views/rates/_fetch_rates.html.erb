@@ -35,19 +35,7 @@
 		</div>	
 	<% else %>
 		<div class="alert alert-danger">
-			<%# if params[:revision_date].blank? and Rate.count > 0 %>
-
-				<!-- <strong>Please Select Date</strong> -->
-
-			<%# elsif @rates.blank? and params[:revision_date].present? %>
-
-				<!-- <strong><%#= "No rates present for #{params[:revision_date]}" %></strong> -->
-
-			<%# else %>
-
-				<strong><%= "There are no Rates Present. Sync Designations." %></strong>
-
-			<%# end %>
+			<strong><%= "There are no Rates Present. Sync Designations." %></strong>
 		</div>
 	<% end %>
 </div>
