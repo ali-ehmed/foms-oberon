@@ -1,0 +1,49 @@
+<div id="profitability-report">
+  <% if @emp_profitability_reports.present? %>
+    <div id="prof_report_dollar_rate">
+      <blockquote></blockquote>
+    </div>
+  	<div class="table-responsive">
+  		<table  class="table table-hover table-striped prof_report_table">
+        <thead>
+          <tr>
+            <th>Emp ID</th>
+            <th>Emp Name</th>
+            <!-- <th>Billing (%)</th>
+            <th>Hours</th>
+            <th>(%) Alloc</th> -->
+            <th>OE ($)</th>
+            <th>Compensation ($)</th>
+            <th>Total ($)</th>
+            <th>Invoice Amount ($)</th>
+            <th>Profit ($)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @emp_profitability_reports.each do |report| %>
+            <tr>
+            	<td><%= report.employee_id %></td>
+              <td><%= report.employee_name %></td>
+              <!-- <td><%#= report.allocation_percentage %></td>
+              <td><%#= report.billing_percentage %></td>
+              <td><%#= report.hours_spent %></td> -->
+              <td><%= report.operational_expense %></td>
+              <td><%= report.compensation %></td>
+              <td><%= report.total %></td>
+              <td><%= report.invoice_amount %></td>
+              <td><%= report.profit %></td>
+            </tr>
+          <% end %>
+      	</tbody>
+    	</table>
+    </div>
+  <% elsif @emp_profitability_reports.nil? %>
+    <div class="alert alert-danger">
+      <blockquote style="margin:0;">No Employee Report Present.</blockquote>
+    </div>
+  <% elsif @emp_profitability_reports.count == 0 %>
+  	<div class="alert alert-danger">
+      <blockquote style="margin:0;">No Employee Report Present. Payroll for this month  and year is not created</blockquote>
+    </div>
+  <% end %>
+</div>

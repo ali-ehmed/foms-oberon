@@ -48,6 +48,8 @@ class Employee::Employeepersonaldetail < ActiveRecord::Base
 
 	after_initialize :default_values
 
+	scope :inactive, -> { where("isInactive = 0") }
+
 	before_create :generate_new_employee_id
 	after_create :update_invoice, :updating_qualifications_family_details
 

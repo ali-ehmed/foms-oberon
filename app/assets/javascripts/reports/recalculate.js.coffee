@@ -45,7 +45,7 @@ recalculateReports = ->
             date_input.closest(".form-group").removeClass("has-error")
             date_input.val('')
           else
-            swal 'Please Check the following error', response.error_message, 'error'
+            swal 'Please Check the following error', response.message, 'error'
         error: (response) ->
           swal 'oops', 'Something went wrong'
       )

@@ -6,9 +6,15 @@ module Reports
 				@year = params[:month_year].delete(' ').split("-").last
 			end
 
-			@profitability_reports = ProfitabilityReport.where("month = ? and year = ?", @month, @year)	
+			if params[:profit_report] == "true"
+				@profitability_reports = ProfitabilityReport.where("month = ? and year = ?", @month, @year)	
+			else
+				@emp_profitability_reports = Employee::EmployeeProfitibilityReport.where("month = ? and year = ?", @month, @year).order("employee_name")
+			end
 
 			@profitability_reports ||= []
+			emp_profitability_reports ||= nil
+
 			@dollar_rate = DollarRates.find_by_month_and_year(@month, @year)
 			
 			respond_to do |format|

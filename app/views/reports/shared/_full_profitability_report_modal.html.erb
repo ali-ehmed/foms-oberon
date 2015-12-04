@@ -6,7 +6,36 @@
         <h4 class="modal-title">Full Profitability Report</h4>
       </div>
       <div class="modal-body">
-        <div id="full_prof_report"></div>
+        <div class="row">
+          <div class="col-md-6">
+            <%= form_tag reports_profitability_reports_path(format: :js), method: :get, id: "report_search" do %>
+              <p>
+                <label>Search Report By Month:</label>
+                <%= text_field_tag :month_year, params[:month_year], id: "report_month_year", class: "form-control", placeholder: "Select Date" %>
+              </p>
+              <p><%= submit_tag 'Search', :class => 'btn btn-danger', id: "getReports" %></p>
+            <% end %>
+          </div>
+        </div>
+        <hr />
+        <ul class="nav nav-tabs" role="tablist" id="reports_tab">
+          <li role="presentation" class="active">
+            <%= link_to "Projects Reports", "#projects_reports_tab", "aria-controls" => "projects_reports_tab", role: "tab", "data-toggle" => "tab" %>
+          </li>
+          <li role="presentation">
+            <%= link_to "Employees Reports", "#employee_reports_tab", "aria-controls" => "employee_reports_tab", role: "tab", "data-toggle" => "tab" %>
+          </li>
+        </ul>
+        <br /><br />
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane fade in active" id="projects_reports_tab">
+
+            <div class="projects_reports"></div>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="employee_reports_tab">
+            <div class="employees_reports"></div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="clear_prof_report_section">Close</button>

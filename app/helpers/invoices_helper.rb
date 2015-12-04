@@ -7,7 +7,7 @@ module InvoicesHelper
 	end
 
 	def hourly_or_non_hourly(generated_invoice)
-		return "---" if generated_invoice[:hours].blank? or generated_invoice[:percent_billing].blank?
+		return "---" if generated_invoice[:hours].blank? and generated_invoice[:percent_billing].blank?
 
 		if generated_invoice[:ishourly] == true
 			pluralize(generated_invoice[:hours], 'hr')
@@ -17,7 +17,7 @@ module InvoicesHelper
 	end
 
 	def generated_invoice_rates(generated_invoice)
-		return "---" if generated_invoice[:hours].blank? or generated_invoice[:percent_billing].blank?
+		return "---" if generated_invoice[:hours].blank? and generated_invoice[:percent_billing].blank?
 
 		if generated_invoice[:ishourly] == true
 			rate_type = "hour"

@@ -65,4 +65,4 @@
 .save_invoice_btn { margin: 50% 0px; }
 .remove_invoice_btn { margin: 100% 0px; }
 
-.scrollable-dropdown { height: 240px; overflow-x: scroll; }
+.scrollable-dropdown { max-height: 240px; overflow-x: scroll; }

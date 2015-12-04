@@ -149,6 +149,7 @@ $invoices =
                 text: response.message
                 html: true
                 type: "warning"
+              $invoices.submitFetching() if $this.data("isproject") == true #Submit Button
             else
               swal
               	title: 'Synchronization Completed'
@@ -293,7 +294,9 @@ $invoices =
             showConfirmButton: false
         success: (response, data) ->
           swal "Saved Successfully", "", "success"
-          $invoices.submitFetching() #Submit Button
+          setTimeout( ->
+            $invoices.submitFetching() #Submit Button
+          , 100)
         error: (response) ->
           swal 'Oops', 'Something went wrong'
         complete: ->

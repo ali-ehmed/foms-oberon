@@ -51,91 +51,88 @@ class ProfitabilityReport < ActiveRecord::Base
 																								.group("designation_id") 
 																								}
 
-	def self.calculate_profitability_report(month, year)
+	def self.calculate_profitability_report(month, year, dollar_rate)
 		@month = month
 		@year = year
+		@dollar_rate = dollar_rate
 
-		@dollar_rate = DollarRates.find_by_month_and_year(@month, @year)
+		# Destroy Old Profit Report
+		where("month = ? and year = ?", @month, @year).destroy_all
+
 		@employees = Employee::Employeepersonaldetail.is_inactive_or_consultant_employees
 
-		if !@employees.blank?
-			for employee in @employees
-				@invoices = TotalInvoice.where("month = ? and year = ? and isSent = 1 and ABS(employee_id) = ?", @month, @year, employee.EmployeeID.to_i.abs)
-				@invoices.each do |invoice|
-					unless invoice.blank?
-						logger.debug "Employee: #{employee.EmployeeID} Inv = #{invoice.id} Consultant = #{employee.isConsultant}"
+		for employee in @employees
+			@invoices = TotalInvoice.where("month = ? and year = ? and isSent = 1 and ABS(employee_id) = ?", @month, @year, employee.EmployeeID.to_i.abs)
+			@invoices.each do |invoice|
+				unless invoice.blank?
+					logger.debug "Employee: #{employee.EmployeeID} Inv = #{invoice.id} Consultant = #{employee.isConsultant}"
 
-						rm_project = RmProject.find_by_project_id(invoice.project_id)
+					rm_project = RmProject.find_by_project_id(invoice.project_id)
 
-						emp_profitability_report = Employee::EmployeeProfitibilityReport.find_by_employee_id_and_month_and_year("#{employee.EmployeeID}", @month, @year)
+					emp_profitability_report = Employee::EmployeeProfitibilityReport.find_by_employee_id_and_month_and_year("#{employee.EmployeeID}", @month, @year)
 
-	          operational_expense_variable = Variable.find_by_VariableName("OperationalExpense").Value.to_f
-	          division = Division.find_by_div_owner("#{rm_project.director_name}")
+          operational_expense_variable = Variable.find_by_VariableName("OperationalExpense").Value.to_f
+          division = Division.find_by_div_owner("#{rm_project.director_name}")
 
-	          div_id = division.id unless division.blank?
-	          cogs = 0
-	          operational_expense = 0
+          div_id = division.id unless division.blank?
+          cogs = 0
+          operational_expense = 0
 
-	          unless invoice.percentage_alloc.nil?
-	            if employee.isConsultant == true
-	            	consultant = employee.consultants.find_by_month_and_year(@month, @year)
+          unless invoice.percentage_alloc.nil?
+            if employee.isConsultant == true
+            	consultant = employee.consultants.find_by_month_and_year(@month, @year)
 
-	            	if consultant.present?
-	              	cogs = consultant.cogs / @dollar_rate.dollar_rate 
-	              else
-	              	logger.debug "consultant not found"
-	              	next
-	              end
-	              
-	              operational_expense = consultant.opex / @dollar_rate.dollar_rate
-	            else
+            	if consultant.present?
+              	cogs = consultant.cogs / @dollar_rate 
+              else
+              	logger.debug "consultant not found"
+              	next
+              end
+              
+              operational_expense = consultant.opex / @dollar_rate
+            else
 
-	            	if !emp_profitability_report.nil?
-	              	cogs = (((invoice.percentage_alloc / 100 / Time.local(@year, @month).to_date.end_of_month.day.to_i) * invoice.no_of_days.to_f) * emp_profitability_report.compensation)
-	              else
-	              	logger.debug "emp_profitability_report not found"
-	              	next
-	              end
+            	if !emp_profitability_report.nil?
+              	cogs = (((invoice.percentage_alloc / 100 / Time.local(@year, @month).to_date.end_of_month.day.to_i) * invoice.no_of_days.to_f) * emp_profitability_report.compensation)
+              else
+              	logger.debug "emp_profitability_report not found"
+              	next
+              end
 
-	              operational_expense = ((invoice.percentage_alloc / 100 / Time.local(@year, @month).to_date.end_of_month.day.to_i) * invoice.no_of_days.to_f * operational_expense_variable / @dollar_rate.dollar_rate)
-	            end
-	          end
+              operational_expense = ((invoice.percentage_alloc / 100 / Time.local(@year, @month).to_date.end_of_month.day.to_i) * invoice.no_of_days.to_f * operational_expense_variable / @dollar_rate)
+            end
+          end
 
-	          unless invoice.percentage_alloc.blank?
-	          	invoice_percent_allocation = (invoice.percentage_alloc / 100 / Time.local(year, month).end_of_month.day.to_i) * invoice.no_of_days.to_i 
-          	else
-          		logger.debug "invoice percentage_alloc not found"
-          		next
-          	end
-	          
-	          profit = invoice.try(:amount) - cogs - operational_expense
+          unless invoice.percentage_alloc.blank?
+          	invoice_percent_allocation = (invoice.percentage_alloc / 100 / Time.local(year, month).end_of_month.day.to_i) * invoice.no_of_days.to_i 
+        	else
+        		logger.debug "invoice percentage_alloc not found"
+        		next
+        	end
+          
+          profit = invoice.try(:amount) - cogs - operational_expense
 
-	          attributes = {
-	            :div_id => div_id,
-	            :project_id => rm_project.project_id,
-	            :employee_id => employee.EmployeeID,
-	            :designation_id => employee.Designation,
-	            :month => @month,
-	            :year => @year,
-	            :invoice_amount => invoice.amount,
-	            :percentage_allocation => invoice_percent_allocation,
-	            :no_of_days => invoice.no_of_days,
-	            :cogs => cogs,
-	            :operational_exp => operational_expense,
-	            :profit => profit
-	          }
+          attributes = {
+            :div_id => div_id,
+            :project_id => rm_project.project_id,
+            :employee_id => employee.EmployeeID,
+            :designation_id => employee.Designation,
+            :month => @month,
+            :year => @year,
+            :invoice_amount => invoice.amount,
+            :percentage_allocation => invoice_percent_allocation,
+            :no_of_days => invoice.no_of_days,
+            :cogs => cogs,
+            :operational_exp => operational_expense,
+            :profit => profit
+          }
 
-	          create(attributes)
-	        end
-	      end
-			end
-			logger.debug "Count: #{ProfitabilityReport.count}"
-
-			return :created, @dollar_rate.dollar_rate
-		else
-			@msg = "Employees are not found"
-    	return :error, @msg
+          building = create(attributes)
+          logger.debug "Calculating Profitability Report: -> #{building.inspect}"
+        end
+      end
 		end
+		logger.debug "Count: #{ProfitabilityReport.count}"
 	end
 
 	def div_name

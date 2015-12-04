@@ -245,14 +245,14 @@ class CurrentInvoice < ActiveRecord::Base
         description =  "#{description} (#{employee_name}) #{temp_task}"
       end
 
-      if options[:no_of_days].to_i < Time.days_in_month(options[:month].to_i, options[:year].to_i).to_i  and options[:ishourly] == "false"
+      # if options[:no_of_days].to_i < Time.days_in_month(options[:month].to_i, options[:year].to_i).to_i and options[:ishourly] == "false"
     	 	description = "#{description} ( "
     	 	description += "#{options[:start_date].to_datetime.strftime("%b").upcase} "
     	 	description += "#{options[:start_date].to_datetime.strftime("%d").upcase} "
     	 	description += "to "
     	 	description += "#{options[:end_date].to_datetime.strftime("%b").upcase} "
     	 	description += "#{options[:end_date].to_datetime.strftime("%d").upcase} )"
-      end
+      # end
 
       return description, amount, temp_rate
 	  end

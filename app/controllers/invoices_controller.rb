@@ -473,7 +473,7 @@ class InvoicesController < ApplicationController
           description, amount, rate = CurrentInvoice.build_description(current_invoice, employee, description_params) 
 
           if description == "rate_nil".to_sym
-            @error_msgs.push("#{employee.full_name}") and next
+            @error_msgs.push({ emp_name: "#{employee.full_name}"}) and next
           end
           temp_days = if @total_days.blank? then Time.days_in_month(@month.to_i, @year.to_i).to_i else @total_days.to_f end
 
@@ -533,7 +533,7 @@ class InvoicesController < ApplicationController
       end
 
       if @error_msgs.present?
-        render :json => { status: :synced_skiped, message: "#{@error_msgs.map { |msg| content_tag(:li, msg) }.join} 
+        render :json => { status: :synced_skiped, message: "#{@error_msgs.group_by {|f| f[:emp_name]}.keys.map{|msg| content_tag(:li, msg)}.join }
                                                             Please set the rates for the following employee(s) and <strong>resync</strong> 
                                                             #{content_tag(:a, 'Rates & Designation', href: rates_path)}" }
       else
@@ -546,7 +546,7 @@ class InvoicesController < ApplicationController
       if error.message == '404 Not Found'
         render :json => { status: :http_error_404, message: "There was something wrong in fetching records from RM Tool. Please Contact your developer" }
       else
-        render :json => { status: :error, message: "Something went wrong Unfortunately. Please Contact your developer" }
+        render :json => { status: :error, message: "Something went wrong Unfortunately." }
       end
     end
   end

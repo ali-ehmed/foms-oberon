@@ -1,15 +1,3 @@
-<div class="row">
-  <div class="col-md-6">
-    <%= form_tag reports_profitability_reports_path(format: :js), method: :get, id: "report_search" do %>
-      <p>
-        <label>Search Report By Month:</label>
-        <%= text_field_tag :month_year, params[:month_year], id: "report_month_year", class: "form-control", placeholder: "Select Date" %>
-      </p>
-      <p><%= submit_tag 'Search', :class => 'btn btn-danger' %></p>
-    <% end %>
-  </div>
-</div>
-<hr />
 <div id="profitability-report">
   <% if @profitability_reports.present? %>
     <div id="prof_report_dollar_rate">
@@ -51,7 +39,7 @@
     </div>
   <% else %>
     <div class="alert alert-danger">
-      <blockquote style="margin:0;">No Report Present</blockquote>
+      <blockquote style="margin:0;">No Project Report Present</blockquote>
     </div>
   <% end %>
 </div>
