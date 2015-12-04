@@ -37,13 +37,9 @@
       	</tbody>
     	</table>
     </div>
-  <% elsif @emp_profitability_reports.nil? %>
-    <div class="alert alert-danger">
-      <blockquote style="margin:0;">No Employee Report Present.</blockquote>
-    </div>
-  <% elsif @emp_profitability_reports.count == 0 %>
+  <% else %>
   	<div class="alert alert-danger">
-      <blockquote style="margin:0;">No Employee Report Present. Payroll for this month  and year is not created</blockquote>
+      <blockquote style="margin:0;">No Employee Report Present.</blockquote>
     </div>
   <% end %>
 </div>
