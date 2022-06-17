@@ -7,11 +7,11 @@ GIT
       railties (>= 3.1)
 
 GIT
-  remote: git://github.com/rweng/jquery-datatables-rails.git
-  revision: 9eee0a1975b5a22e50bdc73fcca7db7f8a12c143
+  remote: https://github.com/rweng/jquery-datatables-rails.git
+  revision: d486b31b192a2924b1913e080ad23460e6b96d31
   branch: master
   specs:
-    jquery-datatables-rails (3.3.0)
+    jquery-datatables-rails (3.4.0)
       actionpack (>= 3.1)
       jquery-rails
       railties (>= 3.1)
@@ -90,6 +90,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.9.1.1)
+    concurrent-ruby (1.1.10)
     daemons (1.2.3)
     debug_inspector (0.0.2)
     devise (3.5.2)
@@ -108,7 +109,8 @@ GEM
       sass (>= 3.2)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
-    i18n (0.7.0)
+    i18n (0.9.5)
+      concurrent-ruby (~> 1.0)
     jbuilder (2.3.2)
       activesupport (>= 3.0.0, < 5)
       multi_json (~> 1.2)
